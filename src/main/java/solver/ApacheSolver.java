@@ -11,8 +11,6 @@ import org.apache.commons.math3.optimization.linear.SimplexSolver;
 public class ApacheSolver {
 
     public PointValue solve(Problem P){
-        System.out.println(P);
-
         ApacheProblem aP = new ApacheProblem(P);
         SimplexSolver solver = new SimplexSolver();
         PointValuePair pair = solver.optimize(
@@ -20,7 +18,6 @@ public class ApacheSolver {
                 aP.get_constraints(),
                 aP.get_goalType(),
                 false );
-
         return new PointValue(aP.get_unknowns(),pair.getPoint(),pair.getValue());
     }
 

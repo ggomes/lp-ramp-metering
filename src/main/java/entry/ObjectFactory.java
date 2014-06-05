@@ -1,3 +1,5 @@
+package entry;
+
 import jaxb.Scenario;
 import org.xml.sax.SAXException;
 

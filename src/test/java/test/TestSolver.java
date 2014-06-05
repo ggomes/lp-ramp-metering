@@ -1,14 +1,24 @@
+package test;
+
 import lp.*;
+import org.junit.Before;
+import org.junit.Test;
 import solver.ApacheSolver;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
- * Created by gomes on 6/4/14.
+ * Created by gomes on 6/5/14.
  */
-public class Runner {
+public class TestSolver {
 
-    public static void main(String [] args){
+    private Problem problem;
 
-        Problem problem = new Problem();
+    @Before
+    public void setUp() throws Exception {
+
+        problem = new Problem();
 
         Linear linear = new Linear();
         linear.add_coefficient(143, "x");
@@ -37,11 +47,13 @@ public class Runner {
         problem.add_constraint(linear, "3");
 
         problem.add_bound("x", Relation.LEQ, 16);
-
-        PointValue result = (new ApacheSolver()).solve(problem);
-
-        System.out.println(result);
     }
 
-
+    @Test
+    public void testApache() throws Exception {
+        PointValue result = (new ApacheSolver()).solve(problem);
+        assertNotNull(result);
+        assertEquals(result.get("x"),16,1e-4);
+        assertEquals(result.get("y"),59,1e-4);
+    }
 }
