@@ -1,4 +1,5 @@
 import lp.*;
+import solver.ApacheSolver;
 
 /**
  * Created by gomes on 6/4/14.
@@ -37,8 +38,7 @@ public class Runner {
 
         problem.add_bound("x", Relation.LEQ, 16);
 
-
-        PointValue result = problem.solve();
+        PointValue result = (new ApacheSolver()).solve(problem);
 
         System.out.println(result);
     }

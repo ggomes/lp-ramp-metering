@@ -33,15 +33,11 @@ public class Problem {
     }
 
     public void setObjective(Linear cst, OptType opttype){
-//        if(!cst.is_valid_cost())
-//            return;
         this.cost = cst;
         this.opt_type = opttype;
     }
 
     public void add_constraint(Linear linear, String name){
-//        if(!linear.is_valid_constraint())
-//            return;
         this.constraints.put(name,linear);
     }
 
@@ -52,7 +48,6 @@ public class Problem {
         bound.set_rhs(x);
         bounds.add(bound);
     }
-
 
     /** collect unique variable names from cost, constraints, and bounds **/
     public String [] get_unique_unknowns(){
@@ -65,51 +60,6 @@ public class Problem {
         return unique_unknowns.toArray(new String[unique_unknowns.size ()]);
     }
 
-    public PointValue solve(){
-        System.out.println(this);
-
-        String [] unknowns = get_unique_unknowns();
-        int num_unknowns = unknowns.length;
-
-
-        // cast as apache commons
-
-        // cost function
-        double[] coefficients = new double[num_unknowns];
-        for(int i=0;i<num_unknowns;i++)
-            coefficients[i] = cost.get_coefficient(unknowns[i]);
-        LinearObjectiveFunction f = new LinearObjectiveFunction(coefficients,0d);
-
-        // constraints
-        ArrayList<LinearConstraint> C = new ArrayList<LinearConstraint>();
-        for(Linear L : constraints.values()){
-            double value = L.get_rhs();
-            double[] coef = new double[num_unknowns];
-            for(int i=0;i<num_unknowns;i++)
-                coef[i] = L.get_coefficient(unknowns[i]);
-            Relationship relationship = relation_map.get(L.get_relation());
-            C.add( new LinearConstraint(coef,relationship,value) );
-        }
-
-        // add bounds to constraints (FIX THIS!!)
-        for(Linear L : bounds){
-            double value = L.get_rhs();
-            double[] coef = new double[num_unknowns];
-            for(int i=0;i<num_unknowns;i++)
-                coef[i] = L.get_coefficient(unknowns[i]);
-            Relationship relationship = relation_map.get(L.get_relation());
-            C.add( new LinearConstraint(coef,relationship,value) );
-        }
-
-        // goal type
-        GoalType goalType = opt_map.get(opt_type);
-        boolean restrictToNonNegative = false;
-
-        SimplexSolver solver = new SimplexSolver();
-        PointValuePair pair = solver.optimize(f, C, goalType, restrictToNonNegative);
-
-        return new PointValue(unknowns,pair.getPoint(),pair.getValue());
-    }
 
     @Override
     public String toString() {
