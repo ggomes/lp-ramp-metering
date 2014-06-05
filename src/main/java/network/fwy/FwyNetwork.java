@@ -54,7 +54,7 @@ public final class FwyNetwork {
     // get
     ///////////////////////////////////////////////////////////////////
 
-    protected List<FwySegment> getSegments() {
+    public List<FwySegment> getSegments() {
         return segments;
     }
 
@@ -217,7 +217,7 @@ public final class FwyNetwork {
     // set
     ///////////////////////////////////////////////////////////////////
 
-    protected void set_ic(InitialDensitySet ic){
+    public void set_ic(InitialDensitySet ic){
 
         // reset everything to zero
         for(FwySegment seg : segments)
@@ -237,7 +237,7 @@ public final class FwyNetwork {
         }
     }
 
-    protected void set_demands(DemandSet demand_set,double sim_dt_in_seconds,int K,int Kcool){
+    public void set_demands(DemandSet demand_set,double sim_dt_in_seconds,int K,int Kcool){
 
         // reset everything to zero
         for(FwySegment seg : segments)
@@ -266,7 +266,7 @@ public final class FwyNetwork {
         }
     }
 
-    protected void set_split_ratios(SplitRatioSet srs,double sim_dt_in_seconds,int K,int Kcool) throws Exception{
+    public void set_split_ratios(SplitRatioSet srs,double sim_dt_in_seconds,int K,int Kcool) throws Exception{
         int index;
 
         for(SplitRatioProfile srp : srs.getSplitRatioProfile()){

@@ -12,37 +12,37 @@ import java.util.List;
 public final class FwySegment {
 
     // link references
-    protected Long ml_link_id;
-    protected Long or_link_id;
-    protected Long fr_link_id;
-    protected Long fr_node_id;
+    public Long ml_link_id;
+    public Long or_link_id;
+    public Long fr_link_id;
+    public Long fr_node_id;
 
     // fundamental diagram
-    protected Double vf;        // [veh] free flow speed
-    protected Double w;         // [veh] congestion wave speed
-    protected Double f_max;     // [veh] mainline capacity
-    protected Double n_max;     // [veh] mainline jam density
-    protected Double ml_link_length; // [m] length of the mainline link
-    protected Double or_link_length; // [m] length of the onramp link
-    protected Double or_lanes;  // [-] onramp lanes
+    public Double vf;        // [veh] free flow speed
+    public Double w;         // [veh] congestion wave speed
+    public Double f_max;     // [veh] mainline capacity
+    public Double n_max;     // [veh] mainline jam density
+    public Double ml_link_length; // [m] length of the mainline link
+    public Double or_link_length; // [m] length of the onramp link
+    public Double or_lanes;  // [-] onramp lanes
 
     // initial condition
-    protected Double no;        // [veh] initial ml vehicles
-    protected Double lo;        // [veh] initial or vehicles
+    public Double no;        // [veh] initial ml vehicles
+    public Double lo;        // [veh] initial or vehicles
 
     // metering
-    protected boolean is_metered;
-    protected Double l_max;     // [veh] maximum or queue length
-    protected Double r_max;     // [veh] maximum or meterign rate
+    public boolean is_metered;
+    public Double l_max;     // [veh] maximum or queue length
+    public Double r_max;     // [veh] maximum or meterign rate
 
     // constraints
-    protected List<Linear> ORcons = new ArrayList<Linear>();
-    protected List<Linear> MLcng = new ArrayList<Linear>();
-    protected List<Linear> ORdem = new ArrayList<Linear>();
+    public List<Linear> ORcons = new ArrayList<Linear>();
+    public List<Linear> MLcng = new ArrayList<Linear>();
+    public List<Linear> ORdem = new ArrayList<Linear>();
 
     // data profiles
-    protected ArrayList<Double> demand_profile;         // [veh] onramp demands
-    protected ArrayList<Double> split_ratio_profile;    // [veh] offramp splits
+    public ArrayList<Double> demand_profile;         // [veh] onramp demands
+    public ArrayList<Double> split_ratio_profile;    // [veh] offramp splits
 
     ///////////////////////////////////////////////////////////////////
     // construction
@@ -92,7 +92,7 @@ public final class FwySegment {
     // get
     ///////////////////////////////////////////////////////////////////
 
-    protected double d(int k){
+    public double d(int k){
         try{
             return demand_profile.get(k);
         } catch(Exception e){
@@ -100,7 +100,7 @@ public final class FwySegment {
         }
     }
 
-    protected double betabar(int k){
+    public double betabar(int k){
         try{
             return 1-split_ratio_profile.get(k);
         } catch(Exception e){
@@ -112,20 +112,20 @@ public final class FwySegment {
     // set
     ///////////////////////////////////////////////////////////////////
 
-    protected void reset_state(){
+    public void reset_state(){
         this.no = 0d;
         this.lo = 0d;
     }
 
-    protected void reset_demands(){
+    public void reset_demands(){
         demand_profile = new ArrayList<Double>();
     }
 
-    protected void add_to_no_in_vpm(double x){
+    public void add_to_no_in_vpm(double x){
         no += x*ml_link_length;
     }
 
-    protected void add_to_lo_in_vpm(double x){
+    public void add_to_lo_in_vpm(double x){
         lo += x*or_link_length;
     }
 

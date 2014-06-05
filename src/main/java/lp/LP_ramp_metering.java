@@ -4,10 +4,7 @@ import network.beats.Network;
 import network.fwy.FwyNetwork;
 import network.fwy.FwySegment;
 import jaxb.*;
-import lp.problem.Linear;
-import lp.problem.OptType;
-import lp.problem.Problem;
-import lp.problem.Relation;
+import lp.problem.*;
 
 public class LP_ramp_metering {
 
