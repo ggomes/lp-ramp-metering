@@ -12,7 +12,7 @@ public class LP_ramp_metering {
     protected int K;                      // number of time steps (demand+cooldown)
     protected int Kcool;                  // number of cooldown time steps
     protected int I;                      // number of segments
-    protected double eta = 1.0;           // J = TVH - eta*TVM
+    protected double eta = 1.0;           // objective = TVH - eta*TVM
     protected double gamma = 1d;          // merge coefficient
     protected Linear J = new Linear();
     protected boolean is_valid;

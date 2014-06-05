@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import ramp_metering.RampMeteringLimitSet;
 import ramp_metering.RampMeteringLpPolicyMaker;
-import ramp_metering.RampMeteringPolicyMaker;
 import ramp_metering.RampMeteringPolicySet;
 
 /**
@@ -17,7 +16,7 @@ public class TestRampMetering {
 
     @Before
     public void setUp() throws Exception {
-        scenario = entry.ObjectFactory.getScenario("data/config/210W_v13.xml");
+        scenario = factory.ObjectFactory.getScenario("data/config/210W_v13.xml");
     }
 
     @Test

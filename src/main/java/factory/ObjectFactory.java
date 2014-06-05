@@ -1,11 +1,13 @@
-package entry;
+package factory;
 
+import beats.Network;
 import jaxb.Scenario;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -53,7 +55,7 @@ final public class ObjectFactory {
         // read and return ...........................................................
         jaxb.Scenario S; //new Scenario();
         try {
-            //setObjectFactory(u, new JaxbObjectFactory());
+            setObjectFactory(u, new JaxbObjectFactory());
             S = (Scenario) u.unmarshal( new FileInputStream(configfilename) );
         } catch( JAXBException je ) {
             throw new Exception("JAXB threw an exception when loading the configuration file", je);
@@ -61,10 +63,20 @@ final public class ObjectFactory {
             throw new Exception("Configuration file not found. " + configfilename, e);
         }
 
+        ((Network)S.getNetworkSet().getNetwork().get(0)).populate();
+
         if(S==null)
             throw new Exception("Unknown load error");
 
         return S;
+    }
+
+    private static void setObjectFactory(Unmarshaller unmrsh, Object factory) throws PropertyException {
+        final String classname = unmrsh.getClass().getName();
+        String propnam = classname.startsWith("com.sun.xml.internal") ?//
+                "com.sun.xml.internal.bind.ObjectFactory" ://
+                "com.sun.xml.bind.ObjectFactory";
+        unmrsh.setProperty(propnam, factory);
     }
 
 }

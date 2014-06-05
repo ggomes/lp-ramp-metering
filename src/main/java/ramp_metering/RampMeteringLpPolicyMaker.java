@@ -9,6 +9,16 @@ public class RampMeteringLpPolicyMaker implements RampMeteringPolicyMaker {
 
     @Override
     public RampMeteringPolicySet givePolicy(Network net, FundamentalDiagramSet fd, DemandSet demand, SplitRatioSet splitRatios, InitialDensitySet ics, RampMeteringLimitSet control, Double dt) {
+
+
+
+
+
+
+
+
+
+
         return null;
     }
 
