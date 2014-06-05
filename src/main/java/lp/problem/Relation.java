@@ -1,4 +1,4 @@
-package lp;
+package lp.problem;
 
 /**
  * Created by gomes on 6/3/14.

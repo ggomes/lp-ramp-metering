@@ -1,6 +1,7 @@
-package ramp_metering;
+package beats_link;
 
 import jaxb.*;
+import jaxb.Network;
 
 public interface RampMeteringPolicyMaker {
     // dt should be same across all passed in objects (universal simulation dt)

@@ -1,6 +1,7 @@
-package ramp_metering;
+package beats_link;
 
 import jaxb.*;
+import jaxb.Network;
 
 /**
  * Created by gomes on 6/5/14.

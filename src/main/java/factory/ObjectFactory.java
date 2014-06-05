@@ -1,6 +1,6 @@
 package factory;
 
-import beats.Network;
+import network.beats.Network;
 import jaxb.Scenario;
 import org.xml.sax.SAXException;
 

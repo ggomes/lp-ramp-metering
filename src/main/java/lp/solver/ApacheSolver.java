@@ -1,7 +1,7 @@
-package solver;
+package lp.solver;
 
-import lp.PointValue;
-import lp.Problem;
+import lp.problem.PointValue;
+import lp.problem.Problem;
 import org.apache.commons.math3.optimization.PointValuePair;
 import org.apache.commons.math3.optimization.linear.SimplexSolver;
 

@@ -1,5 +1,5 @@
 
-package beats;
+package network.beats;
 
 public class Link extends jaxb.Link {
 

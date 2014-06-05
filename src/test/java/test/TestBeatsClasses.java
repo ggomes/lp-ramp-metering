@@ -1,6 +1,6 @@
 package test;
 
-import beats.Network;
+import network.beats.Network;
 import jaxb.Scenario;
 import org.junit.Test;
 

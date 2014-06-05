@@ -3,9 +3,9 @@ package test;
 import jaxb.*;
 import org.junit.Before;
 import org.junit.Test;
-import ramp_metering.RampMeteringLimitSet;
-import ramp_metering.RampMeteringLpPolicyMaker;
-import ramp_metering.RampMeteringPolicySet;
+import beats_link.RampMeteringLimitSet;
+import beats_link.RampMeteringLpPolicyMaker;
+import beats_link.RampMeteringPolicySet;
 
 /**
  * Created by gomes on 6/5/14.

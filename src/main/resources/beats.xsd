@@ -498,9 +498,9 @@
 	</xs:element>
 
 	<!-- 
-	sensor parameters used in beats:
+	sensor parameters used in network.beats:
 		vds - used to assign a VDS station ID to a loop sensor
-	sensor tables used in beats:
+	sensor tables used in network.beats:
 		name="data_sources", columns={"url","dt" key="false","format"} - used to reference PeMS data sources.
 	-->
 		<xs:element name="sensor">

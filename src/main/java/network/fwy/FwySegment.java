@@ -1,10 +1,10 @@
-package ramp_metering.lpsolver;
+package network.fwy;
 
-import beats.Parameters;
+import network.beats.Parameters;
 import jaxb.Actuator;
 import jaxb.FundamentalDiagram;
 import jaxb.Link;
-import lp.Linear;
+import lp.problem.Linear;
 
 import java.util.ArrayList;
 import java.util.List;

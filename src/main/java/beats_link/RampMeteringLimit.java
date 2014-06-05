@@ -1,4 +1,4 @@
-package ramp_metering;
+package beats_link;
 
 import jaxb.Actuator;
 

@@ -1,8 +1,8 @@
-package ramp_metering.lpsolver;
+package network.fwy;
 
-import beats.Link;
-import beats.Network;
-import beats.Node;
+import network.beats.Link;
+import network.beats.Network;
+import network.beats.Node;
 import jaxb.*;
 
 import java.util.ArrayList;

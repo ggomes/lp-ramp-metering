@@ -1,5 +1,5 @@
 
-package beats;
+package network.beats;
 
 final public class Parameters extends jaxb.Parameters {
 

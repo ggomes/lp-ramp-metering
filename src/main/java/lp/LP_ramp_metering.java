@@ -1,20 +1,24 @@
-import edu.berkeley.path.beats.jaxb.*;
-import network.sf.javailp.*;
+package lp;
 
-/**
- * Ramp metering with linear programming
- */
+import network.beats.Network;
+import network.fwy.FwyNetwork;
+import network.fwy.FwySegment;
+import jaxb.*;
+import lp.problem.Linear;
+import lp.problem.OptType;
+import lp.problem.Problem;
+import lp.problem.Relation;
+
 public class LP_ramp_metering {
 
     protected FwyNetwork fwy;
-    protected Problem LP;
     protected double sim_dt_in_seconds;   // time step in seconds
     protected int K;                      // number of time steps (demand+cooldown)
     protected int Kcool;                  // number of cooldown time steps
     protected int I;                      // number of segments
     protected double eta = 1.0;           // objective = TVH - eta*TVM
     protected double gamma = 1d;          // merge coefficient
-    protected Linear J = new Linear();
+    protected Linear objective = new Linear();
     protected boolean is_valid;
     protected String validation_message;
 
@@ -27,7 +31,7 @@ public class LP_ramp_metering {
         int i,k;
 
         // constant information
-        Network network = scenario.getNetworkSet().getNetwork().get(0);
+        Network network = (Network) scenario.getNetworkSet().getNetwork().get(0);
         ActuatorSet actuators = scenario.getActuatorSet();
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
 
@@ -45,13 +49,13 @@ public class LP_ramp_metering {
         for(i=0;i<I;i++){
             FwySegment seg = fwy.getSegments().get(i);
             for(k=0;k<K;k++){
-                J.add( 1.0,getVar("n",i,k+1));
-                J.add(-eta,getVar("f",i,k  ));
+                objective.add_coefficient(1.0, getVar("n", i, k + 1));
+                objective.add_coefficient(-eta, getVar("f", i, k));
             }
             if(seg.is_metered)
                 for(k=0;k<K;k++){
-                    J.add( 1.0,getVar("l",i,k+1));
-                    J.add(-eta,getVar("r",i,k  ));
+                    objective.add_coefficient(1.0, getVar("l", i, k + 1));
+                    objective.add_coefficient(-eta, getVar("r", i, k));
                 }
         }
 
@@ -65,10 +69,10 @@ public class LP_ramp_metering {
             if(seg.is_metered){
                 for(k=0;k<K;k++){
                     Linear C = new Linear();
-                    C.add(+1d,getVar("l",i,k+1));
+                    C.add_coefficient(+1d, getVar("l", i, k + 1));
                     if(k>0)
-                        C.add(-1d,getVar("l",i,k));
-                    C.add(+1d,getVar("r",i,k));
+                        C.add_coefficient(-1d, getVar("l", i, k));
+                    C.add_coefficient(+1d, getVar("r", i, k));
                     seg.ORcons.add(C);
                 }
             }
@@ -84,11 +88,11 @@ public class LP_ramp_metering {
             FwySegment next_seg = fwy.getSegments().get(i+1);
             for(k=0;k<K;k++){
                 Linear C = new Linear();
-                C.add(+1d,getVar("f",i,k));
+                C.add_coefficient(+1d, getVar("f", i, k));
                 if(k>0)
-                    C.add(next_seg.w,getVar("n",i+1,k));
+                    C.add_coefficient(next_seg.w, getVar("n", i + 1, k));
                 if(next_seg.is_metered)
-                    C.add(next_seg.w*gamma,getVar("r",i+1,k));
+                    C.add_coefficient(next_seg.w * gamma, getVar("r", i + 1, k));
                 seg.MLcng.add(C);
             }
         }
@@ -103,9 +107,9 @@ public class LP_ramp_metering {
             if(seg.is_metered){
                 for(k=0;k<K;k++){
                     Linear C = new Linear();
-                    C.add(+1d,getVar("r",i,k));
+                    C.add_coefficient(+1d, getVar("r", i, k));
                     if(k>0)
-                        C.add(-1d,getVar("l",i,k));
+                        C.add_coefficient(-1d, getVar("l", i, k));
                     seg.ORdem.add(C);
                 }
             }
@@ -123,25 +127,28 @@ public class LP_ramp_metering {
 
     }
 
-    ///////////////////////////////////////////////////////////////////
-    // solve problem
-    ///////////////////////////////////////////////////////////////////
-
     protected LP_solution solve(InitialDensitySet ic, DemandSet demand_set, SplitRatioSet split_ratios) throws Exception {
 
-        int i,k;
-        double rhs;
-
-        // copy input to network.beats.fwy structure
+        /* copy input to network.beats.fwy structure */
         fwy.set_ic(ic);
         fwy.set_demands(demand_set,sim_dt_in_seconds,K,Kcool);
         fwy.set_split_ratios(split_ratios,sim_dt_in_seconds,K,Kcool);
 
-        // generate problem, assign objective function
-        LP = new Problem();
-        LP.setObjective(J, OptType.MIN);
+        Problem LP = cast_to_Problem();
 
-        // assign rhs, add constraints for each segment
+        return new LP_solution(LP,fwy,K);
+    }
+
+    private Problem cast_to_Problem(){
+
+        int i,k;
+        double rhs;
+
+        /* generate problem, assign objective function */
+        Problem LP = new Problem();
+        LP.setObjective(objective, OptType.MIN);
+
+        /* assign rhs, add constraints for each segment */
         for(i=0;i<I;i++){
 
             FwySegment seg = fwy.getSegments().get(i);
@@ -160,20 +167,24 @@ public class LP_ramp_metering {
                 Linear C = new Linear();
 
                 // LHS
-                C.add(+1d,getVar("n",i,k+1));
+                C.add_coefficient(+1d, getVar("n", i, k + 1));
                 if(k>0)
-                    C.add(-1d,getVar("n",i,k));
+                    C.add_coefficient(-1d, getVar("n", i, k));
                 if(i>0)
-                    C.add(-1d,getVar("f",i-1,k));
+                    C.add_coefficient(-1d, getVar("f", i - 1, k));
                 if(seg.is_metered)
-                    C.add(-1d,getVar("r",i,k));
+                    C.add_coefficient(-1d, getVar("r", i, k));
                 if(seg.betabar(k)!=0d)
-                    C.add(+1/seg.betabar(k),getVar("f",i,k));
+                    C.add_coefficient(+1 / seg.betabar(k), getVar("f", i, k));
+
+                // relation
+                C.set_relation(Relation.EQ);
 
                 // RHS
                 rhs = k==0 ? seg.no : 0;
                 rhs += !seg.is_metered ? seg.d(k) : 0;
-                LP.add(C, "=", rhs);
+                C.set_rhs(rhs);
+                LP.add_constraint(C);
             }
 
             /* RHS: or conservation
@@ -203,11 +214,11 @@ public class LP_ramp_metering {
                 Linear C = new Linear();
 
                 // LHS
-                C.add(+1d,getVar("f",i,k));
+                C.add_coefficient(+1d, getVar("f", i, k));
                 if(k>0 && seg.betabar(k)>0)
-                    C.add(-seg.betabar(k)*seg.vf,getVar("n",i,k));
+                    C.add_coefficient(-seg.betabar(k) * seg.vf, getVar("n", i, k));
                 if(seg.is_metered && seg.betabar(k)>0)
-                    C.add(-seg.betabar(k)*seg.vf*gamma,getVar("r",i,k));
+                    C.add_coefficient(-seg.betabar(k) * seg.vf * gamma, getVar("r", i, k));
 
                 // RHS
                 rhs = k==0 ? seg.betabar(0)*seg.vf*seg.no : 0;
@@ -274,19 +285,8 @@ public class LP_ramp_metering {
                     LP.setVarUpperBound(getVar("l",i,k+1),seg.l_max);
         }
 
-        // solve
-        SolverFactory factory = new SolverFactoryLpSolve(); // use lp_solve
-        factory.setParameter(Solver.VERBOSE, 0);
-        factory.setParameter(Solver.TIMEOUT, 100); // set timeout to 100 seconds
-        Solver solver = factory.get(); // you should use this lp.solver only once for one problem
-        Result result = solver.solve(LP);
-
-        return new LP_solution(result,fwy,K);
+        return LP;
     }
-
-    ///////////////////////////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////////////////////////////
 
     public static String getVar(String name,int index,int timestep){
         return name+"_"+index+"_"+timestep;

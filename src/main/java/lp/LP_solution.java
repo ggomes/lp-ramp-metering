@@ -1,5 +1,9 @@
-package ramp_metering.lpsolver;
+package lp;
 
+import network.fwy.FwyNetwork;
+import network.fwy.FwySegment;
+import lp.problem.Problem;
+import lp.solver.ApacheSolver;
 
 import java.io.PrintWriter;
 
@@ -9,44 +13,39 @@ public final class LP_solution {
     protected int K;
     protected SegmentSolution [] Xopt;
 
-    ///////////////////////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////////////////////
+    public LP_solution(Problem LP, FwyNetwork fwy,int K){
 
-//    public LP_solution(Result result,FwyNetwork fwy,int K){
-//
-//        this.I = fwy.segments.size();
-//        this.K = K;
-//        this.Xopt = new SegmentSolution[I];
-//
-//        int i,k;
-//        for(i=0;i<I;i++){
-//
-//            FwySegment seg = fwy.segments.get(i);
-//
-//            Xopt[i] = new SegmentSolution(seg,K);
-//
-//            Xopt[i].n[0] = seg.no;
-//            for(k=0;k<K;k++){
-//                Xopt[i].n[k+1] = result.get(getVar("n",i,k+1)).doubleValue();
-//                Xopt[i].f[k] = result.get(getVar("f", i, k)).doubleValue();
-//            }
-//
-//            if(seg.is_metered){
-//                Xopt[i].l[0] = seg.lo;
-//                for(k=0;k<K;k++){
-//                    Xopt[i].l[k+1] = result.get(getVar("l",i,k+1)).doubleValue();
-//                    Xopt[i].r[k] = result.get(getVar("r", i, k)).doubleValue();
-//                }
-//            }
-//
-//        }
-//
-//    }
+        ApacheSolver solver = new ApacheSolver();
+        Result result = solver.solve(LP);
 
-    ///////////////////////////////////////////////////////////////////
-    // class
-    ///////////////////////////////////////////////////////////////////
+        this.I = fwy.segments.size();
+        this.K = K;
+        this.Xopt = new SegmentSolution[I];
+
+        int i,k;
+        for(i=0;i<I;i++){
+
+            FwySegment seg = fwy.segments.get(i);
+
+            Xopt[i] = new SegmentSolution(seg,K);
+
+            Xopt[i].n[0] = seg.no;
+            for(k=0;k<K;k++){
+                Xopt[i].n[k+1] = result.get(getVar("n",i,k+1)).doubleValue();
+                Xopt[i].f[k] = result.get(getVar("f", i, k)).doubleValue();
+            }
+
+            if(seg.is_metered){
+                Xopt[i].l[0] = seg.lo;
+                for(k=0;k<K;k++){
+                    Xopt[i].l[k+1] = result.get(getVar("l",i,k+1)).doubleValue();
+                    Xopt[i].r[k] = result.get(getVar("r", i, k)).doubleValue();
+                }
+            }
+
+        }
+
+    }
 
     public class SegmentSolution {
         protected double [] n;
@@ -76,17 +75,9 @@ public final class LP_solution {
 
     }
 
-    ///////////////////////////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////////////////////////////
-
     private static String getVar(String name,int seg_index,int timestep){
         return LP_ramp_metering.getVar(name,seg_index,timestep);
     }
-
-    ///////////////////////////////////////////////////////////////////
-    // print
-    ///////////////////////////////////////////////////////////////////
 
     public String print(String var,int seg_index,boolean matlab){
         String str = "";

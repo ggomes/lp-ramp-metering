@@ -25,7 +25,7 @@ public class Runner {
             Scenario scenario = ObjectFactory.createAndLoadScenario(config_file);
             scenario.initialize(sim_dt_in_seconds,0d,num_time*sim_dt_in_seconds,1);
 
-            // construct solver
+            // construct lp.solver
             LP_ramp_metering lp_ramp_metering = new LP_ramp_metering(scenario,num_time,num_time_cooldown,sim_dt_in_seconds);
 
             // validate
@@ -42,7 +42,7 @@ public class Runner {
 
             PrintWriter pw;
 
-            // print fwy
+            // print network.beats.fwy
             pw = new PrintWriter("out\\fwy_"+suffix+".txt");
             pw.print(lp_ramp_metering.fwy);
             pw.close();

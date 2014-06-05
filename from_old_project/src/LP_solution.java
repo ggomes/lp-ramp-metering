@@ -1,4 +1,4 @@
-import net.sf.javailp.*;
+import network.sf.javailp.*;
 
 import java.io.PrintWriter;
 

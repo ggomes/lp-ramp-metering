@@ -1,6 +1,6 @@
 import edu.berkeley.path.beats.jaxb.*;
 import edu.berkeley.path.beats.simulator.Parameters;
-import net.sf.javailp.Linear;
+import network.sf.javailp.Linear;
 
 import java.util.ArrayList;
 import java.util.List;

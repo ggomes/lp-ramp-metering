@@ -1,4 +1,4 @@
-package lp;
+package lp.problem;
 
 import java.util.HashMap;
 import java.util.Iterator;

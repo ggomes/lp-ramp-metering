@@ -1,9 +1,9 @@
 package test;
 
-import lp.*;
+import lp.problem.*;
 import org.junit.Before;
 import org.junit.Test;
-import solver.ApacheSolver;
+import lp.solver.ApacheSolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

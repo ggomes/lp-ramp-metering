@@ -1,7 +1,7 @@
-package solver;
+package lp.solver;
 
-import lp.Linear;
-import lp.Problem;
+import lp.problem.Linear;
+import lp.problem.Problem;
 import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.linear.LinearConstraint;
 import org.apache.commons.math3.optimization.linear.LinearObjectiveFunction;

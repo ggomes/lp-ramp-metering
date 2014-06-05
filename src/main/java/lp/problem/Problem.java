@@ -1,11 +1,7 @@
-package lp;
+package lp.problem;
 
 import org.apache.commons.math3.optimization.GoalType;
-import org.apache.commons.math3.optimization.PointValuePair;
-import org.apache.commons.math3.optimization.linear.LinearConstraint;
-import org.apache.commons.math3.optimization.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optimization.linear.Relationship;
-import org.apache.commons.math3.optimization.linear.SimplexSolver;
 
 import java.util.*;
 
