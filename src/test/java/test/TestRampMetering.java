@@ -27,6 +27,7 @@ public class TestRampMetering {
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
         ActuatorSet actuators = scenario.getActuatorSet();
+
         RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
 
         InitialDensitySet ics = scenario.getInitialDensitySet();

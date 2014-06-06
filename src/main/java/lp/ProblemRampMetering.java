@@ -11,8 +11,8 @@ import network.fwy.FwySegment;
  */
 public class ProblemRampMetering extends lp.problem.Problem {
 
-    protected int K;                      // number of time steps (demand+cooldown)
-    protected int Kcool;                  // number of cooldown time steps
+    protected int K;                // number of time steps (demand+cooldown)
+    protected int Kcool;            // number of cooldown time steps
     protected double eta;           // objective = TVH - eta*TVM
     protected double sim_dt_in_seconds;
 
@@ -46,7 +46,18 @@ public class ProblemRampMetering extends lp.problem.Problem {
 
         for(i=0;i<fwy.num_segments;i++){
             FwySegment seg = fwy.getSegments().get(i);
+
+            double vf = seg.get_vf_vps()*sim_dt_in_seconds;
+            double f_max = seg.get_fmax_vps()*sim_dt_in_seconds;
+            double r_max = seg.get_rmax_vps()*sim_dt_in_seconds;
+
             for(k=0;k<K;k++){
+
+                double time = k*sim_dt_in_seconds;
+                double betabar = 1-seg.get_split_ratio(time);
+                double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                double no = k==0? seg.no : 0;
+                double lo = k==0? seg.lo : 0;
 
                 // MAINLINE CONSERVATION .............................................
 
@@ -62,8 +73,8 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     C1.add_coefficient(-1d, getVar("f",i-1,k));
                 if(seg.is_metered)
                     C1.add_coefficient(-1d, getVar("r",i,k));
-                if(seg.betabar(k)!=0d)
-                    C1.add_coefficient(+1/seg.betabar(k), getVar("f",i,k));
+                if(betabar!=0d)
+                    C1.add_coefficient(+1/betabar, getVar("f",i,k));
 
                 // relation
                 C1.set_relation(Relation.EQ);
@@ -71,11 +82,10 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 // RHS
                 // {k>0}  {k==0}
                 //   0  + n[i][0]
-                rhs = k==0 ? seg.no : 0;
-                rhs += !seg.is_metered ? seg.d(k) : 0;
+                rhs = no;
+                rhs += !seg.is_metered ? d : 0;
                 C1.set_rhs(rhs);
                 add_constraint(C1,"mlcons"+i+"_"+k);
-
 
                 // MAINLINE FREEFLOW ...............................................
                 Linear C3 = new Linear();
@@ -84,18 +94,19 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 // {always}           {k>0}                       {metered}
                 // f[i][k] -betabar[i][k]*v[i]*n[i][k] - betabar[i][k]*v[i]*gamma*r[i][k]
                 C3.add_coefficient(+1d, getVar("f",i,k));
-                if(k>0 && seg.betabar(k)>0)
-                    C3.add_coefficient(-seg.betabar(k)*seg.vf, getVar("n",i,k));
-                if(seg.is_metered && seg.betabar(k)>0)
-                    C3.add_coefficient(-seg.betabar(k)*seg.vf*fwy.gamma, getVar("r",i,k));
+                if(k>0 && betabar>0)
+                    C3.add_coefficient(-betabar*vf, getVar("n",i,k));
+                if(seg.is_metered && betabar>0)
+                    C3.add_coefficient(-betabar*vf*fwy.gamma, getVar("r",i,k));
 
+                // relation
                 C3.set_relation(Relation.LEQ);
 
                 // RHS
-                //                {k==0}                      {!metered}
-                // <= betabar[i][0]*v[i]*n[i][0] + betabar[i][k]*v[i]*gamma*d[i][k]
-                rhs = k==0 ? seg.betabar(0)*seg.vf*seg.no : 0;
-                rhs += !seg.is_metered ? seg.betabar(k)*seg.vf*fwy.gamma*seg.d(k) : 0;
+                //             {k==0}                      {!metered}
+                // betabar[i][0]*v[i]*n[i][0] + betabar[i][k]*v[i]*gamma*d[i][k]
+                rhs = betabar*vf*no;
+                rhs += !seg.is_metered ? betabar*vf*fwy.gamma*d : 0;
                 C3.set_rhs(rhs);
 
                 add_constraint(C3,"orcons_"+i+"_"+k);
@@ -104,6 +115,10 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 if(i<fwy.num_segments-1){
                     FwySegment next_seg = fwy.getSegments().get(i+1);
 
+                    double next_w = next_seg.get_w_vps()*sim_dt_in_seconds;
+                    double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                    double next_no = k==0? next_seg.no : 0;
+
                     Linear C4 = new Linear();
 
                     // LHS
@@ -111,9 +126,9 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     // f[i][k] + w[i+1]*n[i+1][k] + w[i+1]*gamma*r[i+1][k]
                     C4.add_coefficient(+1d, getVar("f",i,k));
                     if(k>0)
-                        C4.add_coefficient(next_seg.w, getVar("n",i+1,k));
+                        C4.add_coefficient(next_w, getVar("n",i+1,k));
                     if(next_seg.is_metered)
-                        C4.add_coefficient(next_seg.w*fwy.gamma, getVar("r",i+1,k));
+                        C4.add_coefficient(next_w*fwy.gamma, getVar("r",i+1,k));
 
                     // relation
                     C4.set_relation(Relation.LEQ);
@@ -121,16 +136,16 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     // RHS
                     //     {always}              {k=0}             {!metered}
                     // w[i+1]*njam[i+1] - w[i+1]*n[i+1][0] - w[i+1]*gamma*d[i+1][k]
-                    rhs = next_seg.w*next_seg.n_max;
-                    rhs += k==0 ? -next_seg.w*next_seg.no : 0;
-                    rhs += !next_seg.is_metered ? -next_seg.w*fwy.gamma*next_seg.d(k) : 0;
+                    rhs = next_w*next_seg.n_max;
+                    rhs += -next_w*next_no;
+                    rhs += !next_seg.is_metered ? -next_w*fwy.gamma*next_d : 0;
                     C4.set_rhs(rhs);
 
                     add_constraint(C4, "mlflw-cng_" + i + "_" + k);
                 }
 
                 // MAINLINE CAPACITY        f[i][k] <= f_max[i]
-                add_bound(getVar("f", i, k), Relation.LEQ, seg.f_max);
+                add_bound(getVar("f", i, k), Relation.LEQ, f_max);
 
                 if(seg.is_metered){
 
@@ -151,9 +166,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     // RHS
                     // {always}  {k==0}
                     // d[i][k] + l[i][0]
-                    rhs = seg.d(k);
-                    rhs += k==0 ? seg.lo : 0;
-                    C2.set_rhs(rhs);
+                    C2.set_rhs(d+lo);
 
                     add_constraint(C2,"orcons_"+i+"_"+k);
 
@@ -171,16 +184,14 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     C5.set_relation(Relation.LEQ);
 
                     // RHS
-                    // {always}
-                    // <= d[i][k]
-                    rhs = k==0 ? seg.lo : 0;
-                    rhs += seg.d(k);
-                    C5.set_rhs(rhs);
+                    // {always}  {k==0}
+                    // d[i][k] + l[i][0]
+                    C5.set_rhs(d+lo);
 
                     add_constraint(C5, "ordem_" + i + "_" + k);
 
                     // MAX METERING RATE: r[i][k] <= rmax[i] ............................
-                    add_bound("max"+getVar("r",i,k),Relation.LEQ,seg.r_max);
+                    add_bound("max"+getVar("r",i,k),Relation.LEQ,r_max);
 
                     // ONRAMP FLOW NON-NEGATIVE: r[i][k] >= 0 ...........................
                     add_bound("min"+getVar("r",i,k),Relation.GEQ,0d);
@@ -192,7 +203,6 @@ public class ProblemRampMetering extends lp.problem.Problem {
             }
         }
     }
-
 
     public static String getVar(String name,int index,int timestep){
         return name+"_"+index+"_"+timestep;

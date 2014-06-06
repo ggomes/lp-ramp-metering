@@ -14,12 +14,12 @@ public final class FwyNetwork {
     public int num_segments;           // number of segments
     public double gamma = 1d;          // merge coefficient
 
-    public ArrayList<FwySegment> segments;
-    public ArrayList<Long> ml_link_id;
-    public ArrayList<Long> fr_link_id;
-    public ArrayList<Long> or_link_id;
-    public ArrayList<Long> or_source_id;
-    public ArrayList<Long> fr_node_id;
+    private ArrayList<FwySegment> segments;
+    private ArrayList<Long> ml_link_id;
+    private ArrayList<Long> fr_link_id;
+    private ArrayList<Long> or_link_id;
+    private ArrayList<Long> or_source_id;
+    private ArrayList<Long> fr_node_id;
 
     ///////////////////////////////////////////////////////////////////
     // construction
@@ -185,39 +185,6 @@ public final class FwyNetwork {
         return rlink;
     }
 
-    private static ArrayList<Double> sample(ArrayList<Double> in,double in_dt,double out_dt,int K_out,int K_out_cool,boolean holdlast){
-
-        int k_in,k_out;
-        ArrayList<Double> out = new ArrayList<Double>();
-
-        // edge cases
-        if(in==null)
-            return null;
-        if(in.isEmpty()){
-            for(k_out=0;k_out<K_out;k_out++)
-                out.add(0d);
-            return out;
-        }
-
-        // normal case
-        double last = 0d;
-        for(k_out=0;k_out<K_out;k_out++){
-            k_in = (int) Math.floor(((double)k_out)*out_dt/in_dt);
-            k_in = Math.min(k_in,in.size()-1);
-            if(k_out<K_out-K_out_cool){
-                last = in.get(k_in);
-                out.add(last);
-            }
-            else{
-                if(holdlast)
-                    out.add(last);
-                else
-                    out.add(0d);
-            }
-        }
-        return out;
-    }
-
     ///////////////////////////////////////////////////////////////////
     // set
     ///////////////////////////////////////////////////////////////////
@@ -261,12 +228,12 @@ public final class FwyNetwork {
                                 demand.add(0d);
                         for(int i=0;i<strlist.size();i++){
                             double val = demand.get(i);
-                            val += Double.parseDouble(strlist.get(i))*sim_dt_in_seconds*seg.or_lanes;
+                            val += Double.parseDouble(strlist.get(i))*seg.or_lanes;
                             demand.set(i,val);
                         }
                     }
                 }
-                seg.demand_profile = sample(demand,dp.getDt(),K,Kcool,false);
+                seg.set_demands(demand,dp.getDt());
             }
         }
     }
@@ -296,7 +263,7 @@ public final class FwyNetwork {
                 if(fr_split.isEmpty() && !ml_split.isEmpty())
                     for(Double d : ml_split)
                         fr_split.add(1-d);
-                segments.get(index).split_ratio_profile = sample(fr_split,srp.getDt(),K,Kcool,true);
+                segments.get(index).set_split_ratios(fr_split,srp.getDt());
             }
         }
     }
