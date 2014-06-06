@@ -56,6 +56,11 @@ public class Problem {
         return unique_unknowns.toArray(new String[unique_unknowns.size ()]);
     }
 
+    public void set_constraint_rhs(String name,double value){
+        Linear C = constraints.get(name);
+        if(C!=null)
+            C.set_rhs(value);
+    }
 
     @Override
     public String toString() {

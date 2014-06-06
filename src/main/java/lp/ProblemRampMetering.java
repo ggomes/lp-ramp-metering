@@ -11,6 +11,14 @@ import network.fwy.FwySegment;
  */
 public class ProblemRampMetering extends lp.problem.Problem {
 
+    protected enum CnstType {
+        MLCONS,
+        MLFLW_FF,
+        MLFLW_CNG,
+        MLFLW_CAP,
+        ORCONS,
+        ORFLW_DEM
+    }
     protected int K;                // number of time steps (demand+cooldown)
     protected int Kcool;            // number of cooldown time steps
     protected double eta;           // objective = TVH - eta*TVM
@@ -26,9 +34,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
         int i,k;
         double rhs;
 
-        /* objective function:
-           sum_[I][K] n[i][k] + sum_[Im][K] l[i][k] - eta sum_[I][K] f[i][k] - eta sum[Im][K] r[i][k]
-         */
+        // objective function: sum_[I][K] n[i][k] + sum_[Im][K] l[i][k] - eta sum_[I][K] f[i][k] - eta sum[Im][K] r[i][k]
         Linear cost = new Linear();
         for(i=0;i<fwy.num_segments;i++){
             FwySegment seg = fwy.getSegments().get(i);
@@ -85,7 +91,8 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 rhs = no;
                 rhs += !seg.is_metered ? d : 0;
                 C1.set_rhs(rhs);
-                add_constraint(C1,"mlcons"+i+"_"+k);
+
+                add_constraint(C1,getCnstr(CnstType.MLCONS,i,k));
 
                 // MAINLINE FREEFLOW ...............................................
                 Linear C3 = new Linear();
@@ -109,7 +116,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 rhs += !seg.is_metered ? betabar*vf*fwy.gamma*d : 0;
                 C3.set_rhs(rhs);
 
-                add_constraint(C3,"orcons_"+i+"_"+k);
+                add_constraint(C3,getCnstr(CnstType.ORCONS,i,k));
 
                 // MAINLINE CONGESTION .................................................
                 if(i<fwy.num_segments-1){
@@ -141,7 +148,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     rhs += !next_seg.is_metered ? -next_w*fwy.gamma*next_d : 0;
                     C4.set_rhs(rhs);
 
-                    add_constraint(C4, "mlflw-cng_" + i + "_" + k);
+                    add_constraint(C4,getCnstr(CnstType.MLFLW_CNG,i,k));
                 }
 
                 // MAINLINE CAPACITY        f[i][k] <= f_max[i]
@@ -168,7 +175,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     // d[i][k] + l[i][0]
                     C2.set_rhs(d+lo);
 
-                    add_constraint(C2,"orcons_"+i+"_"+k);
+                    add_constraint(C2,getCnstr(CnstType.ORCONS,i,k));
 
                     // OR DEMAND ..................................................
                     Linear C5 = new Linear();
@@ -188,7 +195,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     // d[i][k] + l[i][0]
                     C5.set_rhs(d+lo);
 
-                    add_constraint(C5, "ordem_" + i + "_" + k);
+                    add_constraint(C5,getCnstr(CnstType.ORFLW_DEM,i,k));
 
                     // MAX METERING RATE: r[i][k] <= rmax[i] ............................
                     add_bound("max"+getVar("r",i,k),Relation.LEQ,r_max);
@@ -204,8 +211,65 @@ public class ProblemRampMetering extends lp.problem.Problem {
         }
     }
 
+    public void set_rhs_from_fwy(FwyNetwork fwy){
+
+        int i,k;
+        double rhs;
+
+        for(i=0;i<fwy.num_segments;i++){
+            FwySegment seg = fwy.getSegments().get(i);
+
+            double vf = seg.get_vf_vps()*sim_dt_in_seconds;
+
+            for(k=0;k<K;k++){
+
+                double time = k*sim_dt_in_seconds;
+                double betabar = 1-seg.get_split_ratio(time);
+                double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                double no = k==0? seg.no : 0;
+                double lo = k==0? seg.lo : 0;
+
+                // MAINLINE CONSERVATION ..............................
+                rhs = no;
+                rhs += !seg.is_metered ? d : 0;
+                set_constraint_rhs(getCnstr(CnstType.MLCONS,i,k),rhs);
+
+                // MAINLINE FREEFLOW .................................
+                rhs = betabar*vf*no;
+                rhs += !seg.is_metered ? betabar*vf*fwy.gamma*d : 0;
+                set_constraint_rhs(getCnstr(CnstType.MLFLW_FF,i,k),rhs);
+
+                // MAINLINE CONGESTION ..............................
+                if(i<fwy.num_segments-1){
+                    FwySegment next_seg = fwy.getSegments().get(i+1);
+
+                    double next_w = next_seg.get_w_vps()*sim_dt_in_seconds;
+                    double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                    double next_no = k==0? next_seg.no : 0;
+
+                    rhs = next_w*next_seg.n_max;
+                    rhs += -next_w*next_no;
+                    rhs += !next_seg.is_metered ? -next_w*fwy.gamma*next_d : 0;
+                    set_constraint_rhs(getCnstr(CnstType.MLFLW_CNG,i,k),rhs);
+                }
+
+                if(seg.is_metered){
+                    // OR CONSERVATION .............................
+                    set_constraint_rhs(getCnstr(CnstType.ORCONS,i,k),d+lo);
+
+                    // OR DEMAND ...................................
+                    set_constraint_rhs(getCnstr(CnstType.ORFLW_DEM,i,k),d+lo);
+                }
+            }
+        }
+    }
+
     public static String getVar(String name,int index,int timestep){
         return name+"_"+index+"_"+timestep;
+    }
+
+    public static String getCnstr(CnstType cnst,int i,int k){
+        return cnst.toString() + "_" + i + "_" + k;
     }
 
 }

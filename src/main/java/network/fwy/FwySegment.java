@@ -83,23 +83,6 @@ public final class FwySegment {
     // get
     ///////////////////////////////////////////////////////////////////
 
-//    public double d(int k){
-//        try{
-//            return demand_profile.get(k);
-//        } catch(Exception e){
-//            return 0d;
-//        }
-//    }
-//
-//    public double betabar(int k){
-//        try{
-//            return 1-split_ratio_profile.get(k);
-//        } catch(Exception e){
-//            return 1d;
-//        }
-//    }
-
-
     public double get_fmax_vps(){
         return this.f_max;
     }
@@ -170,39 +153,6 @@ public final class FwySegment {
             return def;
         return Double.parseDouble(P.get(name));
     }
-
-//    private static ArrayList<Double> sample(ArrayList<Double> in,double in_dt,double out_dt,int K_out,int K_out_cool,boolean holdlast){
-//
-//        int k_in,k_out;
-//        ArrayList<Double> out = new ArrayList<Double>();
-//
-//        // edge cases
-//        if(in==null)
-//            return null;
-//        if(in.isEmpty()){
-//            for(k_out=0;k_out<K_out;k_out++)
-//                out.add(0d);
-//            return out;
-//        }
-//
-//        // normal case
-//        double last = 0d;
-//        for(k_out=0;k_out<K_out;k_out++){
-//            k_in = (int) Math.floor(((double)k_out)*out_dt/in_dt);
-//            k_in = Math.min(k_in,in.size()-1);
-//            if(k_out<K_out-K_out_cool){
-//                last = in.get(k_in);
-//                out.add(last);
-//            }
-//            else{
-//                if(holdlast)
-//                    out.add(last);
-//                else
-//                    out.add(0d);
-//            }
-//        }
-//        return out;
-//    }
 
     ///////////////////////////////////////////////////////////////////
     // print

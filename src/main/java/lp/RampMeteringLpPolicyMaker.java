@@ -20,13 +20,12 @@ public class RampMeteringLpPolicyMaker implements RampMeteringPolicyMaker {
         LP = new ProblemRampMetering(fwy,K_dem,K_cool,eta,sim_dt_in_seconds);
     }
 
-    public void set_inital_condition(InitialDensitySet ic){
+    public void set_data(InitialDensitySet ic,DemandSet demand_set,SplitRatioSet split_ratios) throws Exception{
         fwy.set_ic(ic);
-    }
-
-    public void set_boundary_conditions(DemandSet demand_set,SplitRatioSet split_ratios) throws Exception{
         fwy.set_demands(demand_set);
         fwy.set_split_ratios(split_ratios);
+
+        LP.set_rhs_from_fwy(fwy);
     }
 
     public LP_solution solve() throws Exception {

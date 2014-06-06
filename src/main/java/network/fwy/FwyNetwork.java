@@ -52,7 +52,6 @@ public final class FwyNetwork {
         }
 
         num_segments = segments.size();
-
     }
 
     ///////////////////////////////////////////////////////////////////

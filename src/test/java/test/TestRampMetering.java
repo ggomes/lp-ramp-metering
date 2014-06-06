@@ -31,11 +31,9 @@ public class TestRampMetering {
         RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
 
         InitialDensitySet ics = scenario.getInitialDensitySet();
-        policy_maker.set_inital_condition(ics);
-
         DemandSet demands = scenario.getDemandSet();
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
-        policy_maker.set_boundary_conditions(demands,split_ratios);
+        policy_maker.set_data(ics,demands,split_ratios);
 
         LP_solution sdf = policy_maker.solve();
 
