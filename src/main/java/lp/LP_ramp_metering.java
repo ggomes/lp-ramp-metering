@@ -150,14 +150,17 @@ public class LP_ramp_metering {
 
             FwySegment seg = fwy.getSegments().get(i);
 
-            /* mainline conservation (LHS)
+            /* mainline conservation
+
                for each i in 0...I-1, k in 0...K-1
+
+               LHS:
                 {always}    {k>0}     {i>0}   {metered}       {betabar[i][k]>0}
                n[i][k+1] -n[i][k] -f[i-1][k]  -r[i][k] +inv(betabar[i][k])*f[i][k]
 
               RHS:
                     {k>0}  {k==0}
-               LHS =  0  + n[i][0]
+                      0  + n[i][0]
             */
 
             for(k=0;k<K;k++){
@@ -181,13 +184,16 @@ public class LP_ramp_metering {
                 rhs = k==0 ? seg.no : 0;
                 rhs += !seg.is_metered ? seg.d(k) : 0;
                 C.set_rhs(rhs);
-                LP.add_constraint(C);
+                LP.add_constraint(C,"mnl_cons"+i+"_"+k);
             }
 
-            /* RHS: or conservation
-               for each metered i in 0...I-1, k in 0...K-1
+            /* or conservation
+                for each metered i in 0...I-1, k in 0...K-1
+                LHS:
+                  ???
+                RHS:
                      {always}  {k==0}
-               LHS = d[i][k] + l[i][0]
+                     d[i][k] + l[i][0]
              */
             if(seg.is_metered)
                 for(k=0;k<K;k++){
@@ -197,15 +203,18 @@ public class LP_ramp_metering {
                 }
 
 
-            /* mainline flows - freeflow
+            /* mainline flows -
+
+            freeflow
+
+               LHS:
                for each i in 0...I-1, k in 0...K-1
                {always}           {k>0}                       {metered}
                f[i][k] -betabar[i][k]*v[i]*n[i][k] - betabar[i][k]*v[i]*gamma*r[i][k]
 
-              RHS: ml flow freeflow
                for each i in 0...I-1, k in 0...K-1
                                 {k==0}                      {!metered}
-               LHS <= betabar[i][0]*v[i]*n[i][0] + betabar[i][k]*v[i]*gamma*d[i][k]
+                   <= betabar[i][0]*v[i]*n[i][0] + betabar[i][k]*v[i]*gamma*d[i][k]
              */
             for(k=0;k<K;k++){
                 Linear C = new Linear();
@@ -223,8 +232,10 @@ public class LP_ramp_metering {
                 LP.add(C, "<=", rhs);
             }
 
-            /* RHS: ml flow congestion
-               for each i in 0...I-2, k in 0...K-1
+            /* ml flow congestion
+
+                RHS:
+                for each i in 0...I-2, k in 0...K-1
                          {always}              {k=0}             {!metered}
                LHS <= w[i+1]*njam[i+1] - w[i+1]*n[i+1][0] - w[i+1]*gamma*d[i+1][k]
              */
@@ -238,10 +249,12 @@ public class LP_ramp_metering {
                 }
             }
 
-            /* RHS: or flow demand
-               for each metered i in 0...I-1, k in 0...K-1
+            /* or flow demand
+
+                RHS:
+                for each metered i in 0...I-1, k in 0...K-1
                       {always}
-               LHS <= d[i][k]
+                    <= d[i][k]
              */
             if(seg.is_metered)
                 for(k=0;k<K;k++){
