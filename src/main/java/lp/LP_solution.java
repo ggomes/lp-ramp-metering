@@ -1,25 +1,26 @@
 package lp;
 
+import lp.problem.PointValue;
 import network.fwy.FwyNetwork;
 import network.fwy.FwySegment;
-import lp.problem.Problem;
 import lp.solver.ApacheSolver;
 
 import java.io.PrintWriter;
 
 public final class LP_solution {
 
-    protected int I;
-    protected int K;
     protected SegmentSolution [] Xopt;
+    protected int K;
+    protected int I;
 
-    public LP_solution(Problem LP, FwyNetwork fwy,int K){
+    public LP_solution(ProblemRampMetering LP, FwyNetwork fwy){
+
+        this.I = fwy.num_segments;
+        this.K = LP.K;
 
         ApacheSolver solver = new ApacheSolver();
-        Result result = solver.solve(LP);
+        PointValue result = solver.solve(LP);
 
-        this.I = fwy.segments.size();
-        this.K = K;
         this.Xopt = new SegmentSolution[I];
 
         int i,k;
@@ -31,15 +32,15 @@ public final class LP_solution {
 
             Xopt[i].n[0] = seg.no;
             for(k=0;k<K;k++){
-                Xopt[i].n[k+1] = result.get(getVar("n",i,k+1)).doubleValue();
-                Xopt[i].f[k] = result.get(getVar("f", i, k)).doubleValue();
+                Xopt[i].n[k+1] = result.get(getVar("n",i,k+1));
+                Xopt[i].f[k] = result.get(getVar("f", i, k));
             }
 
             if(seg.is_metered){
                 Xopt[i].l[0] = seg.lo;
                 for(k=0;k<K;k++){
-                    Xopt[i].l[k+1] = result.get(getVar("l",i,k+1)).doubleValue();
-                    Xopt[i].r[k] = result.get(getVar("r", i, k)).doubleValue();
+                    Xopt[i].l[k+1] = result.get(getVar("l",i,k+1));
+                    Xopt[i].r[k] = result.get(getVar("r", i, k));
                 }
             }
 
@@ -76,7 +77,7 @@ public final class LP_solution {
     }
 
     private static String getVar(String name,int seg_index,int timestep){
-        return LP_ramp_metering.getVar(name,seg_index,timestep);
+        return ProblemRampMetering.getVar(name,seg_index,timestep);
     }
 
     public String print(String var,int seg_index,boolean matlab){

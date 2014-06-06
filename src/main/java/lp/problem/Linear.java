@@ -36,17 +36,17 @@ public class Linear {
 
     // get  ..................................................
 
-    public boolean is_valid_cost(){
-        return !coefficients.isEmpty();
-    }
-
-    public boolean is_valid_bound(){
-        return !coefficients.isEmpty() && relation!=null;
-    }
-
-    public boolean is_valid_constraint(){
-        return !coefficients.isEmpty() && relation!=null && !Double.isNaN(rhs);
-    }
+//    public boolean is_valid_cost(){
+//        return !coefficients.isEmpty();
+//    }
+//
+//    public boolean is_valid_bound(){
+//        return !coefficients.isEmpty() && relation!=null;
+//    }
+//
+//    public boolean is_valid_constraint(){
+//        return !coefficients.isEmpty() && relation!=null && !Double.isNaN(rhs);
+//    }
 
     public double get_coefficient(String name){
         Double x = coefficients.get(name);

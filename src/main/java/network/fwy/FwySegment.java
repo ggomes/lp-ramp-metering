@@ -48,7 +48,7 @@ public final class FwySegment {
     // construction
     ///////////////////////////////////////////////////////////////////
 
-    public FwySegment(Link ml_link,Link or_link,Link fr_link, FundamentalDiagram fd, Actuator actuator,double sim_dt_in_seconds){
+    public FwySegment(Link ml_link,Link or_link,Link fr_link, FundamentalDiagram fd, Actuator actuator){
 
         // link references
         ml_link_id = ml_link==null?null:ml_link.getId();

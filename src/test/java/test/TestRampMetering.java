@@ -1,12 +1,11 @@
 package test;
 
 import jaxb.*;
-import lp.LP_ramp_metering;
 import lp.LP_solution;
+import lp.RampMeteringLpPolicyMaker;
 import network.beats.Network;
 import org.junit.Before;
 import org.junit.Test;
-import beats_link.RampMeteringLimitSet;
 
 public class TestRampMetering {
 
@@ -20,26 +19,24 @@ public class TestRampMetering {
     @Test
     public void testRampMetering() throws Exception {
 
-        LP_ramp_metering problem = new LP_ramp_metering();
-
         int K_dem = 0;
         int K_cool = 0;
+        double eta = .1d;
         double sim_dt_in_seconds = Double.NaN;
-        problem.set_parameters(K_dem, K_cool,sim_dt_in_seconds);
 
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
         ActuatorSet actuators = scenario.getActuatorSet();
-        problem.set_fwy(net,fds,actuators);
+        RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
 
         InitialDensitySet ics = scenario.getInitialDensitySet();
-        problem.set_inital_condition(ics);
+        policy_maker.set_inital_condition(ics);
 
         DemandSet demands = scenario.getDemandSet();
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
-        problem.set_boundary_conditions(demands,split_ratios);
+        policy_maker.set_boundary_conditions(demands,split_ratios);
 
-        LP_solution sdf = problem.solve();
+        LP_solution sdf = policy_maker.solve();
 
     }
 

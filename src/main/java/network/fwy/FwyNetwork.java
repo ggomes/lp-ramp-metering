@@ -11,18 +11,21 @@ import java.util.List;
 
 public final class FwyNetwork {
 
-    protected ArrayList<FwySegment> segments;
-    protected ArrayList<Long> ml_link_id;
-    protected ArrayList<Long> fr_link_id;
-    protected ArrayList<Long> or_link_id;
-    protected ArrayList<Long> or_source_id;
-    protected ArrayList<Long> fr_node_id;
+    public int num_segments;           // number of segments
+    public double gamma = 1d;          // merge coefficient
+
+    public ArrayList<FwySegment> segments;
+    public ArrayList<Long> ml_link_id;
+    public ArrayList<Long> fr_link_id;
+    public ArrayList<Long> or_link_id;
+    public ArrayList<Long> or_source_id;
+    public ArrayList<Long> fr_node_id;
 
     ///////////////////////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////////////////////
 
-    public FwyNetwork(Network network,jaxb.FundamentalDiagramSet fds,jaxb.ActuatorSet actuatorset,double sim_dt_in_seconds) throws Exception{
+    public FwyNetwork(Network network,jaxb.FundamentalDiagramSet fds,jaxb.ActuatorSet actuatorset) throws Exception{
 
         segments = new ArrayList<FwySegment>();
         ml_link_id = new ArrayList<Long>();
@@ -38,7 +41,7 @@ public final class FwyNetwork {
             Link offramp = end_node_offramp(link);
             FundamentalDiagram fd = get_fd_for_link(link,fds);
             Actuator actuator = get_onramp_actuator(onramp,actuatorset);
-            segments.add(new FwySegment(link,onramp,offramp,fd,actuator,sim_dt_in_seconds));
+            segments.add(new FwySegment(link,onramp,offramp,fd,actuator));
             ml_link_id.add(link.getId());
             or_link_id.add(onramp==null?null:onramp.getId());
             Link onramp_source = get_onramp_source(onramp);
@@ -47,6 +50,8 @@ public final class FwyNetwork {
             fr_node_id.add(offramp == null ? null : offramp.getBegin_node().getId());
             link = next_freeway_link(link);
         }
+
+        num_segments = segments.size();
 
     }
 
@@ -237,7 +242,7 @@ public final class FwyNetwork {
         }
     }
 
-    public void set_demands(DemandSet demand_set,double sim_dt_in_seconds,int K,int Kcool){
+    public void set_demands(DemandSet demand_set){
 
         // reset everything to zero
         for(FwySegment seg : segments)
@@ -261,12 +266,12 @@ public final class FwyNetwork {
                         }
                     }
                 }
-                seg.demand_profile = sample(demand,dp.getDt(),sim_dt_in_seconds,K,Kcool,false);
+                seg.demand_profile = sample(demand,dp.getDt(),K,Kcool,false);
             }
         }
     }
 
-    public void set_split_ratios(SplitRatioSet srs,double sim_dt_in_seconds,int K,int Kcool) throws Exception{
+    public void set_split_ratios(SplitRatioSet srs) throws Exception{
         int index;
 
         for(SplitRatioProfile srp : srs.getSplitRatioProfile()){
@@ -291,7 +296,7 @@ public final class FwyNetwork {
                 if(fr_split.isEmpty() && !ml_split.isEmpty())
                     for(Double d : ml_split)
                         fr_split.add(1-d);
-                segments.get(index).split_ratio_profile = sample(fr_split,srp.getDt(),sim_dt_in_seconds,K,Kcool,true);
+                segments.get(index).split_ratio_profile = sample(fr_split,srp.getDt(),K,Kcool,true);
             }
         }
     }
