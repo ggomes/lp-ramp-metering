@@ -36,9 +36,9 @@ public final class FwySegment {
     public Double r_max;     // [veh] maximum or meterign rate
 
     // constraints
-    public List<Linear> ORcons = new ArrayList<Linear>();
-    public List<Linear> MLcng = new ArrayList<Linear>();
-    public List<Linear> ORdem = new ArrayList<Linear>();
+//    public List<Linear> ORcons = new ArrayList<Linear>();
+//    public List<Linear> MLcng = new ArrayList<Linear>();
+//    public List<Linear> ORdem = new ArrayList<Linear>();
 
     // data profiles
     public ArrayList<Double> demand_profile;         // [veh] onramp demands

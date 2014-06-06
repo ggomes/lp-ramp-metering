@@ -1,15 +1,13 @@
 package test;
 
 import jaxb.*;
+import lp.LP_ramp_metering;
+import lp.LP_solution;
+import network.beats.Network;
 import org.junit.Before;
 import org.junit.Test;
 import beats_link.RampMeteringLimitSet;
-import beats_link.RampMeteringLpPolicyMaker;
-import beats_link.RampMeteringPolicySet;
 
-/**
- * Created by gomes on 6/5/14.
- */
 public class TestRampMetering {
 
     private Scenario scenario;
@@ -22,18 +20,27 @@ public class TestRampMetering {
     @Test
     public void testRampMetering() throws Exception {
 
-        RampMeteringLpPolicyMaker rmpm = new RampMeteringLpPolicyMaker();
+        LP_ramp_metering problem = new LP_ramp_metering();
 
-        Network net = scenario.getNetworkSet().getNetwork().get(0);
-        FundamentalDiagramSet fd = scenario.getFundamentalDiagramSet();
-        DemandSet demand = scenario.getDemandSet();
-        SplitRatioSet splitRatios = scenario.getSplitRatioSet();
+        int K_dem = 0;
+        int K_cool = 0;
+        double sim_dt_in_seconds = Double.NaN;
+        problem.set_parameters(K_dem, K_cool,sim_dt_in_seconds);
+
+        Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
+        FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
+        ActuatorSet actuators = scenario.getActuatorSet();
+        problem.set_fwy(net,fds,actuators);
+
         InitialDensitySet ics = scenario.getInitialDensitySet();
-        RampMeteringLimitSet limit_set = null;
-        Double dt = 5d;
+        problem.set_inital_condition(ics);
 
-        RampMeteringPolicySet policy_set = rmpm.givePolicy(net,fd,demand,splitRatios,ics,limit_set,dt);
+        DemandSet demands = scenario.getDemandSet();
+        SplitRatioSet split_ratios = scenario.getSplitRatioSet();
+        problem.set_boundary_conditions(demands,split_ratios);
 
-        System.out.println(policy_set);
+        LP_solution sdf = problem.solve();
+
     }
+
 }
