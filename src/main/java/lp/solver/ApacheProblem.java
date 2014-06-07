@@ -43,7 +43,7 @@ public class ApacheProblem {
         }
 
         // add bounds to constraints (FIX THIS!!)
-        for(Linear L : P.bounds){
+        for(Linear L : P.bounds.values()){
             double value = L.get_rhs();
             double[] coef = new double[num_unknowns];
             for(int i=0;i<num_unknowns;i++)

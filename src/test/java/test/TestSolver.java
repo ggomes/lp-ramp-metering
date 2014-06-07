@@ -46,7 +46,7 @@ public class TestSolver {
         linear.set_rhs(75);
         problem.add_constraint(linear, "3");
 
-        problem.add_bound("x", Relation.LEQ, 16);
+        problem.add_bound("x", Relation.LEQ, 16,"xbound");
     }
 
     @Test

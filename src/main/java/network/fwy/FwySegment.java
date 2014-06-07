@@ -77,6 +77,9 @@ public final class FwySegment {
             l_max = Double.POSITIVE_INFINITY;
         }
 
+        this.no = 0d;
+        this.lo = 0d;
+
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -117,9 +120,13 @@ public final class FwySegment {
 
     // t in seconds
     public double get_demand_in_vps(double t){
+        if(demand_profile==null)
+            return 0d;
         double epsilon = 1e-4;
         int k = (int) Math.floor((t+epsilon)/demand_profile_dt);
-        return k>=0 && k<demand_profile.size() ? demand_profile.get(k) : 0d;
+        return k>=0 && k<demand_profile.size() ?
+                demand_profile.get(k) :
+                0d;
     }
 
     public void set_split_ratios(ArrayList<Double> fr_split,double dt){
@@ -129,9 +136,13 @@ public final class FwySegment {
 
     // t in seconds
     public double get_split_ratio(double t){
+        if(split_ratio_profile==null)
+            return 0d;
         double epsilon = 1e-4;
         int k = (int) Math.floor((t+epsilon)/split_ratio_profile_dt);
-        return k>=0 && k<demand_profile.size() ? demand_profile.get(k) : demand_profile.get(demand_profile.size()-1);
+        return k>=0 && k<split_ratio_profile.size() ?
+                split_ratio_profile.get(k) :
+                split_ratio_profile.get(split_ratio_profile.size()-1);
     }
 
     public void add_to_no_in_vpm(double x){

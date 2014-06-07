@@ -32,6 +32,10 @@ public class RampMeteringLpPolicyMaker implements RampMeteringPolicyMaker {
         return new LP_solution(LP,fwy);
     }
 
+    public void printLP(){
+        System.out.println(LP);
+    }
+
 
     @Override
     public RampMeteringPolicySet givePolicy(Network net, FundamentalDiagramSet fd, DemandSet demand, SplitRatioSet splitRatios, InitialDensitySet ics, RampMeteringLimitSet control, Double dt) {

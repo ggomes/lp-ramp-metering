@@ -17,7 +17,10 @@ public class ProblemRampMetering extends lp.problem.Problem {
         MLFLW_CNG,
         MLFLW_CAP,
         ORCONS,
-        ORFLW_DEM
+        ORFLW_DEM,
+        ORMETER_MAX,
+        ORQUEUE_MAX,
+        ORFLW_POS
     }
     protected int K;                // number of time steps (demand+cooldown)
     protected int Kcool;            // number of cooldown time steps
@@ -37,7 +40,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
         // objective function: sum_[I][K] n[i][k] + sum_[Im][K] l[i][k] - eta sum_[I][K] f[i][k] - eta sum[Im][K] r[i][k]
         Linear cost = new Linear();
         for(i=0;i<fwy.num_segments;i++){
-            FwySegment seg = fwy.getSegments().get(i);
+            FwySegment seg = fwy.get_segment(i);
             for(k=0;k<K;k++){
                 cost.add_coefficient( 1.0, getVar("n",i,k+1));
                 cost.add_coefficient(-eta, getVar("f",i,k));
@@ -51,7 +54,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
         setObjective(cost, OptType.MIN);
 
         for(i=0;i<fwy.num_segments;i++){
-            FwySegment seg = fwy.getSegments().get(i);
+            FwySegment seg = fwy.get_segment(i);
 
             double vf = seg.get_vf_vps()*sim_dt_in_seconds;
             double f_max = seg.get_fmax_vps()*sim_dt_in_seconds;
@@ -120,7 +123,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
 
                 // MAINLINE CONGESTION .................................................
                 if(i<fwy.num_segments-1){
-                    FwySegment next_seg = fwy.getSegments().get(i+1);
+                    FwySegment next_seg = fwy.get_segment(i+1);;
 
                     double next_w = next_seg.get_w_vps()*sim_dt_in_seconds;
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
@@ -152,7 +155,8 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 }
 
                 // MAINLINE CAPACITY        f[i][k] <= f_max[i]
-                add_bound(getVar("f", i, k), Relation.LEQ, f_max);
+                add_bound(getVar("f", i, k), Relation.LEQ,
+                          f_max,getCnstr(CnstType.MLFLW_CAP,i,k));
 
                 if(seg.is_metered){
 
@@ -198,14 +202,18 @@ public class ProblemRampMetering extends lp.problem.Problem {
                     add_constraint(C5,getCnstr(CnstType.ORFLW_DEM,i,k));
 
                     // MAX METERING RATE: r[i][k] <= rmax[i] ............................
-                    add_bound("max"+getVar("r",i,k),Relation.LEQ,r_max);
+                    if(!Double.isInfinite(r_max))
+                        add_bound(getVar("r", i, k),Relation.LEQ,r_max,
+                                  getCnstr(CnstType.ORMETER_MAX,i,k));
 
                     // ONRAMP FLOW NON-NEGATIVE: r[i][k] >= 0 ...........................
-                    add_bound("min"+getVar("r",i,k),Relation.GEQ,0d);
+                    add_bound(getVar("r",i,k),Relation.GEQ,0d,
+                              getCnstr(CnstType.ORFLW_POS,i,k));
 
                     // ONRAMP MAX QUEUE: l[i][k+1] <= lmax[i] .............................
                     if(!seg.l_max.isInfinite())
-                        add_bound("max"+getVar("l",i,k+1),Relation.LEQ,seg.l_max);
+                        add_bound(getVar("l",i,k+1),Relation.LEQ,seg.l_max,
+                                  getCnstr(CnstType.ORQUEUE_MAX,i,k));
                 }
             }
         }
@@ -217,7 +225,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
         double rhs;
 
         for(i=0;i<fwy.num_segments;i++){
-            FwySegment seg = fwy.getSegments().get(i);
+            FwySegment seg = fwy.get_segment(i);
 
             double vf = seg.get_vf_vps()*sim_dt_in_seconds;
 
@@ -241,7 +249,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
 
                 // MAINLINE CONGESTION ..............................
                 if(i<fwy.num_segments-1){
-                    FwySegment next_seg = fwy.getSegments().get(i+1);
+                    FwySegment next_seg = fwy.get_segment(i+1);
 
                     double next_w = next_seg.get_w_vps()*sim_dt_in_seconds;
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
@@ -265,11 +273,11 @@ public class ProblemRampMetering extends lp.problem.Problem {
     }
 
     public static String getVar(String name,int index,int timestep){
-        return name+"_"+index+"_"+timestep;
+        return name+","+index+","+timestep;
     }
 
     public static String getCnstr(CnstType cnst,int i,int k){
-        return cnst.toString() + "_" + i + "_" + k;
+        return cnst.toString() + "," + i + "," + k;
     }
 
 }

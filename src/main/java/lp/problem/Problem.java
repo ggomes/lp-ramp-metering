@@ -21,7 +21,7 @@ public class Problem {
     }
 
     public HashMap<String,Linear> constraints = new HashMap<String,Linear>();
-    public ArrayList<Linear> bounds = new ArrayList <Linear>();
+    public HashMap<String,Linear> bounds = new HashMap<String,Linear>();
     public Linear cost = new Linear();
     public OptType opt_type = OptType.MIN;
 
@@ -37,19 +37,19 @@ public class Problem {
         this.constraints.put(name,linear);
     }
 
-    public void add_bound(String name,Relation relation,double x){
+    public void add_bound(String varname,Relation relation,double x,String bndname){
         Linear bound = new Linear();
-        bound.add_coefficient(1d, name);
+        bound.add_coefficient(1d,varname);
         bound.set_relation(relation);
         bound.set_rhs(x);
-        bounds.add(bound);
+        bounds.put(bndname,bound);
     }
 
     /** collect unique variable names from cost, constraints, and bounds **/
     public String [] get_unique_unknowns(){
         HashSet<String> unique_unknowns = new HashSet<String>();
         unique_unknowns.addAll(cost.get_unknowns());
-        for(Linear L : bounds)
+        for(Linear L : bounds.values())
             unique_unknowns.addAll(L.get_unknowns());
         for(Linear L : constraints.values())
             unique_unknowns.addAll(L.get_unknowns());
@@ -81,8 +81,11 @@ public class Problem {
             str += "\t" + pairs.getKey() + ": " + pairs.getValue() + "\n";
         }
         str += "With bounds:\n";
-        for(Linear L : bounds)
-            str += "\t" + L + "\n";
+        Iterator bit = bounds.entrySet().iterator();
+        while (bit.hasNext()) {
+            Map.Entry pairs = (Map.Entry)bit.next();
+            str += "\t" + pairs.getKey() + ": " + pairs.getValue() + "\n";
+        }
         return str;
     }
 }

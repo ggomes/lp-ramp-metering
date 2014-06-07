@@ -26,7 +26,7 @@ public final class LP_solution {
         int i,k;
         for(i=0;i<I;i++){
 
-            FwySegment seg = fwy.segments.get(i);
+            FwySegment seg = fwy.get_segment(i);
 
             Xopt[i] = new SegmentSolution(seg,K);
 
