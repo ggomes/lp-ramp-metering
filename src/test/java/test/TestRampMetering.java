@@ -1,8 +1,9 @@
 package test;
 
 import jaxb.*;
-import lp.LP_solution;
+import lp.RampMeteringSolution;
 import lp.RampMeteringLpPolicyMaker;
+import lp.solver.SolverType;
 import network.beats.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,10 +35,11 @@ public class TestRampMetering {
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
         policy_maker.set_data(ics,demands,split_ratios);
 
-
         policy_maker.printLP();
 
-        LP_solution sol = policy_maker.solve();
+        RampMeteringSolution sol = policy_maker.solve(SolverType.LPSOLVE);
+
+        System.out.println("\n\nSOLVED:\n"+sol.print(true));
 
     }
 

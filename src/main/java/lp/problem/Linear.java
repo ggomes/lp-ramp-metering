@@ -71,9 +71,15 @@ public class Linear {
         Iterator it = coefficients.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry)it.next();
-            str +=  String.format("%.2f",pairs.getValue()) + " " + pairs.getKey();
-            if(it.hasNext())
+            Double value = (Double) pairs.getValue();
+            if(value>=0)
                 str += " + ";
+            else
+                str += " - ";
+            if(Linear.equals(Math.abs(value),1d))
+                str +=  pairs.getKey();
+            else
+                str +=  String.format("%.2f",Math.abs(value)) + " " + pairs.getKey();
         }
         if(relation!=null){
             switch(relation){
@@ -93,4 +99,9 @@ public class Linear {
         }
         return str;
     }
+
+    public static boolean equals(double x,double y){
+        return Math.abs(x-y)<1e-4;
+    }
+
 }

@@ -9,7 +9,7 @@ import java.util.HashMap;
 /**
  * Created by gomes on 6/9/14.
  */
-public class LpSolveSolver {
+public class LpSolveSolver implements Solver {
 
     public static HashMap<Relation,Integer> relation_map = new HashMap<Relation,Integer>();
 //    public static HashMap<OptType,GoalType> opt_map = new HashMap<OptType,GoalType>();
@@ -22,16 +22,31 @@ public class LpSolveSolver {
     }
 
 
+    @Override
     public PointValue solve(Problem P){
+
+        double [] opt_values = null;
+        double opt_cost = Double.NaN;
+        String [] unknowns = null;
 
         try {
 
-            String [] unknowns = P.get_unique_unknowns();
+            unknowns = P.get_unique_unknowns();
             int num_unknowns = unknowns.length;
             int num_constraints = P.get_num_bounds() + P.get_num_constraints();
 
-            // Create a problem with 4 variables and 0 constraints
-            LpSolve solver = LpSolve.makeLp(num_unknowns,num_constraints);
+            // Create a problem
+            LpSolve solver = LpSolve.makeLp(num_constraints,num_unknowns);
+
+            if(solver.getLp()==0)
+                System.err.println("Couldn't construct a new model.");
+
+            // name the variables
+            for(int i=0;i<num_unknowns;i++)
+                solver.setColName(i+1,unknowns[i]);
+
+            // makes building the model faster if it is done rows by row
+            solver.setAddRowmode(true);
 
             // add constraints
             for(Linear L : P.constraints.values()){
@@ -53,30 +68,50 @@ public class LpSolveSolver {
                 solver.addConstraint(coef, relation, value);
             }
 
+            // rowmode should be turned off again when done building the model
+            solver.setAddRowmode(false);
+
             // set objective function
             double[] coef = new double[num_unknowns];
             for(int i=0;i<num_unknowns;i++)
                 coef[i] = P.cost.get_coefficient(unknowns[i]);
             solver.setObjFn(coef);
 
+            // set the object direction to maximize
+            solver.setMinim();
+
+            // print problem to file
+            solver.writeLp("model.lp");
+            solver.writeMps("model.mps");
+
+            // I only want to see important messages on screen while solving
+            solver.setVerbose(LpSolve.IMPORTANT);
+
             // solve the problem
-            solver.solve();
+            int ret = solver.solve();
+
+            if(ret == LpSolve.OPTIMAL)
+                ret = 0;
+            else
+                ret = 5;
 
             // print solution
             System.out.println("Value of objective function: " + solver.getObjective());
-            double[] var = solver.getPtrVariables();
-            for (int i = 0; i < var.length; i++) {
-                System.out.println("Value of var[" + i + "] = " + var[i]);
-            }
+            opt_values = solver.getPtrVariables();
+            opt_cost = solver.getObjective();
+            for (int i = 0; i < opt_values.length; i++)
+                System.out.println(solver.getColName(i+1) + " = " + opt_values[i]);
 
             // delete the problem and free memory
-            solver.deleteLp();
+            if(solver.getLp()!=0)
+                solver.deleteLp();
         }
         catch (LpSolveException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return new PointValue(unknowns,opt_values,opt_cost);
+
     }
 
 }

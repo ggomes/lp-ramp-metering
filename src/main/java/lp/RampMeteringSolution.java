@@ -2,25 +2,35 @@ package lp;
 
 import lp.problem.PointValue;
 import lp.solver.LpSolveSolver;
+import lp.solver.Solver;
+import lp.solver.SolverType;
 import network.fwy.FwyNetwork;
 import network.fwy.FwySegment;
 import lp.solver.ApacheSolver;
 
 import java.io.PrintWriter;
 
-public final class LP_solution {
+public final class RampMeteringSolution {
 
     protected SegmentSolution [] Xopt;
     protected int K;
     protected int I;
 
-    public LP_solution(ProblemRampMetering LP, FwyNetwork fwy){
+    public RampMeteringSolution(ProblemRampMetering LP, FwyNetwork fwy, SolverType solver_type){
 
         this.I = fwy.num_segments;
         this.K = LP.K;
 
-        //ApacheSolver solver = new ApacheSolver();
-        LpSolveSolver solver = new LpSolveSolver();
+        Solver solver = null;
+        switch(solver_type){
+            case APACHE:
+                solver = new ApacheSolver();
+                break;
+            case LPSOLVE:
+                solver = new LpSolveSolver();
+                break;
+        }
+
         PointValue result = solver.solve(LP);
 
         this.Xopt = new SegmentSolution[I];

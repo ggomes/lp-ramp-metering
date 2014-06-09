@@ -40,7 +40,9 @@ public class Problem {
             unique_unknowns.addAll(L.get_unknowns());
         for(Linear L : constraints.values())
             unique_unknowns.addAll(L.get_unknowns());
-        return unique_unknowns.toArray(new String[unique_unknowns.size ()]);
+        String [] a = unique_unknowns.toArray(new String[unique_unknowns.size ()]);
+        Arrays.sort(a);
+        return a;
     }
 
     public void set_constraint_rhs(String name,double value){

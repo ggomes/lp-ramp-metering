@@ -14,7 +14,7 @@ import java.util.HashMap;
 /**
  * Created by gomes on 6/4/14.
  */
-public class ApacheSolver {
+public class ApacheSolver implements Solver {
 
     public static HashMap<Relation,Relationship> relation_map = new HashMap<Relation,Relationship>();
     public static HashMap<OptType,GoalType> opt_map = new HashMap<OptType,GoalType>();
@@ -26,7 +26,8 @@ public class ApacheSolver {
         opt_map.put(OptType.MIN,GoalType.MINIMIZE);
     }
 
-    public PointValue solve(Problem P){
+    @Override
+    public PointValue solve(Problem P) {
         ApacheProblem aP = new ApacheProblem(P);
         SimplexSolver solver = new SimplexSolver();
         PointValuePair pair = solver.optimize(

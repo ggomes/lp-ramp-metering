@@ -5,6 +5,7 @@ import beats_link.RampMeteringPolicyMaker;
 import beats_link.RampMeteringPolicySet;
 import jaxb.*;
 import jaxb.Network;
+import lp.solver.SolverType;
 import network.fwy.FwyNetwork;
 
 /**
@@ -28,8 +29,8 @@ public class RampMeteringLpPolicyMaker implements RampMeteringPolicyMaker {
         LP.set_rhs_from_fwy(fwy);
     }
 
-    public LP_solution solve() throws Exception {
-        return new LP_solution(LP,fwy);
+    public RampMeteringSolution solve(SolverType solver_type) throws Exception {
+        return new RampMeteringSolution(LP,fwy,solver_type);
     }
 
     public void printLP(){
