@@ -18,10 +18,10 @@ public final class FwySegment {
     private Long fr_node_id;
 
     // fundamental diagram
-    private Double vf;        // [veh/sec] free flow speed
-    private Double w;         // [veh/sec] congestion wave speed
+    private Double vf;        // [link/sec] free flow speed
+    private Double w;         // [link/sec] congestion wave speed
     private Double f_max;     // [veh/sec] mainline capacity
-    public  Double n_max;     // [veh] mainline jam density
+    public  Double n_max;     // [veh/link] mainline jam density
     private Double ml_link_length; // [m] length of the mainline link
     private Double or_link_length; // [m] length of the onramp link
     public Double or_lanes;  // [-] onramp lanes
@@ -63,7 +63,7 @@ public final class FwySegment {
         vf = fd.getFreeFlowSpeed()/ml_link_length;
         w = fd.getCongestionSpeed()/ml_link_length;
         n_max = fd.getJamDensity()!=null ? fd.getJamDensity() : f_max*(1/vf+1/w);
-        n_max *= ml_link_length*ml_lanes;
+        n_max *= ml_lanes;
 
         // metering
         is_metered = actuator!=null;
@@ -89,13 +89,13 @@ public final class FwySegment {
     public double get_fmax_vps(){
         return this.f_max;
     }
-    public double get_w_vps(){
+    public double get_w_link_per_sec(){
         return this.w;
     }
     public double get_rmax_vps(){
         return this.r_max;
     }
-    public double get_vf_vps(){
+    public double get_vf_link_per_sec(){
         return this.vf;
     }
 

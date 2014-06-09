@@ -5,6 +5,8 @@ import lpsolve.LpSolve;
 import lpsolve.LpSolveException;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by gomes on 6/9/14.
@@ -12,13 +14,10 @@ import java.util.HashMap;
 public class LpSolveSolver implements Solver {
 
     public static HashMap<Relation,Integer> relation_map = new HashMap<Relation,Integer>();
-//    public static HashMap<OptType,GoalType> opt_map = new HashMap<OptType,GoalType>();
     static {
         relation_map.put(Relation.EQ,LpSolve.EQ);
         relation_map.put(Relation.LEQ,LpSolve.LE);
         relation_map.put(Relation.GEQ,LpSolve.GE);
-//        opt_map.put(OptType.MAX,GoalType.MAXIMIZE);
-//        opt_map.put(OptType.MIN,GoalType.MINIMIZE);
     }
 
 
@@ -36,7 +35,7 @@ public class LpSolveSolver implements Solver {
             int num_constraints = P.get_num_bounds() + P.get_num_constraints();
 
             // Create a problem
-            LpSolve solver = LpSolve.makeLp(num_constraints,num_unknowns);
+            LpSolve solver = LpSolve.makeLp(0,num_unknowns);
 
             if(solver.getLp()==0)
                 System.err.println("Couldn't construct a new model.");
@@ -49,23 +48,34 @@ public class LpSolveSolver implements Solver {
             solver.setAddRowmode(true);
 
             // add constraints
-            for(Linear L : P.constraints.values()){
+
+            Iterator cit = P.constraints.entrySet().iterator();
+            while (cit.hasNext()) {
+                Map.Entry pairs = (Map.Entry)cit.next();
+                String name = (String) pairs.getKey();
+                Linear L = (Linear) pairs.getValue();
                 double value = L.get_rhs();
                 double[] coef = new double[num_unknowns];
                 for(int i=0;i<num_unknowns;i++)
                     coef[i] = L.get_coefficient(unknowns[i]);
                 Integer relation = LpSolveSolver.relation_map.get(L.get_relation());
                 solver.addConstraint(coef, relation, value);
+                solver.setRowName(solver.getNrows(),name);
             }
 
             // add bounds
-            for(Linear L : P.bounds.values()){
+            Iterator bit = P.bounds.entrySet().iterator();
+            while (bit.hasNext()) {
+                Map.Entry pairs = (Map.Entry)bit.next();
+                String name = (String) pairs.getKey();
+                Linear L = (Linear) pairs.getValue();
                 double value = L.get_rhs();
                 double[] coef = new double[num_unknowns];
                 for(int i=0;i<num_unknowns;i++)
                     coef[i] = L.get_coefficient(unknowns[i]);
                 Integer relation = LpSolveSolver.relation_map.get(L.get_relation());
                 solver.addConstraint(coef, relation, value);
+                solver.setRowName(solver.getNrows(),name);
             }
 
             // rowmode should be turned off again when done building the model
@@ -78,11 +88,17 @@ public class LpSolveSolver implements Solver {
             solver.setObjFn(coef);
 
             // set the object direction to maximize
-            solver.setMinim();
+            switch(P.opt_type){
+                case MAX:
+                    solver.setMaxim();
+                    break;
+                case MIN:
+                    solver.setMinim();
+            }
 
             // print problem to file
-            solver.writeLp("model.lp");
-            solver.writeMps("model.mps");
+            solver.writeLp("data\\output\\model.lp");
+            solver.writeMps("data\\output\\model.mps");
 
             // I only want to see important messages on screen while solving
             solver.setVerbose(LpSolve.IMPORTANT);

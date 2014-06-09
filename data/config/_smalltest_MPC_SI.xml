@@ -33,25 +33,25 @@
 
   <FundamentalDiagramSet project_id="-1" id="-1">
     <fundamentalDiagramProfile id="-1" link_id="-1">
-      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056" jam_density="93.75" free_flow_speed="26.8224"/>
+      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056" free_flow_speed="26.8224"/>
     </fundamentalDiagramProfile>
     <fundamentalDiagramProfile id="-1" link_id="-2">
-      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056" jam_density="93.75" free_flow_speed="26.8224"/>
+      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056"  free_flow_speed="26.8224"/>
     </fundamentalDiagramProfile>
     <fundamentalDiagramProfile id="-1" link_id="-3">
-      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056" jam_density="93.75" free_flow_speed="26.8224"/>
+      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056"  free_flow_speed="26.8224"/>
     </fundamentalDiagramProfile>
     <fundamentalDiagramProfile id="-1" link_id="-4">
-      <fundamentalDiagram id="-1" capacity="0.083333" congestion_speed="6.7056" jam_density="93.75" free_flow_speed="26.8224"/>
+      <fundamentalDiagram id="-1" capacity="0.083333" congestion_speed="6.7056"  free_flow_speed="26.8224"/>
     </fundamentalDiagramProfile>
     <fundamentalDiagramProfile id="-1" link_id="-5">
-      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056" jam_density="93.75" free_flow_speed="26.8224"/>
+      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056"  free_flow_speed="26.8224"/>
     </fundamentalDiagramProfile>
     <fundamentalDiagramProfile id="-1" link_id="-6">
-      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056" jam_density="93.75" free_flow_speed="26.8224"/>
+      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056"  free_flow_speed="26.8224"/>
     </fundamentalDiagramProfile>
     <fundamentalDiagramProfile id="-1" link_id="-7">
-      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056" jam_density="93.75" free_flow_speed="26.8224"/>
+      <fundamentalDiagram id="-1" capacity="0.5" congestion_speed="6.7056"  free_flow_speed="26.8224"/>
     </fundamentalDiagramProfile>
   </FundamentalDiagramSet>
   
