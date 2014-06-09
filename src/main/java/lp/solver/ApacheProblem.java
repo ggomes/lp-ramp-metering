@@ -38,7 +38,7 @@ public class ApacheProblem {
             double[] coef = new double[num_unknowns];
             for(int i=0;i<num_unknowns;i++)
                 coef[i] = L.get_coefficient(unknowns[i]);
-            Relationship relationship = P.relation_map.get(L.get_relation());
+            Relationship relationship = ApacheSolver.relation_map.get(L.get_relation());
             constraints.add(new LinearConstraint(coef, relationship, value));
         }
 
@@ -48,12 +48,12 @@ public class ApacheProblem {
             double[] coef = new double[num_unknowns];
             for(int i=0;i<num_unknowns;i++)
                 coef[i] = L.get_coefficient(unknowns[i]);
-            Relationship relationship = P.relation_map.get(L.get_relation());
+            Relationship relationship = ApacheSolver.relation_map.get(L.get_relation());
             constraints.add(new LinearConstraint(coef, relationship, value));
         }
 
         // goal type
-        this.goalType = P.opt_map.get(P.opt_type);
+        this.goalType = ApacheSolver.opt_map.get(P.opt_type);
     }
 
     public LinearObjectiveFunction get_obj(){

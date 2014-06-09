@@ -1,6 +1,7 @@
 package lp;
 
 import lp.problem.PointValue;
+import lp.solver.LpSolveSolver;
 import network.fwy.FwyNetwork;
 import network.fwy.FwySegment;
 import lp.solver.ApacheSolver;
@@ -18,7 +19,8 @@ public final class LP_solution {
         this.I = fwy.num_segments;
         this.K = LP.K;
 
-        ApacheSolver solver = new ApacheSolver();
+        //ApacheSolver solver = new ApacheSolver();
+        LpSolveSolver solver = new LpSolveSolver();
         PointValue result = solver.solve(LP);
 
         this.Xopt = new SegmentSolution[I];

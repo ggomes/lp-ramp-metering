@@ -1,24 +1,11 @@
 package lp.problem;
 
-import org.apache.commons.math3.optimization.GoalType;
-import org.apache.commons.math3.optimization.linear.Relationship;
-
 import java.util.*;
 
 /**
  * Created by gomes on 6/3/14.
  */
 public class Problem {
-
-    public static HashMap<Relation,Relationship> relation_map = new HashMap<Relation,Relationship>();
-    public static HashMap<OptType,GoalType> opt_map = new HashMap<OptType,GoalType>();
-    static {
-        relation_map.put(Relation.EQ  , Relationship.EQ);
-        relation_map.put(Relation.LEQ , Relationship.LEQ);
-        relation_map.put(Relation.GEQ , Relationship.GEQ);
-        opt_map.put(OptType.MAX,GoalType.MAXIMIZE);
-        opt_map.put(OptType.MIN,GoalType.MINIMIZE);
-    }
 
     public HashMap<String,Linear> constraints = new HashMap<String,Linear>();
     public HashMap<String,Linear> bounds = new HashMap<String,Linear>();
@@ -60,6 +47,14 @@ public class Problem {
         Linear C = constraints.get(name);
         if(C!=null)
             C.set_rhs(value);
+    }
+
+    public int get_num_constraints(){
+        return constraints.size();
+    }
+
+    public int get_num_bounds(){
+        return bounds.size();
     }
 
     @Override
