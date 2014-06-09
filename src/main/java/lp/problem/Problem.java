@@ -59,6 +59,12 @@ public class Problem {
 
     @Override
     public String toString() {
+
+
+        TreeMap<String,Linear> sorted_constraints = new TreeMap<String,Linear>(constraints);
+        TreeMap<String,Linear> sorted_bounds = new TreeMap<String,Linear>(bounds);
+
+
         String str = "";
         switch(opt_type){
             case MAX:
@@ -70,13 +76,13 @@ public class Problem {
         }
         str += "\t" + cost.toString() + "\n";
         str += "Subject to:\n";
-        Iterator cit = constraints.entrySet().iterator();
+        Iterator cit = sorted_constraints.entrySet().iterator();
         while (cit.hasNext()) {
             Map.Entry pairs = (Map.Entry)cit.next();
             str += "\t" + pairs.getKey() + ": " + pairs.getValue() + "\n";
         }
         str += "With bounds:\n";
-        Iterator bit = bounds.entrySet().iterator();
+        Iterator bit = sorted_bounds.entrySet().iterator();
         while (bit.hasNext()) {
             Map.Entry pairs = (Map.Entry)bit.next();
             str += "\t" + pairs.getKey() + ": " + pairs.getValue() + "\n";

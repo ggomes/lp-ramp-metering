@@ -71,7 +71,7 @@ public class Linear {
         Iterator it = coefficients.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry)it.next();
-            str +=  pairs.getValue() + " " + pairs.getKey();
+            str +=  String.format("%.2f",pairs.getValue()) + " " + pairs.getKey();
             if(it.hasNext())
                 str += " + ";
         }
@@ -89,7 +89,7 @@ public class Linear {
             }
 
             if(!Double.isNaN(rhs))
-                str += rhs;
+                str += String.format("%.2f",rhs);
         }
         return str;
     }

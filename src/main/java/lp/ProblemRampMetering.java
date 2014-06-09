@@ -273,11 +273,11 @@ public class ProblemRampMetering extends lp.problem.Problem {
     }
 
     public static String getVar(String name,int index,int timestep){
-        return name+","+index+","+timestep;
+        return name+"["+index+"]["+timestep+"]";
     }
 
     public static String getCnstr(CnstType cnst,int i,int k){
-        return cnst.toString() + "," + i + "," + k;
+        return cnst.toString() + "[" + i + "][" + k +"]";
     }
 
 }
