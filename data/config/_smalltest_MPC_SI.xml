@@ -219,7 +219,7 @@
           <dynamics type="CTM"/>
         </link>
         <link id="-7" lanes="1" length="100" >
-          <link_type id="-1" name="offramp"/>
+          <link_type id="-1" name="off-ramp"/>
           <roads>
             <road id="0" name="University Ave"/>
           </roads>

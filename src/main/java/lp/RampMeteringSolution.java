@@ -31,6 +31,9 @@ public final class RampMeteringSolution {
                 break;
         }
 
+        System.out.println("#unknowns = " + LP.get_num_unknowns());
+        System.out.println("#constraints = " + (LP.get_num_constraints()+LP.get_num_bounds()));
+
         PointValue result = solver.solve(LP);
 
         this.Xopt = new SegmentSolution[I];

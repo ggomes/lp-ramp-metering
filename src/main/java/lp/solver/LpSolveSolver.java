@@ -20,7 +20,6 @@ public class LpSolveSolver implements Solver {
         relation_map.put(Relation.GEQ,LpSolve.GE);
     }
 
-
     @Override
     public PointValue solve(Problem P){
 
@@ -32,15 +31,16 @@ public class LpSolveSolver implements Solver {
 
             unknowns = P.get_unique_unknowns();
             int num_unknowns = unknowns.length;
-            int num_constraints = P.get_num_bounds() + P.get_num_constraints();
 
             // Create a problem
+            System.out.println("Creating lp.");
             LpSolve solver = LpSolve.makeLp(0,num_unknowns);
 
             if(solver.getLp()==0)
                 System.err.println("Couldn't construct a new model.");
 
             // name the variables
+            System.out.println("Naming variables.");
             for(int i=0;i<num_unknowns;i++)
                 solver.setColName(i+1,unknowns[i]);
 
@@ -48,7 +48,7 @@ public class LpSolveSolver implements Solver {
             solver.setAddRowmode(true);
 
             // add constraints
-
+            System.out.println("Adding constraints.");
             Iterator cit = P.constraints.entrySet().iterator();
             while (cit.hasNext()) {
                 Map.Entry pairs = (Map.Entry)cit.next();
@@ -64,7 +64,7 @@ public class LpSolveSolver implements Solver {
             }
 
             // add bounds
-            Iterator bit = P.bounds.entrySet().iterator();
+            System.out.println("Adding bounds.");
             while (bit.hasNext()) {
                 Map.Entry pairs = (Map.Entry)bit.next();
                 String name = (String) pairs.getKey();
@@ -82,6 +82,7 @@ public class LpSolveSolver implements Solver {
             solver.setAddRowmode(false);
 
             // set objective function
+            System.out.println("Cost function.");
             double[] coef = new double[num_unknowns];
             for(int i=0;i<num_unknowns;i++)
                 coef[i] = P.cost.get_coefficient(unknowns[i]);
@@ -97,26 +98,30 @@ public class LpSolveSolver implements Solver {
             }
 
             // print problem to file
+            System.out.println("Writing files.");
             solver.writeLp("data\\output\\model.lp");
             solver.writeMps("data\\output\\model.mps");
 
             // I only want to see important messages on screen while solving
             solver.setVerbose(LpSolve.IMPORTANT);
 
+            System.out.println("LpSolve unknowns: " + solver.getNcolumns());
+            System.out.println("LpSolve constraints: " + solver.getNrows());
+
             // solve the problem
-            int ret = solver.solve();
+//            int ret = solver.solve();
 
-            if(ret == LpSolve.OPTIMAL)
-                ret = 0;
-            else
-                ret = 5;
+//            if(ret == LpSolve.OPTIMAL)
+//                ret = 0;
+//            else
+//                ret = 5;
 
-            // print solution
-            System.out.println("Value of objective function: " + solver.getObjective());
+//            // print solution
+//            System.out.println("Value of objective function: " + solver.getObjective());
             opt_values = solver.getPtrVariables();
             opt_cost = solver.getObjective();
-            for (int i = 0; i < opt_values.length; i++)
-                System.out.println(solver.getColName(i+1) + " = " + opt_values[i]);
+//            for (int i = 0; i < opt_values.length; i++)
+//                System.out.println(solver.getColName(i+1) + " = " + opt_values[i]);
 
             // delete the problem and free memory
             if(solver.getLp()!=0)
