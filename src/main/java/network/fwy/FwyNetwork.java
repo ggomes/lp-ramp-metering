@@ -128,7 +128,7 @@ public final class FwyNetwork {
     }
 
     private boolean isOfframpType(Link link){
-        return link.getLinkType().getName().compareToIgnoreCase("offramp")==0;
+        return link.getLinkType().getName().compareToIgnoreCase("off-ramp")==0;
     }
 
     private boolean isOnrampType(Link link){

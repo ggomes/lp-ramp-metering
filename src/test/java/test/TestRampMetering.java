@@ -14,16 +14,18 @@ public class TestRampMetering {
 
     @Before
     public void setUp() throws Exception {
-        scenario = factory.ObjectFactory.getScenario("data/config/_smalltest_MPC_SI.xml");
+//        String config = "data/config/_smalltest_MPC_SI.xml";
+        String config = "data/config/210W_v13.xml";
+        scenario = factory.ObjectFactory.getScenario(config);
     }
 
     @Test
     public void testRampMetering() throws Exception {
 
-        int K_dem = 5;
-        int K_cool = 5;
-        double eta = .1d;
         double sim_dt_in_seconds = 5;
+        int K_dem = (int) Math.round(3600/sim_dt_in_seconds);
+        int K_cool = (int) Math.round(300/sim_dt_in_seconds);
+        double eta = .1d;
 
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
@@ -35,11 +37,11 @@ public class TestRampMetering {
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
         policy_maker.set_data(ics,demands,split_ratios);
 
-        policy_maker.printLP();
+        //policy_maker.printLP();
 
         RampMeteringSolution sol = policy_maker.solve(SolverType.LPSOLVE);
 
-        System.out.println("\n\nSOLVED:\n"+sol.print(true));
+        //System.out.println("\n\nSOLVED:\n"+sol.print(true));
 
     }
 

@@ -12,15 +12,11 @@ import java.util.HashMap;
 public class LpSolveSolver implements Solver {
 
     public static HashMap<Relation,Integer> relation_map = new HashMap<Relation,Integer>();
-//    public static HashMap<OptType,GoalType> opt_map = new HashMap<OptType,GoalType>();
     static {
         relation_map.put(Relation.EQ,LpSolve.EQ);
         relation_map.put(Relation.LEQ,LpSolve.LE);
         relation_map.put(Relation.GEQ,LpSolve.GE);
-//        opt_map.put(OptType.MAX,GoalType.MAXIMIZE);
-//        opt_map.put(OptType.MIN,GoalType.MINIMIZE);
     }
-
 
     @Override
     public PointValue solve(Problem P){
@@ -95,12 +91,12 @@ public class LpSolveSolver implements Solver {
             else
                 ret = 5;
 
-            // print solution
-            System.out.println("Value of objective function: " + solver.getObjective());
+//            // print solution
+//            System.out.println("Value of objective function: " + solver.getObjective());
             opt_values = solver.getPtrVariables();
             opt_cost = solver.getObjective();
-            for (int i = 0; i < opt_values.length; i++)
-                System.out.println(solver.getColName(i+1) + " = " + opt_values[i]);
+//            for (int i = 0; i < opt_values.length; i++)
+//                System.out.println(solver.getColName(i+1) + " = " + opt_values[i]);
 
             // delete the problem and free memory
             if(solver.getLp()!=0)
