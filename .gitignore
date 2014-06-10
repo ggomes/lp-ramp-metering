@@ -1,4 +1,7 @@
-
 /target
+/output
 *.jar
 .idea
+*.mps
+*.lp
+
