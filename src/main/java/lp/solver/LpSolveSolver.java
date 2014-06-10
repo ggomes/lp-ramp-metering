@@ -29,15 +29,16 @@ public class LpSolveSolver implements Solver {
 
             unknowns = P.get_unique_unknowns();
             int num_unknowns = unknowns.length;
-            int num_constraints = P.get_num_bounds() + P.get_num_constraints();
 
             // Create a problem
-            LpSolve solver = LpSolve.makeLp(num_constraints,num_unknowns);
+            System.out.println("Creating lp.");
+            LpSolve solver = LpSolve.makeLp(0,num_unknowns);
 
             if(solver.getLp()==0)
                 System.err.println("Couldn't construct a new model.");
 
             // name the variables
+            System.out.println("Naming variables.");
             for(int i=0;i<num_unknowns;i++)
                 solver.setColName(i+1,unknowns[i]);
 
@@ -45,6 +46,7 @@ public class LpSolveSolver implements Solver {
             solver.setAddRowmode(true);
 
             // add constraints
+            System.out.println("Adding constraints.");
             for(Linear L : P.constraints.values()){
                 double value = L.get_rhs();
                 double[] coef = new double[num_unknowns];
@@ -55,6 +57,7 @@ public class LpSolveSolver implements Solver {
             }
 
             // add bounds
+            System.out.println("Adding bounds.");
             for(Linear L : P.bounds.values()){
                 double value = L.get_rhs();
                 double[] coef = new double[num_unknowns];
@@ -68,6 +71,7 @@ public class LpSolveSolver implements Solver {
             solver.setAddRowmode(false);
 
             // set objective function
+            System.out.println("Cost function.");
             double[] coef = new double[num_unknowns];
             for(int i=0;i<num_unknowns;i++)
                 coef[i] = P.cost.get_coefficient(unknowns[i]);
@@ -77,19 +81,23 @@ public class LpSolveSolver implements Solver {
             solver.setMinim();
 
             // print problem to file
+            System.out.println("Writing files.");
             solver.writeLp("model.lp");
             solver.writeMps("model.mps");
 
             // I only want to see important messages on screen while solving
             solver.setVerbose(LpSolve.IMPORTANT);
 
-            // solve the problem
-            int ret = solver.solve();
+            System.out.println("LpSolve unknowns: " + solver.getNcolumns());
+            System.out.println("LpSolve constraints: " + solver.getNrows());
 
-            if(ret == LpSolve.OPTIMAL)
-                ret = 0;
-            else
-                ret = 5;
+            // solve the problem
+//            int ret = solver.solve();
+
+//            if(ret == LpSolve.OPTIMAL)
+//                ret = 0;
+//            else
+//                ret = 5;
 
 //            // print solution
 //            System.out.println("Value of objective function: " + solver.getObjective());

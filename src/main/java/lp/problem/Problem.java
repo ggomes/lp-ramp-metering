@@ -45,6 +45,10 @@ public class Problem {
         return a;
     }
 
+    public int get_num_unknowns(){
+        return get_unique_unknowns().length;
+    }
+
     public void set_constraint_rhs(String name,double value){
         Linear C = constraints.get(name);
         if(C!=null)
