@@ -26,9 +26,9 @@ public final class RampMeteringSolution {
             case APACHE:
                 solver = new ApacheSolver();
                 break;
-            case LPSOLVE:
-                solver = new LpSolveSolver();
-                break;
+//            case LPSOLVE:
+//                solver = new LpSolveSolver();
+//                break;
         }
 
         System.out.println("#unknowns = " + LP.get_num_unknowns());

@@ -10,13 +10,14 @@
 
 	<repositories>
 
-		<!-- GLPK  -->
+		<!-- GLPK
 		<repository>
 			<id>XypronRelease</id>
 			<name>Xypron Release</name>
 			<url>http://rsync.xypron.de/repository</url>
 			<layout>default</layout>
 		</repository>
+		  -->
 
 	</repositories>
 
@@ -62,15 +63,22 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- GLPK -->
+		<!-- GLPK 
         <dependency>
             <groupId>org.gnu.glpk</groupId>
             <artifactId>glpk-java</artifactId>
             <version>1.0.36</version>
         </dependency>
+		-->
+		
+		<!-- LPSOLVE --> 
+		<dependency>
+			<groupId>net.sf.jsci</groupId>
+			<artifactId>lpsolve</artifactId>
+			<version>2003-11-03</version>
+		</dependency>
 
 		<!-- apache math -->
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>

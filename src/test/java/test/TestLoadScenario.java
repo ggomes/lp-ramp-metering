@@ -15,7 +15,7 @@ public class TestLoadScenario {
 
     @Test
     public void testName() throws Exception {
-        scenario = factory.ObjectFactory.getScenario("data/config/_smalltest.xml");
+        scenario = factory.ObjectFactory.getScenario("data/config/_smalltest_MPC_SI.xml");
         assertNotNull(scenario);
         assertEquals(scenario.getId(),0);
     }
