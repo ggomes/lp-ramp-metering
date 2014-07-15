@@ -56,7 +56,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
         for(i=0;i<fwy.num_segments;i++){
             FwySegment seg = fwy.get_segment(i);
 
-            double vf = seg.get_vf_vps()*sim_dt_in_seconds;
+            double vf = seg.get_vf_link_per_sec()*sim_dt_in_seconds;
             double f_max = seg.get_fmax_vps()*sim_dt_in_seconds;
             double r_max = seg.get_rmax_vps()*sim_dt_in_seconds;
 
@@ -125,7 +125,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 if(i<fwy.num_segments-1){
                     FwySegment next_seg = fwy.get_segment(i+1);;
 
-                    double next_w = next_seg.get_w_vps()*sim_dt_in_seconds;
+                    double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
                     double next_no = k==0? next_seg.no : 0;
 
@@ -227,7 +227,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
         for(i=0;i<fwy.num_segments;i++){
             FwySegment seg = fwy.get_segment(i);
 
-            double vf = seg.get_vf_vps()*sim_dt_in_seconds;
+            double vf = seg.get_vf_link_per_sec()*sim_dt_in_seconds;
 
             for(k=0;k<K;k++){
 
@@ -251,7 +251,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 if(i<fwy.num_segments-1){
                     FwySegment next_seg = fwy.get_segment(i+1);
 
-                    double next_w = next_seg.get_w_vps()*sim_dt_in_seconds;
+                    double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
                     double next_no = k==0? next_seg.no : 0;
 
