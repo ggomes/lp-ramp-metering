@@ -37,7 +37,7 @@ public final class FwyNetwork {
         // find first mainline link, then iterate downstream until you reach the end
         Link link = find_first_fwy_link(network);
         while(link!=null){
-            Link onramp = start_node_onramp_or_source(link);
+            Link onramp = begin_node_entering_onramp(link);
             Link offramp = end_node_offramp(link);
             FundamentalDiagram fd = get_fd_for_link(link,fds);
             Actuator actuator = get_onramp_actuator(onramp,actuatorset);
@@ -80,9 +80,9 @@ public final class FwyNetwork {
         for(jaxb.Link jlink : network.getLinkList().getLink()){
             Link link = (Link) jlink;
             Node end_node = link.getEnd_node();
-            boolean end_node_is_simple = end_node.getnIn()==1 && end_node.getnOut()==1;
+            //boolean end_node_is_simple = end_node.getnIn()==1 && end_node.getnOut()==1;
             boolean supplies_onramp = end_node.getnOut()>0 ? isOnrampType(end_node.getOutput_link()[0]) : false;
-            if( link.isSource() &&  end_node_is_simple && !supplies_onramp)
+            if( link.isSource() &&  isFreewayType(link) && !supplies_onramp)
                 first_fwy_list.add(link);
         }
 
@@ -96,8 +96,8 @@ public final class FwyNetwork {
         Link first_fwy = first_fwy_list.get(0);
 
         // if it is a source link, use next
-        if(isSource(first_fwy))
-            first_fwy = first_fwy.getEnd_node().getOutput_link()[0];
+        //if(isSource(first_fwy))
+        //    first_fwy = first_fwy.getEnd_node().getOutput_link()[0];
 
         return first_fwy;
     }
@@ -147,13 +147,20 @@ public final class FwyNetwork {
         return null;
     }
 
-    private Link start_node_onramp_or_source(Link link){
+    private Link begin_node_entering_onramp(Link link){
         for(Link ilink : link.getBegin_node().getInput_link()){
-            if(isOnrampType(ilink) || isSource(ilink))
+            if(isOnrampType(ilink))
                 return ilink;
         }
         return null;
     }
+//    private Link start_node_onramp_or_source(Link link){
+//        for(Link ilink : link.getBegin_node().getInput_link()){
+//            if(isOnrampType(ilink) || isSource(ilink))
+//                return ilink;
+//        }
+//        return null;
+//    }
 
     private FundamentalDiagram get_fd_for_link(Link link, FundamentalDiagramSet fds){
         if(fds==null)
@@ -249,19 +256,24 @@ public final class FwyNetwork {
             if(index>=0){
                 ArrayList<Double> ml_split = new ArrayList<Double>();
                 ArrayList<Double> fr_split = new ArrayList<Double>();
-                for(Splitratio sr : srp.getSplitratio()){
-                    if(sr.getLinkIn()==ml_link_id.get(index)){
-                        if(sr.getLinkOut()==fr_link_id.get(index)){
-                            for(String str : Arrays.asList(sr.getContent().split(",")))
+                for(Splitratio sr : srp.getSplitratio())
+                {
+                    if(ml_link_id.get(index)==sr.getLinkIn())
+                    {
+                        if(sr.getLinkOut()==fr_link_id.get(index))
+                            for(String str : sr.getContent().split(","))
                                 fr_split.add(Double.parseDouble(str));
-                        } else if(index<ml_link_id.size()-1 && sr.getLinkOut()==ml_link_id.get(index+1)){
-                            for(String str : Arrays.asList(sr.getContent().split(",")))
-                                ml_split.add(Double.parseDouble(str));
-                        } else
-                            throw new Exception("ERROR!");
+                        else
+                        {
+                            if(index<ml_link_id.size()-1 && sr.getLinkOut()==ml_link_id.get(index+1))
+                                for(String str : sr.getContent().split(","))
+                                    ml_split.add(Double.parseDouble(str));
+                            else
+                                throw new Exception("ERROR!");
+                        }
                     }
                     else
-                        throw new Exception("ERROR!");
+                        throw new Exception("Do not define splits for onramp inputs!");
                 }
                 if(fr_split.isEmpty() && !ml_split.isEmpty())
                     for(Double d : ml_split)

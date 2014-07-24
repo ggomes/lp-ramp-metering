@@ -1,28 +1,26 @@
 package test;
 
 import jaxb.*;
-import lp.RampMeteringSolution;
 import lp.RampMeteringLpPolicyMaker;
+import lp.RampMeteringSolution;
 import lp.solver.SolverType;
 import network.beats.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.assertNotNull;
 
-public class TestRampMetering {
+public class TestSmallNetwork {
 
     private Scenario scenario;
 
     @Before
     public void setUp() throws Exception {
-        //String config = "data/config/_smalltest_MPC_SI.xml";
         String config = "data/config/smallNetwork.xml";
         scenario = factory.ObjectFactory.getScenario(config);
     }
 
     @Test
-    public void testRampMetering() throws Exception {
+    public void testSmallNetwork() throws Exception {
 
         double sim_dt_in_seconds = 5;
         int K_dem = (int) Math.round(3600/sim_dt_in_seconds);
@@ -44,6 +42,7 @@ public class TestRampMetering {
         RampMeteringSolution sol = policy_maker.solve(SolverType.APACHE);
 
         //System.out.println("\n\nSOLVED:\n"+sol.print(true));
+
         assertNotNull(sol);
 
     }

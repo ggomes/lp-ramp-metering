@@ -1,0 +1,26 @@
+             [6]
+              ^
+       1      |5    2            3  
+[1] -------> [2] -------> [3] -------> [4] 
+              ^           ^
+			  |4          |6
+		     [5]         [7]
+  
+  
+segment[0]
+	ml_link_id = 1
+	or_link_id = null
+	fr_link_id = 5
+	fr_node_id = 2
+	
+segment[1]
+	ml_link_id = 2
+	or_link_id = 4
+	fr_link_id = null
+	fr_node_id = null
+	
+segment[2]
+	ml_link_id = 3
+	or_link_id = 6
+	fr_link_id = null
+	fr_node_id = null
