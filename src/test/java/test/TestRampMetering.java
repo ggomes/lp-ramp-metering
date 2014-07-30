@@ -25,8 +25,8 @@ public class TestRampMetering {
     public void testRampMetering() throws Exception {
 
         double sim_dt_in_seconds = 5;
-        int K_dem = (int) Math.round(3600/sim_dt_in_seconds);
-        int K_cool = (int) Math.round(300/sim_dt_in_seconds);
+        int K_dem = (int) Math.round(20/sim_dt_in_seconds);
+        int K_cool = (int) Math.round(10/sim_dt_in_seconds);
         double eta = .1d;
 
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
@@ -41,7 +41,7 @@ public class TestRampMetering {
 
         //policy_maker.printLP();
 
-        RampMeteringSolution sol = policy_maker.solve(SolverType.APACHE);
+        RampMeteringSolution sol = policy_maker.solve(SolverType.LPSOLVE);
 
         //System.out.println("\n\nSOLVED:\n"+sol.print(true));
         assertNotNull(sol);
