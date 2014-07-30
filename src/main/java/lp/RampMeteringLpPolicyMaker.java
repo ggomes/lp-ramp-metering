@@ -43,4 +43,8 @@ public class RampMeteringLpPolicyMaker implements RampMeteringPolicyMaker {
         return null;
     }
 
+    public FwyNetwork getFwy() {
+        return fwy;
+    }
+
 }
