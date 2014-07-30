@@ -7,6 +7,8 @@ import lp.solver.SolverType;
 import network.beats.Network;
 import org.junit.*;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertNotNull;
 
 public class TestSmallNetwork {
@@ -22,26 +24,32 @@ public class TestSmallNetwork {
     @Test
     public void testSmallNetwork() throws Exception {
 
-        double sim_dt_in_seconds = 5;
-        int K_dem = (int) Math.round(3600/sim_dt_in_seconds);
-        int K_cool = (int) Math.round(300/sim_dt_in_seconds);
+        double sim_dt_in_seconds = 3;
+        int K_dem = (int) Math.round(12/sim_dt_in_seconds);
+        int K_cool = (int) Math.round(6/sim_dt_in_seconds);
         double eta = .1d;
 
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
         ActuatorSet actuators = scenario.getActuatorSet();
-        RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
+        SplitRatioSet split_ratios = scenario.getSplitRatioSet();
+        RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,split_ratios,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
+
+        ArrayList<String> errors = policy_maker.getFwy().check_CFL_condition(sim_dt_in_seconds);
+        if(!errors.isEmpty()){
+            System.err.print(errors);
+            throw new Exception("CFL error");
+        }
 
         InitialDensitySet ics = scenario.getInitialDensitySet();
         DemandSet demands = scenario.getDemandSet();
-        SplitRatioSet split_ratios = scenario.getSplitRatioSet();
-        policy_maker.set_data(ics,demands,split_ratios);
+        policy_maker.set_data(ics,demands);
 
-        //policy_maker.printLP();
+        policy_maker.printLP();
 
         RampMeteringSolution sol = policy_maker.solve(SolverType.APACHE);
 
-        //System.out.println("\n\nSOLVED:\n"+sol.print(true));
+        System.out.println("\n\nSOLVED:\n"+sol.print(true));
 
         assertNotNull(sol);
 

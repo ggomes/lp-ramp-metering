@@ -119,7 +119,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 rhs += !seg.is_metered ? betabar*vf*fwy.gamma*d : 0;
                 C3.set_rhs(rhs);
 
-                add_constraint(C3,getCnstr(CnstType.ORCONS,i,k));
+                add_constraint(C3,getCnstr(CnstType.MLFLW_FF,i,k));
 
                 // MAINLINE CONGESTION .................................................
                 if(i<fwy.num_segments-1){
