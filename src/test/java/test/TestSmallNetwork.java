@@ -30,12 +30,12 @@ public class TestSmallNetwork {
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
         ActuatorSet actuators = scenario.getActuatorSet();
-        RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
+        SplitRatioSet split_ratios = scenario.getSplitRatioSet();
+        RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,split_ratios,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
 
         InitialDensitySet ics = scenario.getInitialDensitySet();
         DemandSet demands = scenario.getDemandSet();
-        SplitRatioSet split_ratios = scenario.getSplitRatioSet();
-        policy_maker.set_data(ics,demands,split_ratios);
+        policy_maker.set_data(ics,demands);
 
         policy_maker.printLP();
 
