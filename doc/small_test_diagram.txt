@@ -6,21 +6,11 @@
 			  |4          |6
 		     [5]         [7]
   
+
   
-segment[0]
-	ml_link_id = 1
-	or_link_id = null
-	fr_link_id = 5
-	fr_node_id = 2
-	
-segment[1]
-	ml_link_id = 2
-	or_link_id = 4
-	fr_link_id = null
-	fr_node_id = null
-	
-segment[2]
-	ml_link_id = 3
-	or_link_id = 6
-	fr_link_id = null
-	fr_node_id = null
+
+  
+ capacity			0.5180868
+ congestion_speed	4.47038888888889
+ free_flow_speed	30.5160556080966
+ jam_density		0.132870519853547

@@ -109,7 +109,6 @@ public class LpSolveSolver implements Solver {
             System.out.println("LpSolve unknowns: " + solver.getNcolumns());
             System.out.println("LpSolve constraints: " + solver.getNrows());
 
-
             // solve the problem
             int ret = solver.solve();
 
@@ -118,12 +117,9 @@ public class LpSolveSolver implements Solver {
             else
                 ret = 5;
 
-//            // print solution
-//            System.out.println("Value of objective function: " + solver.getObjective());
+            // print solution
             opt_values = solver.getPtrVariables();
             opt_cost = solver.getObjective();
-//            for (int i = 0; i < opt_values.length; i++)
-//                System.out.println(solver.getColName(i+1) + " = " + opt_values[i]);
 
             // delete the problem and free memory
             if(solver.getLp()!=0)

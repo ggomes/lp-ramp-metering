@@ -145,9 +145,9 @@
 			<fundamentalDiagram capacity="0.5180868" congestion_speed="4.47038888888889" free_flow_speed="30.5160556080966" id="0" jam_density="0.132870519853547" />
 		</fundamentalDiagramProfile>
 	</FundamentalDiagramSet>
-	<SplitRatioSet project_id="4" id="1">
-		<splitRatioProfile id="1" node_id="-2" start_time="0" dt="300">
-			<splitratio vehicle_type_id="1" link_in="-1" link_out="-2">0.9</splitratio>
+	<SplitRatioSet project_id="-1" id="-1">
+		<splitRatioProfile id="-1" node_id="-2" dt="300">
+			<splitratio vehicle_type_id="1" link_in="-1" link_out="-2">0.900000</splitratio>
 		</splitRatioProfile> 
 	</SplitRatioSet>
 	<DemandSet id="-1" project_id="-1">
@@ -161,4 +161,14 @@
 			<demand vehicle_type_id="1">0.0278</demand>
 		</demandProfile>
 	</DemandSet>
+	<ActuatorSet id="0" project_id="0">
+		<actuator id="-1">
+			<scenarioElement id="-1" type="link"/>
+			<actuator_type id="0" name="ramp_meter"/>
+		</actuator>
+		<actuator id="-2">
+			<scenarioElement id="-2" type="link"/>
+			<actuator_type id="0" name="ramp_meter"/>
+		</actuator>
+	</ActuatorSet>
 </scenario>
