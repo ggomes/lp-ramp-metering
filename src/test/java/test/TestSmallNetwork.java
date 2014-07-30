@@ -23,8 +23,8 @@ public class TestSmallNetwork {
     public void testSmallNetwork() throws Exception {
 
         double sim_dt_in_seconds = 5;
-        int K_dem = (int) Math.round(3600/sim_dt_in_seconds);
-        int K_cool = (int) Math.round(300/sim_dt_in_seconds);
+        int K_dem = (int) Math.round(20/sim_dt_in_seconds);
+        int K_cool = (int) Math.round(10/sim_dt_in_seconds);
         double eta = .1d;
 
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
@@ -37,11 +37,11 @@ public class TestSmallNetwork {
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
         policy_maker.set_data(ics,demands,split_ratios);
 
-        //policy_maker.printLP();
+        policy_maker.printLP();
 
         RampMeteringSolution sol = policy_maker.solve(SolverType.APACHE);
 
-        //System.out.println("\n\nSOLVED:\n"+sol.print(true));
+        System.out.println("\n\nSOLVED:\n"+sol.print(true));
 
         assertNotNull(sol);
 
