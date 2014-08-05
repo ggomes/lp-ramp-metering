@@ -15,7 +15,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
         MLCONS,
         MLFLW_FF,
         MLFLW_CNG,
-        MLFLW_CAP,
+//        MLFLW_CAP,
         ORCONS,
         ORFLW_DEM,
         ORMETER_MAX,
@@ -155,8 +155,7 @@ public class ProblemRampMetering extends lp.problem.Problem {
                 }
 
                 // MAINLINE CAPACITY        f[i][k] <= f_max[i]
-                add_bound(getVar("f", i, k), Relation.LEQ,
-                          f_max,getCnstr(CnstType.MLFLW_CAP,i,k));
+                add_upper_bound(getVar("f", i, k),f_max);
 
                 if(seg.is_metered){
 
@@ -203,17 +202,14 @@ public class ProblemRampMetering extends lp.problem.Problem {
 
                     // MAX METERING RATE: r[i][k] <= rmax[i] ............................
                     if(!Double.isInfinite(r_max))
-                        add_bound(getVar("r", i, k),Relation.LEQ,r_max,
-                                  getCnstr(CnstType.ORMETER_MAX,i,k));
+                        add_upper_bound(getVar("r", i, k),r_max);
 
                     // ONRAMP FLOW NON-NEGATIVE: r[i][k] >= 0 ...........................
-                    add_bound(getVar("r",i,k),Relation.GEQ,0d,
-                              getCnstr(CnstType.ORFLW_POS,i,k));
+                    add_lower_bound(getVar("r",i,k),0d);
 
                     // ONRAMP MAX QUEUE: l[i][k+1] <= lmax[i] .............................
                     if(!seg.l_max.isInfinite())
-                        add_bound(getVar("l",i,k+1),Relation.LEQ,seg.l_max,
-                                  getCnstr(CnstType.ORQUEUE_MAX,i,k));
+                        add_upper_bound(getVar("l",i,k+1),seg.l_max);
                 }
             }
         }

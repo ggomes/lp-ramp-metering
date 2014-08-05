@@ -5,5 +5,6 @@ package lp.solver;
  */
 public enum SolverType {
     APACHE ,
-    LPSOLVE
+    LPSOLVE ,
+    GUROBI
 }

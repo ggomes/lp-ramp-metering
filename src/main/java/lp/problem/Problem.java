@@ -7,10 +7,11 @@ import java.util.*;
  */
 public class Problem {
 
-    public HashMap<String,Linear> constraints = new HashMap<String,Linear>();
-    public HashMap<String,Linear> bounds = new HashMap<String,Linear>();
-    public Linear cost = new Linear();
-    public OptType opt_type = OptType.MIN;
+    private HashMap<String,Linear> constraints = new HashMap<String,Linear>();
+    private HashMap<String,Double> upper_bounds = new HashMap<String,Double>();
+    private HashMap<String,Double> lower_bounds = new HashMap<String,Double>();
+    private Linear cost = new Linear();
+    private OptType opt_type = OptType.MIN;
 
     public Problem(){
     }
@@ -24,29 +25,12 @@ public class Problem {
         this.constraints.put(name,linear);
     }
 
-    public void add_bound(String varname,Relation relation,double x,String bndname){
-        Linear bound = new Linear();
-        bound.add_coefficient(1d,varname);
-        bound.set_relation(relation);
-        bound.set_rhs(x);
-        bounds.put(bndname,bound);
+    public void add_upper_bound(String varname, double x){
+        upper_bounds.put(varname,x);
     }
 
-    /** collect unique variable names from cost, constraints, and bounds **/
-    public String [] get_unique_unknowns(){
-        HashSet<String> unique_unknowns = new HashSet<String>();
-        unique_unknowns.addAll(cost.get_unknowns());
-        for(Linear L : bounds.values())
-            unique_unknowns.addAll(L.get_unknowns());
-        for(Linear L : constraints.values())
-            unique_unknowns.addAll(L.get_unknowns());
-        String [] a = unique_unknowns.toArray(new String[unique_unknowns.size ()]);
-        Arrays.sort(a);
-        return a;
-    }
-
-    public int get_num_unknowns(){
-        return get_unique_unknowns().length;
+    public void add_lower_bound(String varname, double x){
+        lower_bounds.put(varname,x);
     }
 
     public void set_constraint_rhs(String name,double value){
@@ -55,21 +39,45 @@ public class Problem {
             C.set_rhs(value);
     }
 
-    public int get_num_constraints(){
-        return constraints.size();
+    /** collect unique variable names from cost, constraints, and bounds **/
+    public ArrayList<String> get_unique_unknowns(){
+        HashSet<String> unique_unknowns = new HashSet<String>();
+        unique_unknowns.addAll(cost.get_unknowns());
+        unique_unknowns.addAll(upper_bounds.keySet());
+        unique_unknowns.addAll(lower_bounds.keySet());
+        for(Linear L : constraints.values())
+            unique_unknowns.addAll(L.get_unknowns());
+        ArrayList a = new ArrayList(unique_unknowns);
+        Collections.sort(a);
+        return a;
     }
 
-    public int get_num_bounds(){
-        return bounds.size();
+    public HashMap<String,Linear> get_constraints(){
+        return constraints;
+    }
+
+    public HashMap<String,Double> get_upper_bounds(){
+        return upper_bounds;
+    }
+
+    public HashMap<String,Double> get_lower_bounds(){
+        return lower_bounds;
+    }
+
+    public Linear get_cost(){
+        return cost;
+    }
+
+    public OptType get_opt_type(){
+        return opt_type;
     }
 
     @Override
     public String toString() {
 
-
         TreeMap<String,Linear> sorted_constraints = new TreeMap<String,Linear>(constraints);
-        TreeMap<String,Linear> sorted_bounds = new TreeMap<String,Linear>(bounds);
-
+        TreeMap<String,Double> sorted_upper_bounds = new TreeMap<String,Double>(upper_bounds);
+        TreeMap<String,Double> sorted_lower_bounds = new TreeMap<String,Double>(lower_bounds);
 
         String str = "";
         switch(opt_type){
@@ -87,11 +95,17 @@ public class Problem {
             Map.Entry pairs = (Map.Entry)cit.next();
             str += "\t" + pairs.getKey() + ": " + pairs.getValue() + "\n";
         }
-        str += "With bounds:\n";
-        Iterator bit = sorted_bounds.entrySet().iterator();
-        while (bit.hasNext()) {
-            Map.Entry pairs = (Map.Entry)bit.next();
-            str += "\t" + pairs.getKey() + ": " + pairs.getValue() + "\n";
+        str += "Upper bounds:\n";
+        Iterator ubit = sorted_upper_bounds.entrySet().iterator();
+        while (ubit.hasNext()) {
+            Map.Entry pairs = (Map.Entry)ubit.next();
+            str += "\t" + pairs.getKey() + " <= " + pairs.getValue() + "\n";
+        }
+        str += "Lower bounds:\n";
+        Iterator lbit = sorted_lower_bounds.entrySet().iterator();
+        while (lbit.hasNext()) {
+            Map.Entry pairs = (Map.Entry)lbit.next();
+            str += "\t" + pairs.getKey() + " >= " + pairs.getValue() + "\n";
         }
         return str;
     }

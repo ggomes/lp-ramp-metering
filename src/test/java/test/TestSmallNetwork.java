@@ -47,7 +47,7 @@ public class TestSmallNetwork {
 
         policy_maker.printLP();
 
-        RampMeteringSolution sol = policy_maker.solve(SolverType.APACHE);
+        RampMeteringSolution sol = policy_maker.solve(SolverType.LPSOLVE);
 
         System.out.println("\n\nSOLVED:\n"+sol.print(true));
 

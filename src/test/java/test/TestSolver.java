@@ -1,6 +1,8 @@
 package test;
 
 import lp.problem.*;
+import lp.solver.GurobiSolver;
+import lp.solver.LpSolveSolver;
 import org.junit.Before;
 import org.junit.Test;
 import lp.solver.ApacheSolver;
@@ -9,7 +11,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by gomes on 6/5/14.
+ * max 143 x + 60 y
+ * s.t
+ *      120 x + 210 y <= 15000
+ *      110 x +  30 y <= 4000
+ *          x +     y <= 75
+ *          x         <= 16
+ *
+ *  Solution: x=16, y=59
  */
 public class TestSolver {
 
@@ -46,12 +55,28 @@ public class TestSolver {
         linear.set_rhs(75);
         problem.add_constraint(linear, "3");
 
-        problem.add_bound("x", Relation.LEQ, 16,"xbound");
+        problem.add_upper_bound("x", 16);
     }
 
     @Test
     public void testApache() throws Exception {
         PointValue result = (new ApacheSolver()).solve(problem);
+        assertNotNull(result);
+        assertEquals(result.get("x"),16,1e-4);
+        assertEquals(result.get("y"),59,1e-4);
+    }
+
+    @Test
+    public void testLpSolve() throws Exception {
+        PointValue result = (new LpSolveSolver()).solve(problem);
+        assertNotNull(result);
+        assertEquals(result.get("x"),16,1e-4);
+        assertEquals(result.get("y"),59,1e-4);
+    }
+
+    @Test
+    public void testGurobi() throws Exception {
+        PointValue result = (new GurobiSolver()).solve(problem);
         assertNotNull(result);
         assertEquals(result.get("x"),16,1e-4);
         assertEquals(result.get("y"),59,1e-4);

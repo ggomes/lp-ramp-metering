@@ -1,6 +1,7 @@
 package lp;
 
 import lp.problem.PointValue;
+
 import lp.solver.LpSolveSolver;
 import lp.solver.Solver;
 import lp.solver.SolverType;
@@ -31,8 +32,8 @@ public final class RampMeteringSolution {
                 break;
         }
 
-        System.out.println("#unknowns = " + LP.get_num_unknowns());
-        System.out.println("#constraints = " + (LP.get_num_constraints()+LP.get_num_bounds()));
+//        System.out.println("#unknowns = " + LP.get_num_unknowns());
+//        System.out.println("#constraints = " + (LP.get_num_constraints()+LP.get_num_bounds()));
 
         PointValue result = solver.solve(LP);
 

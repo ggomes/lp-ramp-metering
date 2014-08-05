@@ -1,5 +1,6 @@
 package lp.problem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,12 +13,17 @@ public class PointValue {
     public double cost;
     public HashMap<String,Double> name_value = new HashMap<String,Double>();
 
-    public PointValue(String [] names,double [] values,double cost){
-        if(names.length!=values.length)
+    public PointValue(){}
+    public PointValue(ArrayList<String> names,double [] values,double cost){
+        if(names.size()!=values.length)
             return;
         this.cost = cost;
-        for(int i=0;i<names.length;i++)
-            add_value(names[i],values[i]);
+        for(int i=0;i<names.size();i++)
+            add_value(names.get(i),values[i]);
+    }
+
+    public void set_cost(double c){
+        this.cost = c;
     }
 
     public void add_value(String name,double value){
