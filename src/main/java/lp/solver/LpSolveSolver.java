@@ -31,14 +31,12 @@ public class LpSolveSolver implements Solver {
             int num_unknowns = unknowns.size();
 
             // Create a problem
-            System.out.println("Creating lp.");
             LpSolve solver = LpSolve.makeLp(0,num_unknowns);
 
             if(solver.getLp()==0)
                 System.err.println("Couldn't construct a new model.");
 
             // name the variables
-            System.out.println("Naming variables.");
             for(int i=0;i<num_unknowns;i++)
                 solver.setColName(i+1,unknowns.get(i));
 
@@ -46,8 +44,6 @@ public class LpSolveSolver implements Solver {
             solver.setAddRowmode(true);
 
             // add constraints
-            System.out.println("Adding constraints.");
-
             Iterator cit = P.get_constraints().entrySet().iterator();
             while (cit.hasNext()) {
                 Map.Entry pairs = (Map.Entry)cit.next();
@@ -63,7 +59,6 @@ public class LpSolveSolver implements Solver {
             }
 
             // add upper bounds
-            System.out.println("Adding upper bounds.");
             Iterator ubit = P.get_upper_bounds().entrySet().iterator();
             while (ubit.hasNext()) {
                 Map.Entry pairs = (Map.Entry)ubit.next();
@@ -76,7 +71,6 @@ public class LpSolveSolver implements Solver {
             }
 
             // add lower bounds
-            System.out.println("Adding lower bounds.");
             Iterator lbit = P.get_lower_bounds().entrySet().iterator();
             while (lbit.hasNext()) {
                 Map.Entry pairs = (Map.Entry)lbit.next();
@@ -92,7 +86,6 @@ public class LpSolveSolver implements Solver {
             solver.setAddRowmode(false);
 
             // set objective function
-            System.out.println("Cost function.");
             double[] coef = new double[num_unknowns+1];
             for(int i=0;i<num_unknowns;i++)
                 coef[i+1] = P.get_cost().get_coefficient(unknowns.get(i));

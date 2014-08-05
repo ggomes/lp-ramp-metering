@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
  *
  *  Solution: x=16, y=59
  */
-public class TestSolver {
+public class TestSolvers {
 
     private Problem problem;
 

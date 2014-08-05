@@ -14,6 +14,11 @@ import static org.junit.Assert.assertNotNull;
 public class TestSmallNetwork {
 
     private Scenario scenario;
+    private double sim_dt_in_seconds = 3d;
+    private double K_dem_seconds     = 360d;
+    private double K_cool_seconds    = 120d;
+    private double eta = .1d;
+    private SolverType solver_type = SolverType.LPSOLVE;
 
     @Before
     public void setUp() throws Exception {
@@ -24,10 +29,8 @@ public class TestSmallNetwork {
     @Test
     public void testSmallNetwork() throws Exception {
 
-        double sim_dt_in_seconds = 3;
-        int K_dem = (int) Math.round(12/sim_dt_in_seconds);
-        int K_cool = (int) Math.round(6/sim_dt_in_seconds);
-        double eta = .1d;
+        int K_dem = (int) Math.round(K_dem_seconds/sim_dt_in_seconds);
+        int K_cool = (int) Math.round(K_cool_seconds/sim_dt_in_seconds);
 
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
@@ -40,19 +43,11 @@ public class TestSmallNetwork {
             System.err.print(errors);
             throw new Exception("CFL error");
         }
-
         InitialDensitySet ics = scenario.getInitialDensitySet();
         DemandSet demands = scenario.getDemandSet();
         policy_maker.set_data(ics,demands);
-
-        policy_maker.printLP();
-
-        RampMeteringSolution sol = policy_maker.solve(SolverType.LPSOLVE);
-
-        System.out.println("\n\nSOLVED:\n"+sol.print(true));
-
+        RampMeteringSolution sol = policy_maker.solve(solver_type);
         assertNotNull(sol);
-
     }
 
 }

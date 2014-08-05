@@ -30,7 +30,9 @@ public class GurobiSolver implements Solver {
 
         try {
 
-            GRBEnv    env   = new GRBEnv("mip1.log");
+            GRBEnv    env   = new GRBEnv(); //new GRBEnv("data/out/gurobi.log");
+
+            env.set(GRB.IntParam.OutputFlag,0);    // suppress output
             GRBModel  model = new GRBModel(env);
             GRBLinExpr cost = new GRBLinExpr();
 

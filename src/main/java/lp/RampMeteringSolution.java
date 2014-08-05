@@ -2,12 +2,9 @@ package lp;
 
 import lp.problem.PointValue;
 
-import lp.solver.LpSolveSolver;
-import lp.solver.Solver;
-import lp.solver.SolverType;
+import lp.solver.*;
 import network.fwy.FwyNetwork;
 import network.fwy.FwySegment;
-import lp.solver.ApacheSolver;
 
 import java.io.PrintWriter;
 
@@ -30,10 +27,10 @@ public final class RampMeteringSolution {
             case LPSOLVE:
                 solver = new LpSolveSolver();
                 break;
+            case GUROBI:
+                solver = new GurobiSolver();
+                break;
         }
-
-//        System.out.println("#unknowns = " + LP.get_num_unknowns());
-//        System.out.println("#constraints = " + (LP.get_num_constraints()+LP.get_num_bounds()));
 
         PointValue result = solver.solve(LP);
 
