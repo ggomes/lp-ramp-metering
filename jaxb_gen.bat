@@ -1,0 +1,1 @@
+xjc ./src/main/resources/beats.xsd -d ./src/main/java -p jaxb
