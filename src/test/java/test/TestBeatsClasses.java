@@ -8,7 +8,7 @@ public class TestBeatsClasses {
 
     @Test
     public void testName() throws Exception {
-        Scenario scenario = factory.ObjectFactory.getScenario("data/config/_smalltest_MPC_SI.xml");
+        Scenario scenario = factory.ObjectFactory.getScenario("data/config/smallNetwork.xml");
         Network network = (Network) scenario.getNetworkSet().getNetwork().get(0);
         org.junit.Assert.assertEquals(network.getLinkWithId(-1).getBegin_node().getId(),-1);
         org.junit.Assert.assertEquals(network.getNodeWithId(-2).getInput_link()[0].getId(),-1);

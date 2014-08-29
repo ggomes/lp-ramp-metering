@@ -5,20 +5,28 @@ import lp.RampMeteringLpPolicyMaker;
 import lp.RampMeteringSolution;
 import lp.solver.SolverType;
 import network.beats.Network;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotNull;
 
 public class TestSmallNetwork {
 
     private Scenario scenario;
-    private double sim_dt_in_seconds = 3d;
-    private double K_dem_seconds     = 360d;
-    private double K_cool_seconds    = 120d;
+    private double sim_dt_in_seconds = 2d;
+    private double K_dem_seconds     = 10d;
+    private double K_cool_seconds    = 8d;
     private double eta = .1d;
-    private SolverType solver_type = SolverType.LPSOLVE;
+
+//    private double sim_dt_in_seconds = 3d;
+//    private double K_dem_seconds     = 360d;
+//    private double K_cool_seconds    = 120d;
+//    private double eta = .1d;
+//
+
+    private SolverType solver_type = SolverType.APACHE;
 
     @Before
     public void setUp() throws Exception {

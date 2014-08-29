@@ -1,11 +1,9 @@
 package test;
 
 import lp.problem.*;
-import lp.solver.GurobiSolver;
-import lp.solver.LpSolveSolver;
+import lp.solver.ApacheSolver;
 import org.junit.Before;
 import org.junit.Test;
-import lp.solver.ApacheSolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -66,19 +64,19 @@ public class TestSolvers {
         assertEquals(result.get("y"),59,1e-4);
     }
 
-    @Test
-    public void testLpSolve() throws Exception {
-        PointValue result = (new LpSolveSolver()).solve(problem);
-        assertNotNull(result);
-        assertEquals(result.get("x"),16,1e-4);
-        assertEquals(result.get("y"),59,1e-4);
-    }
+//    @Test
+//    public void testLpSolve() throws Exception {
+//        PointValue result = (new LpSolveSolver()).solve(problem);
+//        assertNotNull(result);
+//        assertEquals(result.get("x"),16,1e-4);
+//        assertEquals(result.get("y"),59,1e-4);
+//    }
 
-    @Test
-    public void testGurobi() throws Exception {
-        PointValue result = (new GurobiSolver()).solve(problem);
-        assertNotNull(result);
-        assertEquals(result.get("x"),16,1e-4);
-        assertEquals(result.get("y"),59,1e-4);
-    }
+//    @Test
+//    public void testGurobi() throws Exception {
+//        PointValue result = (new GurobiSolver()).solve(problem);
+//        assertNotNull(result);
+//        assertEquals(result.get("x"),16,1e-4);
+//        assertEquals(result.get("y"),59,1e-4);
+//    }
 }

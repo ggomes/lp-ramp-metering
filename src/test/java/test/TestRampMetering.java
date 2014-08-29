@@ -24,10 +24,16 @@ public class TestRampMetering {
     @Test
     public void testRampMetering() throws Exception {
 
-        double sim_dt_in_seconds = 5;
-        int K_dem = (int) Math.round(5/sim_dt_in_seconds);
-        int K_cool = (int) Math.round(5/sim_dt_in_seconds);
+        double sim_dt_in_seconds = 2;
+        int K_dem = (int) Math.round(2/sim_dt_in_seconds);
+        int K_cool = (int) Math.round(2/sim_dt_in_seconds);
         double eta = .1d;
+
+//        double sim_dt_in_seconds = 5;
+//        int K_dem = (int) Math.round(5/sim_dt_in_seconds);
+//        int K_cool = (int) Math.round(5/sim_dt_in_seconds);
+//        double eta = .1d;
+//
 
         Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();

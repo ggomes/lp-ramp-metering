@@ -27,9 +27,9 @@ public final class RampMeteringSolution {
             case LPSOLVE:
                 solver = new LpSolveSolver();
                 break;
-            case GUROBI:
-                solver = new GurobiSolver();
-                break;
+//            case GUROBI:
+//                solver = new GurobiSolver();
+//                break;
         }
 
         PointValue result = solver.solve(LP);
