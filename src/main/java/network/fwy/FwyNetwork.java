@@ -95,13 +95,25 @@ public final class FwyNetwork {
         List<Link> first_fwy_list = new ArrayList<Link>();
         for(jaxb.Link jlink : network.getLinkList().getLink()){
             Link link = (Link) jlink;
+            boolean isFirstMainLine = false;
             Node end_node = link.getEnd_node();
+            Node begin_node = link.getBegin_node();
+            int nInputLinks = begin_node.getnIn();
+            if (nInputLinks == 0 && isFreewayType(link))
+                isFirstMainLine = true;
+            if (nInputLinks == 1 && isOnrampType(begin_node.getInput_link()[0]) && isFreewayType(link))
+                isFirstMainLine = true;
             //boolean end_node_is_simple = end_node.getnIn()==1 && end_node.getnOut()==1;
             boolean supplies_onramp = end_node.getnOut()>0 ? isOnrampType(end_node.getOutput_link()[0]) : false;
-            if( link.isSource() &&  isFreewayType(link) && !supplies_onramp)
+              if( isFirstMainLine && !supplies_onramp){
                 first_fwy_list.add(link);
-        }
+            Node first_freewayLink_begin_node = link.getBegin_node();
+            Node first_freewayLink_end_node = link.getEnd_node();
+              }
 
+
+
+        }
         // there must be exactly one of these
         if(first_fwy_list.isEmpty())
             throw new Exception("NO FIRST FWY LINK");
