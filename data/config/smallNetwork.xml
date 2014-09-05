@@ -14,11 +14,15 @@
 			</position>
 			<NodeList>
 				<node id="-1">
-					<node_type id="4" name="Terminal"/>
+					<node_type id="4" name="simple"/>
 					<outputs>
 						<output link_id="-1"/>
 					</outputs>
-					<inputs/>
+					<inputs>
+						<input link_id="-7"/>
+					</inputs>
+					
+						
 					<position>
 						<point elevation="0" lat="0.00000" lng="0.00000"/>
 					</position>
@@ -81,7 +85,7 @@
 					</position>
 				</node>
 				<node id="-7">
-					<node_type id="4" name="simple"/>
+					<node_type id="4" name="Terminal"/>
 					<outputs>
 						<output link_id="-6"/>
 					</outputs>
@@ -90,6 +94,18 @@
 						<point elevation="0" lat="-0.0005" lng="0.0018"/>
 					</position>
 				</node>
+				
+				<node id="-8">
+					<node_type id="4" name="Terminal"/>
+					<outputs>
+						<output link_id="-7"/>
+					</outputs>
+					<inputs/>
+					<position>
+						<point elevation="0" lat="-0.0005" lng="-0.0005"/>
+					</position>
+				</node>
+				
 			</NodeList>
 			<LinkList>
 				<link id="-1" lanes="1" length="111.1775">
@@ -122,6 +138,12 @@
 					<end node_id="-3"/>
 					<link_type id="3" name="On-Ramp"/>
 				</link>
+				
+				<link id="-7" lanes="1" length="78.6144">
+					<begin node_id="-8"/>
+					<end node_id="-1"/>
+					<link_type id="3" name="On-Ramp"/>
+				</link>
 			</LinkList>
 		</network>
 	</NetworkSet>
@@ -144,6 +166,9 @@
 		<fundamentalDiagramProfile id="6" link_id="-6">
 			<fundamentalDiagram capacity="0.5180868" congestion_speed="4.47038888888889" free_flow_speed="30.5160556080966" id="0" jam_density="0.132870519853547" />
 		</fundamentalDiagramProfile>
+		<fundamentalDiagramProfile id="7" link_id="-7">
+			<fundamentalDiagram capacity="0.5180868" congestion_speed="4.47038888888889" free_flow_speed="30.5160556080966" id="0" jam_density="0.132870519853547" />
+		</fundamentalDiagramProfile>		
 	</FundamentalDiagramSet>
 	<SplitRatioSet project_id="-1" id="-1">
 		<splitRatioProfile id="-1" node_id="-2" dt="300">
@@ -153,13 +178,13 @@
 
 	
 	<DemandSet id="-1" project_id="-1">
-		<demandProfile dt="300" id="-1" knob="1" link_id_org="-1">
+		<demandProfile dt="300" id="-1" knob="1" link_id_org="-7">
 			<demand vehicle_type_id="1">0.1111</demand>
 		</demandProfile>
-		<demandProfile dt="300" id="-1" knob="1" link_id_org="-4">
+		<demandProfile dt="300" id="-2" knob="1" link_id_org="-4">
 			<demand vehicle_type_id="1">0.0278</demand>
 		</demandProfile>
-		<demandProfile dt="300" id="-1" knob="1" link_id_org="-6">
+		<demandProfile dt="300" id="-3" knob="1" link_id_org="-6">
 			<demand vehicle_type_id="1">0.0278</demand>
 		</demandProfile>
 	</DemandSet>
@@ -174,6 +199,8 @@
 		<scenarioElement id="-6" type="link"/>
 		<actuator_type id="0" name="ramp_meter"/>
 	</actuator>
+	
+
    </ActuatorSet>
 	
 	
