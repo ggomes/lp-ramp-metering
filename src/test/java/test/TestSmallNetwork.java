@@ -15,18 +15,18 @@ import static junit.framework.Assert.assertNotNull;
 public class TestSmallNetwork {
 
     private Scenario scenario;
-    private double sim_dt_in_seconds = 2d;
-    private double K_dem_seconds     = 10d;
-    private double K_cool_seconds    = 8d;
+//    private double sim_dt_in_seconds = 2d;
+//    private double K_dem_seconds     = 10d;
+//    private double K_cool_seconds    = 8d;
+//    private double eta = .1d;
+
+    private double sim_dt_in_seconds = 3d;
+    private double K_dem_seconds     = 90d;
+    private double K_cool_seconds    = 9d;
     private double eta = .1d;
 
-//    private double sim_dt_in_seconds = 3d;
-//    private double K_dem_seconds     = 360d;
-//    private double K_cool_seconds    = 120d;
-//    private double eta = .1d;
-//
 
-    private SolverType solver_type = SolverType.APACHE;
+    private SolverType solver_type = SolverType.LPSOLVE;
 
     @Before
     public void setUp() throws Exception {
@@ -55,6 +55,10 @@ public class TestSmallNetwork {
         DemandSet demands = scenario.getDemandSet();
         policy_maker.set_data(ics,demands);
         RampMeteringSolution sol = policy_maker.solve(solver_type);
+
+
+        sol.print_to_file("SmallNetwork.txt", RampMeteringSolution.OutputFormat.text);
+
         assertNotNull(sol);
     }
 
