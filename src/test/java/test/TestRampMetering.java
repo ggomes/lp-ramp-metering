@@ -1,8 +1,8 @@
 package test;
 
 import jaxb.*;
-import lp.RampMeteringSolution;
 import lp.RampMeteringLpPolicyMaker;
+import lp.RampMeteringSolution;
 import lp.solver.SolverType;
 import network.beats.Network;
 import org.junit.Before;
@@ -24,9 +24,9 @@ public class TestRampMetering {
     @Test
     public void testRampMetering() throws Exception {
 
-        double sim_dt_in_seconds = 2;
-        int K_dem = (int) Math.round(2/sim_dt_in_seconds);
-        int K_cool = (int) Math.round(2/sim_dt_in_seconds);
+        double sim_dt_in_seconds = 3d;
+        int K_dem = (int) Math.round(9/sim_dt_in_seconds);
+        int K_cool = (int) Math.round(3/sim_dt_in_seconds);
         double eta = .1d;
 
 //        double sim_dt_in_seconds = 5;
@@ -47,9 +47,14 @@ public class TestRampMetering {
 
         policy_maker.printLP();
 
-        RampMeteringSolution sol = policy_maker.solve(SolverType.APACHE);
+        RampMeteringSolution sol = policy_maker.solve(SolverType.LPSOLVE);
 
-        System.out.println("\n\nSOLVED:\n"+sol.print(true));
+        System.out.println("\n\nSOLVED:\n"+sol);
+        //sol.print_to_file("SmallNetwork.txt");
+
+
+
+
         assertNotNull(sol);
 
     }
