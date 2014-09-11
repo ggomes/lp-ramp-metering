@@ -8,15 +8,16 @@ import lp.solver.SolverType;
 import network.fwy.FwyNetwork;
 import network.fwy.FwySegment;
 
-import java.io.PrintWriter;
-//import java.io.PrintWriter;
-
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 
 public final class RampMeteringSolution {
 
     public enum OutputFormat {text,matlab};
-//    public enum OutputToWrite {n,f,l,r};
+
     protected SegmentSolution [] Xopt;
+
     protected int K;
     protected int I;
     protected double sim_dt;
@@ -69,6 +70,13 @@ public final class RampMeteringSolution {
 
     }
 
+    public ArrayList<double[]> get_matrix(String name){
+        ArrayList<double[]> X = new ArrayList<double[]>();
+        for(SegmentSolution segsol : Xopt)
+            X.add(segsol.get(name));
+        return X;
+    }
+
     public class SegmentSolution {
         protected double [] n;
         protected double [] l;
@@ -84,195 +92,34 @@ public final class RampMeteringSolution {
             }
         }
         public double [] get(String name){
-            if(name.compareTo("n")==0)
+            if(name.equalsIgnoreCase("n"))
                 return n;
-            if(name.compareTo("l")==0)
+            if(name.equalsIgnoreCase("l"))
                 return l;
-            if(name.compareTo("r")==0)
-                return r;
-            if(name.compareTo("f")==0)
+            if(name.equalsIgnoreCase("f"))
                 return f;
+            if(name.equalsIgnoreCase("r"))
+                return r;
             return null;
         }
-
     }
 
     private static String getVar(String name,int seg_index,int timestep){
         return ProblemRampMetering.getVar(name,seg_index,timestep);
     }
 
-
-
-
-
-    /* Print solution to file */
-
-
-//    public String print(String var,int seg_index){
-//        return print(var,seg_index,false);
-//    }
-//
-//    public String print(String var){
-//        return print(var, OutputFormat.matlab);
-//    }
-//
-//    public String print(){
-//        return print(OutputFormat.matlab);
-//    }
-    /* Level 0 */
-//public void print_to_file_all_outputs(String function_name,OutputFormat format)throws  Exception{
-//    print_to_file_specified_output(function_name,format,"n");
-//    print_to_file_specified_output(function_name,format,"f");
-//    print_to_file_specified_output(function_name,format,"r");
-//    print_to_file_specified_output(function_name,format,"l");
-//}
-
-
-    /* Level 1 */
-
-//    public void print_to_file_specified_output(String function_name,OutputFormat format,String var) throws Exception {
-//
-//        String matlabFunctionHeader = "";
-//        if(var == "f")
-//        {
-//                function_name = function_name.concat("_f");
-//                matlabFunctionHeader = matlabFunctionHeader.concat("function [f]=");}
-//        else if (var == "n"){
-//
-//                function_name = function_name.concat("_n");
-//                matlabFunctionHeader = matlabFunctionHeader.concat("function [n]=");}
-//        else if (var == "r"){
-//               function_name = function_name.concat("_r");
-//               matlabFunctionHeader = matlabFunctionHeader.concat("function [r]=");}
-//        else {
-//               function_name = function_name.concat("_l");
-//                matlabFunctionHeader = matlabFunctionHeader.concat("function [l]=");}
-//
-//
-//        PrintWriter pw = null;
-//        switch(format) {
-//
-//            case matlab:
-//
-//
-//                pw = new PrintWriter("out\\" + function_name + ".m");
-//                pw.print(matlabFunctionHeader + function_name + "()\n");
-//                break;
-//
-//            case text:
-////        WriteFile data = new WriteFile(function_name, true);
-////        data.writeToFile(print(format));
-//                pw = new PrintWriter("out\\" + function_name + ".txt");
-//                break;
-//        }
-//        pw.print(print(format,var));
-//        pw.close();
-//    }
-
-//    public void print_to_file(String function_name,OutputFormat format) throws Exception {
-//
-//        PrintWriter pw = null;
-//        switch(format) {
-//
-//            case matlab:
-//                pw = new PrintWriter("out\\" + function_name + ".m");
-//                pw.print("function [n,f,l,r]=" + function_name + "()\n");
-//                break;
-//
-//            case text:
-////        WriteFile data = new WriteFile(function_name, true);
-////        data.writeToFile(print(format));
-//                pw = new PrintWriter("out\\" + function_name + ".txt");
-//                break;
-//        }
-//        pw.print(print(format));
-//        pw.close();
-//    }
-
-    public void print_to_file(String function_name,OutputFormat format) throws Exception {
-        PrintWriter pw = null;
+    public void print_to_file(String filename,OutputFormat format) throws Exception {
+        RampMeteringSolutionWriter writer = null;
         switch(format) {
-
             case matlab:
-                pw = new PrintWriter("out\\" + function_name + ".m");
-                pw.print("function [n,f,l,r]=" + function_name + "()\n");
+                writer = new RampMeteringSolutionWriterMAT();
                 break;
-
             case text:
-//        WriteFile data = new WriteFile(function_name, true);
-//        data.writeToFile(print(format));
-                pw = new PrintWriter("out\\" + function_name + ".txt");
+                writer = new RampMeteringSolutionWriterTXT();
                 break;
         }
-        pw.print(print(format));
-        pw.close();
+        writer.write_to_file(filename, this);
     }
-
-
-
-
-
-    /* Level 2 */
-
-//    public String print(OutputFormat format,String var){
-//        return print(var,format);
-//    }
-
-    public String print(OutputFormat format){
-        return print("n",format)+"\n"+ print("f",format)+"\n"+ print("l",format)+"\n"+ print("r",format);
-    }
-
-
-    /* Level 3 */
-
-    public String print(String var,OutputFormat format){
-        String str = "";
-        boolean isDensity;
-        isDensity = var.compareTo("n")==0 || var.compareTo("l")==0;
-        int Ka = isDensity ? K+1 : K;
-        //str = String.format("%s=nan(%d,%d);\n",var,I,Ka);
-        for(int i=0;i<Xopt.length;i++)
-            str = str.concat(print(var,i,format));
-        return str;
-    }
-
-    /* Level 4 */
-
-    public String print(String var,int seg_index,OutputFormat format){
-        String str = "";
-        boolean isDensity = var.compareTo("n")==0 || var.compareTo("l")==0;
-        int lastK = isDensity ? K+1 : K;
-        double [] x = Xopt[seg_index].get(var);
-        if(x!=null)
-            for(int k=0;k<lastK;k++){
-
-                switch(format) {
-
-                    case matlab:
-                        str = str.concat(String.format("%s(%d,%d)=%.6f;\n",var,seg_index+1,k+1,x[k]));
-
-                        break;
-
-                    case text:
-                        if(isDensity)
-                            if (k%K !=0 || k ==0 )
-                                str = str.concat(String.format("% .6f ",x[k]));
-                            else
-                                str = str.concat(String.format("% .6f\n",x[k]));
-                        else
-                            if (k%(K-1) !=0 || k ==0 )
-                                str = str.concat(String.format("% .6f ",x[k]));
-                            else
-                                str = str.concat(String.format("% .6f\n",x[k]));
-
-                        break;
-
-                }
-
-            }
-        return str;
-    }
-
 
     public boolean[][] is_free_flow_CTM(FwyNetwork fwy){
 
@@ -317,8 +164,6 @@ public final class RampMeteringSolution {
         }
         return isFreeFlowCTM;
     }
-
-
 
     public boolean[][] is_flow_CTM_behavior(FwyNetwork fwy){
 
@@ -414,9 +259,6 @@ public final class RampMeteringSolution {
         return isFlowCTMbehavior;
     }
 
-
-
-
     public boolean[][] is_congestion_flow_CTM(FwyNetwork fwy){
 
         boolean [][] isCongestionFlowCTM = new boolean[I][K];
@@ -482,7 +324,6 @@ public final class RampMeteringSolution {
         return isCongestionFlowCTM;
     }
 
-
     public boolean[][] is_max_flow_CTM(FwyNetwork fwy){
 
         boolean [][] isMAxFlowCTM = new boolean[I][K];
@@ -512,43 +353,12 @@ public final class RampMeteringSolution {
         return  isMAxFlowCTM;
     }
 
-
-
-
-
-//=====================================================================================================
-//    public class WriteFile {
-//        private String path;
-//        private boolean append_to_file = false;
-//
-//        public WriteFile(String file_path) {
-//            path = file_path;
-//        }
-//        public WriteFile(String file_path, boolean append_value) {
-//            path = file_path;
-//            append_to_file = append_value;
-//        }
-//
-//        public void writeToFile(String textLine) throws IOException {
-//            FileWriter write = new FileWriter(path,append_to_file);
-//            PrintWriter print_line = new PrintWriter(write);
-//            print_line.printf("%s" + "%n ", textLine);
-//            print_line.close();
-//        }
-//    }
-
-
-//
-//    @Override
-//    public String toString() {
-//        return print(OutputFormat.text);
-//    }
-
-
     @Override
     public String toString() {
-        return print(OutputFormat.text);
+        RampMeteringSolutionWriter writer = new RampMeteringSolutionWriterTXT();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        writer.write_all_to_stream(stream,this);
+        return stream.toString();
     }
-
 
 }

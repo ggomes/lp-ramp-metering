@@ -60,12 +60,9 @@ public class TestSmallNetwork {
         //policy_maker.printLP();
 
 
-        //sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
+        sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
         sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.text);
-
-
-
-
+        System.out.println(sol);
 
         assertNotNull(sol);
         boolean CTMbehavior = true;
