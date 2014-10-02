@@ -2,6 +2,7 @@ package test;
 
 import lp.problem.*;
 import lp.solver.ApacheSolver;
+import lp.solver.LpSolveSolver;
 import org.junit.Before;
 import org.junit.Test;
 

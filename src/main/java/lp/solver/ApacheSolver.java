@@ -83,7 +83,7 @@ public class ApacheSolver implements Solver {
             }
 
             // add lower bounds
-            Iterator lbit = P.get_upper_bounds().entrySet().iterator();
+            Iterator lbit = P.get_lower_bounds().entrySet().iterator();
             while (lbit.hasNext()) {
                 Map.Entry pairs = (Map.Entry)lbit.next();
                 String name = (String) pairs.getKey();

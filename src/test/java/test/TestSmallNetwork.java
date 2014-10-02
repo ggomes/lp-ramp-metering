@@ -26,8 +26,7 @@ public class TestSmallNetwork {
     private double K_cool_seconds = 3d;
     private double eta = .1d;
 
-
-    private SolverType solver_type = SolverType.LPSOLVE;
+    private SolverType solver_type = SolverType.APACHE;
 
     @Before
     public void setUp() throws Exception {
@@ -59,7 +58,6 @@ public class TestSmallNetwork {
 
         //policy_maker.printLP();
 
-
         sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
         sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.text);
         System.out.println(sol);
@@ -74,9 +72,6 @@ public class TestSmallNetwork {
             }
         }
         assertEquals(true, CTMbehavior);
-
-
-
 
     }
 }

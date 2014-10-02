@@ -33,10 +33,10 @@ public final class RampMeteringSolution {
             case APACHE:
                 solver = new ApacheSolver();
                 break;
-            case LPSOLVE:
-                solver = new LpSolveSolver();
-                break;
-//            case GUROBI:
+//            case LPSOLVE:
+//                solver = new LpSolveSolver();
+//                break;
+////            case GUROBI:
 //                solver = new GurobiSolver();
 //                break;
         }

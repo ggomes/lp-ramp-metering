@@ -8,19 +8,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/../../bin" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://$MODULE_DIR$/../../bin" />
-        </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/../../bin" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/../../bin" recursive="false" type="SOURCES" />
-      </library>
-    </orderEntry>
   </component>
 </module>
 
