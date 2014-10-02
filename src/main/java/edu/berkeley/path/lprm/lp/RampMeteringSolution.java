@@ -2,14 +2,12 @@ package edu.berkeley.path.lprm.lp;
 
 import edu.berkeley.path.lprm.lp.problem.PointValue;
 import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
-import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
 import edu.berkeley.path.lprm.lp.solver.Solver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.network.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.network.fwy.FwySegment;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 public final class RampMeteringSolution {

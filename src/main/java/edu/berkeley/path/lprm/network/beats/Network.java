@@ -1,6 +1,9 @@
 
 package edu.berkeley.path.lprm.network.beats;
 
+import edu.berkeley.path.lprm.network.beats.Link;
+import edu.berkeley.path.lprm.network.beats.Node;
+
 public class Network extends edu.berkeley.path.lprm.jaxb.Network {
 
 	public void populate() {

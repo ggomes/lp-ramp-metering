@@ -2,7 +2,7 @@ package edu.berkeley.path.lprm.test;
 
 import edu.berkeley.path.lprm.network.beats.Network;
 import edu.berkeley.path.lprm.factory.ObjectFactory;
-import jaxb.Scenario;
+import edu.berkeley.path.lprm.jaxb.Scenario;
 import org.junit.Test;
 
 public class TestBeatsClasses {
