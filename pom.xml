@@ -67,7 +67,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<generatePackage>jaxb</generatePackage>
+							<generatePackage>edu.berkeley.path.lprm.jaxb</generatePackage>
 						</configuration>
 					</execution>
 				</executions>
