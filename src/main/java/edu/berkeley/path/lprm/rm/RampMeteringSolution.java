@@ -15,6 +15,7 @@ public final class RampMeteringSolution {
     public enum OutputFormat {text,matlab};
 
     protected SegmentSolution [] Xopt;
+    protected PointValue result;
 
     protected int K;
     protected int I;
@@ -39,7 +40,7 @@ public final class RampMeteringSolution {
 //                break;
         }
 
-        PointValue result = solver.solve(LP);
+        result = solver.solve(LP);
 
         this.Xopt = new SegmentSolution[I];
 
@@ -66,6 +67,10 @@ public final class RampMeteringSolution {
 
         }
 
+    }
+
+    public double get_cost(){
+        return result.cost;
     }
 
     public ArrayList<double[]> get_matrix(String name){

@@ -14,10 +14,7 @@ public class RampMeteringSolver {
     protected ProblemRampMetering LP;
 
     public RampMeteringSolver(Network jnetwork, FundamentalDiagramSet fd_set, SplitRatioSet split_ratios, ActuatorSet actuator_set, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
-
-        LpNetwork network = new LpNetwork(jnetwork);
-
-        fwy = new FwyNetwork(network,fd_set,actuator_set);
+        fwy = new FwyNetwork(new LpNetwork(jnetwork),fd_set,actuator_set);
         fwy.set_split_ratios(split_ratios);
         LP = new ProblemRampMetering(fwy,K_dem,K_cool,eta,sim_dt_in_seconds);
     }

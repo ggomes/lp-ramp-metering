@@ -6,8 +6,6 @@ package edu.berkeley.path.lprm.graph;
 public class LpLink {
 
     public enum types {freeway,onramp,offramp,sink,other};
-
-//    protected LpNetwork myNetwork;
     protected long id;
     protected types type;
     protected double length;
@@ -41,10 +39,6 @@ public class LpLink {
         end_node = node;
     }
 
-    public boolean isSource() {
-        return issource;
-    }
-
     public long getId(){
         return id;
     }
@@ -59,6 +53,10 @@ public class LpLink {
     }
     public LpNode getEnd(){
         return end_node;
+    }
+
+    public boolean isSource() {
+        return issource;
     }
 
     public boolean isFreeway(){
