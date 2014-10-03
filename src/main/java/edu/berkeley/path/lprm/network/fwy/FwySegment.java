@@ -1,13 +1,12 @@
 package edu.berkeley.path.lprm.network.fwy;
 
-import edu.berkeley.path.lprm.network.beats.Parameters;
-import edu.berkeley.path.lprm.jaxb.Actuator;
-import edu.berkeley.path.lprm.jaxb.FundamentalDiagram;
-import edu.berkeley.path.lprm.jaxb.Link;
-import edu.berkeley.path.lprm.lp.problem.Linear;
+import edu.berkeley.path.beats.jaxb.Parameters;
+import edu.berkeley.path.beats.jaxb.Parameter;
+import edu.berkeley.path.lprm.graph.LpLink;
+import edu.berkeley.path.beats.jaxb.Actuator;
+import edu.berkeley.path.beats.jaxb.FundamentalDiagram;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public final class FwySegment {
 
@@ -45,13 +44,13 @@ public final class FwySegment {
     // construction
     ///////////////////////////////////////////////////////////////////
 
-    public FwySegment(Link ml_link,Link or_link,Link fr_link, FundamentalDiagram fd, Actuator actuator){
+    public FwySegment(LpLink ml_link,LpLink or_link,LpLink fr_link, FundamentalDiagram fd, Actuator actuator){
 
         // link references
         ml_link_id = ml_link==null?null:ml_link.getId();
         or_link_id = or_link==null?null:or_link.getId();
         fr_link_id = fr_link==null?null:fr_link.getId();
-        fr_node_id = fr_link==null?null: fr_link.getBegin().getNodeId();
+        fr_node_id = fr_link==null?null: fr_link.getBegin().getId();
         ml_link_length = ml_link==null?null:ml_link.getLength();
         or_link_length =  or_link==null?null:or_link.getLength();
         or_lanes = or_link==null?null:or_link.getLanes();
@@ -154,16 +153,35 @@ public final class FwySegment {
     }
 
     ///////////////////////////////////////////////////////////////////
-    // private
+    // parameters
     ///////////////////////////////////////////////////////////////////
 
     private Double get_parameter(Parameters P,String name,Double def){
         if(P==null)
             return def;
-        if(!P.has(name))
-            return def;
-        return Double.parseDouble(P.get(name));
+        java.util.ListIterator<Parameter> iter = P.getParameter().listIterator(P.getParameter().size());
+        String value = "";
+        while (iter.hasPrevious()) {
+            Parameter param = iter.previous();
+            if (name.equals(param.getName())){
+                value = param.getValue();
+                break;
+            }
+        }
+        return value.isEmpty() ? Double.NaN : Double.parseDouble(value);
     }
+
+//    private String get(String name) {
+//		if(name==null)
+//			return null;
+//		java.util.ListIterator<edu.berkeley.path.beats.jaxb.Parameter> iter = getParameter().listIterator(getParameter().size());
+//		while (iter.hasPrevious()) {
+//            edu.berkeley.path.lprm.jaxb.Parameter param = iter.previous();
+//			if (name.equals(param.getName())) return param.getValue();
+//		}
+//		return null;
+//	}
+
 
     ///////////////////////////////////////////////////////////////////
     // print

@@ -1,6 +1,6 @@
 package edu.berkeley.path.lprm.test;
 
-import edu.berkeley.path.lprm.jaxb.Scenario;
+import edu.berkeley.path.beats.jaxb.Scenario;
 import edu.berkeley.path.lprm.factory.ObjectFactory;
 import org.junit.Test;
 

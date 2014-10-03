@@ -1,9 +1,9 @@
 package edu.berkeley.path.lprm.network.fwy;
 
-import edu.berkeley.path.lprm.network.beats.Network;
-import edu.berkeley.path.lprm.network.beats.Link;
-import edu.berkeley.path.lprm.network.beats.Node;
-import edu.berkeley.path.lprm.jaxb.*;
+import edu.berkeley.path.beats.jaxb.*;
+import edu.berkeley.path.lprm.graph.LpLink;
+import edu.berkeley.path.lprm.graph.LpNetwork;
+import edu.berkeley.path.lprm.graph.LpNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,7 @@ public final class FwyNetwork {
     // construction
     ///////////////////////////////////////////////////////////////////
 
-    public FwyNetwork(Network network,FundamentalDiagramSet fds,ActuatorSet actuatorset) throws Exception{
+    public FwyNetwork(LpNetwork network,FundamentalDiagramSet fds,ActuatorSet actuatorset) throws Exception{
 
         segments = new ArrayList<FwySegment>();
         ml_link_id = new ArrayList<Long>();
@@ -35,19 +35,19 @@ public final class FwyNetwork {
         fr_node_id = new ArrayList<Long>();
 
         // find first mainline link, then iterate downstream until you reach the end
-        Link link = find_first_fwy_link(network);
+        LpLink link = find_first_fwy_link(network);
         while(link!=null){
-            Link onramp = begin_node_entering_onramp(link);
-            Link offramp = end_node_offramp(link);
+            LpLink onramp = begin_node_entering_onramp(link);
+            LpLink offramp = end_node_offramp(link);
             FundamentalDiagram fd = get_fd_for_link(link,fds);
             Actuator actuator = get_onramp_actuator(onramp,actuatorset);
             segments.add(new FwySegment(link,onramp,offramp,fd,actuator));
             ml_link_id.add(link.getId());
             or_link_id.add(onramp==null?null:onramp.getId());
-            Link onramp_source = get_onramp_source(onramp);
+            LpLink onramp_source = get_onramp_source(onramp);
             or_source_id.add(onramp_source==null?null:onramp_source.getId());
             fr_link_id.add(offramp==null?null:offramp.getId());
-            fr_node_id.add(offramp == null ? null : offramp.getBegin_node().getId());
+            fr_node_id.add(offramp == null ? null : offramp.getBegin().getId());
             link = next_freeway_link(link);
         }
 
@@ -86,29 +86,28 @@ public final class FwyNetwork {
     // private
     ///////////////////////////////////////////////////////////////////
 
-    private Link find_first_fwy_link(Network network) throws Exception{
+    private LpLink find_first_fwy_link(LpNetwork network) throws Exception{
 
         if(!all_are_fwy_or_fr_src_snk(network))
             throw new Exception("Not all links are freeway, onramp, offramps, sources, or sinks");
 
         // gather links that are freeway sources, or sources that end in simple nodes
-        List<Link> first_fwy_list = new ArrayList<Link>();
-        for(edu.berkeley.path.lprm.jaxb.Link jlink : network.getLinkList().getLink()){
-            Link link = (Link) jlink;
+        List<LpLink> first_fwy_list = new ArrayList<LpLink>();
+        for(LpLink link : network.getLinks()){
             boolean isFirstMainLine = false;
-            Node end_node = link.getEnd_node();
-            Node begin_node = link.getBegin_node();
+            LpNode end_node = link.getEnd();
+            LpNode begin_node = link.getBegin();
             int nInputLinks = begin_node.getnIn();
-            if (nInputLinks == 0 && isFreewayType(link))
+            if (nInputLinks == 0 && link.isFreeway())
                 isFirstMainLine = true;
-            if (nInputLinks == 1 && isOnrampType(begin_node.getInput_link()[0]) && isFreewayType(link))
+            if (nInputLinks == 1 && begin_node.getInput(0).isOnramp() && link.isFreeway())
                 isFirstMainLine = true;
             //boolean end_node_is_simple = end_node.getnIn()==1 && end_node.getnOut()==1;
-            boolean supplies_onramp = end_node.getnOut()>0 ? isOnrampType(end_node.getOutput_link()[0]) : false;
+            boolean supplies_onramp = end_node.getnOut()>0 ? end_node.getOutput(0).isOnramp() : false;
               if( isFirstMainLine && !supplies_onramp){
                 first_fwy_list.add(link);
-            Node first_freewayLink_begin_node = link.getBegin_node();
-            Node first_freewayLink_end_node = link.getEnd_node();
+            LpNode first_freewayLink_begin_node = link.getBegin();
+                  LpNode first_freewayLink_end_node = link.getEnd();
               }
 
 
@@ -121,7 +120,7 @@ public final class FwyNetwork {
         if(first_fwy_list.size()>1)
             throw new Exception("MULTIPLE FIRST FWY LINKS");
 
-        Link first_fwy = first_fwy_list.get(0);
+        LpLink first_fwy = first_fwy_list.get(0);
 
         // if it is a source link, use next
         //if(isSource(first_fwy))
@@ -130,54 +129,33 @@ public final class FwyNetwork {
         return first_fwy;
     }
 
-    private boolean all_are_fwy_or_fr_src_snk(Network network){
-        for(edu.berkeley.path.lprm.jaxb.Link jlink : network.getLinkList().getLink()){
-            Link link = (Link) jlink;
-            if(!isFreewayType(link) && !isOnrampType(link) && !isOfframpType(link) && !isSource(link) && !isSinkType(link))
+    private boolean all_are_fwy_or_fr_src_snk(LpNetwork network){
+        for(LpLink link : network.getLinks()){
+            if(!link.isFreeway() && !link.isOnramp() && !link.isOfframp() && !link.isSource() && !link.isSink())
                 return false;
         }
         return true;
     }
 
-    private Link end_node_offramp(Link link){
-        for(Link olink : link.getEnd_node().getOutput_link()){
-            if(isOfframpType(olink))
+    private LpLink end_node_offramp(LpLink link){
+        for(LpLink olink : link.getEnd().getOutputs()){
+            if(olink.isOfframp())
                 return olink;
         }
         return null;
     }
 
-    private boolean isSource(Link link){
-        return link.getBegin_node().getInput_link().length==0;
-    }
-
-    private boolean isFreewayType(Link link){
-        return link.getLinkType().getName().compareToIgnoreCase("freeway")==0;
-    }
-
-    private boolean isOfframpType(Link link){
-        return link.getLinkType().getName().compareToIgnoreCase("off-ramp")==0;
-    }
-
-    private boolean isOnrampType(Link link){
-        return link.getLinkType().getName().compareToIgnoreCase("on-ramp")==0;
-    }
-
-    private boolean isSinkType(Link link){
-        return link.getLinkType().getName().compareToIgnoreCase("sink")==0;
-    }
-
-    private Link next_freeway_link(Link link){
-        for(Link olink : link.getEnd_node().getOutput_link()){
-            if(isFreewayType(olink))
+    private LpLink next_freeway_link(LpLink link){
+        for(LpLink olink : link.getEnd().getOutputs()){
+            if(olink.isFreeway())
                 return olink;
         }
         return null;
     }
 
-    private Link begin_node_entering_onramp(Link link){
-        for(Link ilink : link.getBegin_node().getInput_link()){
-            if(isOnrampType(ilink))
+    private LpLink begin_node_entering_onramp(LpLink link){
+        for(LpLink ilink : link.getBegin().getInputs()){
+            if(ilink.isOnramp())
                 return ilink;
         }
         return null;
@@ -190,7 +168,7 @@ public final class FwyNetwork {
 //        return null;
 //    }
 
-    private FundamentalDiagram get_fd_for_link(Link link, FundamentalDiagramSet fds){
+    private FundamentalDiagram get_fd_for_link(LpLink link, FundamentalDiagramSet fds){
         if(fds==null)
             return null;
         for(FundamentalDiagramProfile fdp : fds.getFundamentalDiagramProfile())
@@ -200,7 +178,7 @@ public final class FwyNetwork {
         return null;
     }
 
-    private Actuator get_onramp_actuator(Link onramp, ActuatorSet actuatorset){
+    private Actuator get_onramp_actuator(LpLink onramp, ActuatorSet actuatorset){
         if(actuatorset==null)
             return null;
         if(onramp==null)
@@ -214,11 +192,11 @@ public final class FwyNetwork {
         return null;
     }
 
-    private Link get_onramp_source(Link link){
-        Link rlink = link;
-        while(rlink!=null && !isSource(rlink)){
-            Node node = rlink.getBegin_node();
-            rlink = node.getnIn()==1 ? node.getInput_link()[0] : null;
+    private LpLink get_onramp_source(LpLink link){
+        LpLink rlink = link;
+        while(rlink!=null && !rlink.isSource()){
+            LpNode node = rlink.getBegin();
+            rlink = node.getnIn()==1 ? node.getInput(0) : null;
         }
         return rlink;
     }

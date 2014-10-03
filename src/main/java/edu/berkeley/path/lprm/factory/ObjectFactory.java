@@ -1,7 +1,7 @@
 package edu.berkeley.path.lprm.factory;
 
-import edu.berkeley.path.lprm.network.beats.Network;
-import edu.berkeley.path.lprm.jaxb.Scenario;
+//import edu.berkeley.path.lprm.network.beats.Network;
+import edu.berkeley.path.beats.jaxb.Scenario;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -22,7 +22,7 @@ final public class ObjectFactory {
 
     private ObjectFactory(){}
 
-    public static edu.berkeley.path.lprm.jaxb.Scenario getScenario(String configfilename) throws Exception {
+    public static edu.berkeley.path.beats.jaxb.Scenario getScenario(String configfilename) throws Exception {
 
         JAXBContext context;
         Unmarshaller u;
@@ -32,7 +32,7 @@ final public class ObjectFactory {
             //Reset the classloader for main thread; need this if I want to run properly
             //with JAXB within MATLAB. (luis)
             Thread.currentThread().setContextClassLoader(ObjectFactory.class.getClassLoader());
-            context = JAXBContext.newInstance("edu.berkeley.path.lprm.jaxb");
+            context = JAXBContext.newInstance("edu.berkeley.path.beats.jaxb");
             u = context.createUnmarshaller();
         } catch( JAXBException je ) {
             throw new Exception("Failed to create context for JAXB unmarshaller", je);
@@ -53,9 +53,9 @@ final public class ObjectFactory {
             configfilename += ".xml";
 
         // read and return ...........................................................
-        edu.berkeley.path.lprm.jaxb.Scenario S; //new Scenario();
+        edu.berkeley.path.beats.jaxb.Scenario S; //new Scenario();
         try {
-            setObjectFactory(u, new JaxbObjectFactory());
+//            setObjectFactory(u, new JaxbObjectFactory());
             S = (Scenario) u.unmarshal( new FileInputStream(configfilename) );
         } catch( JAXBException je ) {
             throw new Exception("JAXB threw an exception when loading the configuration file", je);
@@ -63,7 +63,7 @@ final public class ObjectFactory {
             throw new Exception("Configuration file not found. " + configfilename, e);
         }
 
-        ((Network)S.getNetworkSet().getNetwork().get(0)).populate();
+//        ((Network)S.getNetworkSet().getNetwork().get(0)).populate();
 
         if(S==null)
             throw new Exception("Unknown load error");

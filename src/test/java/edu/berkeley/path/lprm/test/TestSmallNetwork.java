@@ -1,11 +1,10 @@
 package edu.berkeley.path.lprm.test;
 
 import edu.berkeley.path.lprm.lp.RampMeteringSolution;
-import edu.berkeley.path.lprm.jaxb.*;
+import edu.berkeley.path.beats.jaxb.*;
 import edu.berkeley.path.lprm.factory.ObjectFactory;
 import edu.berkeley.path.lprm.lp.RampMeteringSolver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
-import edu.berkeley.path.lprm.network.beats.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +40,7 @@ public class TestSmallNetwork {
         int K_dem = (int) Math.round(K_dem_seconds / sim_dt_in_seconds);
         int K_cool = (int) Math.round(K_cool_seconds / sim_dt_in_seconds);
 
-        Network net = (Network) scenario.getNetworkSet().getNetwork().get(0);
+        Network net = scenario.getNetworkSet().getNetwork().get(0);
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
         ActuatorSet actuators = scenario.getActuatorSet();
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
