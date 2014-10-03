@@ -3,7 +3,7 @@ package edu.berkeley.path.lprm.test;
 import edu.berkeley.path.lprm.lp.RampMeteringSolution;
 import edu.berkeley.path.lprm.jaxb.*;
 import edu.berkeley.path.lprm.factory.ObjectFactory;
-import edu.berkeley.path.lprm.lp.RampMeteringLpPolicyMaker;
+import edu.berkeley.path.lprm.lp.RampMeteringSolver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.network.beats.Network;
 import org.junit.Before;
@@ -40,15 +40,15 @@ public class TestRampMetering {
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
         ActuatorSet actuators = scenario.getActuatorSet();
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
-        RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net,fds,split_ratios,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
+        RampMeteringSolver solver = new RampMeteringSolver(net,fds,split_ratios,actuators,K_dem,K_cool,eta,sim_dt_in_seconds);
 
         InitialDensitySet ics = scenario.getInitialDensitySet();
         DemandSet demands = scenario.getDemandSet();
-        policy_maker.set_data(ics,demands);
+        solver.set_data(ics, demands);
 
-        policy_maker.printLP();
+        solver.printLP();
 
-        RampMeteringSolution sol = policy_maker.solve(SolverType.APACHE);
+        RampMeteringSolution sol = solver.solve(SolverType.APACHE);
 
         System.out.println("\n\nSOLVED:\n"+sol);
         //sol.print_to_file("SmallNetwork.txt");

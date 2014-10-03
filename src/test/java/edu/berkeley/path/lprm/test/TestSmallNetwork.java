@@ -3,7 +3,7 @@ package edu.berkeley.path.lprm.test;
 import edu.berkeley.path.lprm.lp.RampMeteringSolution;
 import edu.berkeley.path.lprm.jaxb.*;
 import edu.berkeley.path.lprm.factory.ObjectFactory;
-import edu.berkeley.path.lprm.lp.RampMeteringLpPolicyMaker;
+import edu.berkeley.path.lprm.lp.RampMeteringSolver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.network.beats.Network;
 import org.junit.Before;
@@ -45,19 +45,19 @@ public class TestSmallNetwork {
         FundamentalDiagramSet fds = scenario.getFundamentalDiagramSet();
         ActuatorSet actuators = scenario.getActuatorSet();
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
-        RampMeteringLpPolicyMaker policy_maker = new RampMeteringLpPolicyMaker(net, fds, split_ratios, actuators, K_dem, K_cool, eta, sim_dt_in_seconds);
+        RampMeteringSolver solver = new RampMeteringSolver(net, fds, split_ratios, actuators, K_dem, K_cool, eta, sim_dt_in_seconds);
 
-        ArrayList<String> errors = policy_maker.getFwy().check_CFL_condition(sim_dt_in_seconds);
+        ArrayList<String> errors = solver.getFwy().check_CFL_condition(sim_dt_in_seconds);
         if (!errors.isEmpty()) {
             System.err.print(errors);
             throw new Exception("CFL error");
         }
         InitialDensitySet ics = scenario.getInitialDensitySet();
         DemandSet demands = scenario.getDemandSet();
-        policy_maker.set_data(ics, demands);
-        RampMeteringSolution sol = policy_maker.solve(solver_type);
+        solver.set_data(ics, demands);
+        RampMeteringSolution sol = solver.solve(solver_type);
 
-        //policy_maker.printLP();
+        //solver.printLP();
 
         sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
         sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.text);
@@ -67,7 +67,7 @@ public class TestSmallNetwork {
         boolean CTMbehavior = true;
         for (int i = 0; i < 3; i++){
             for (int j = 0; j < (K_cool + K_dem); j++) {
-                if (sol.is_flow_CTM_behavior(policy_maker.getFwy())[i][j] == false) {
+                if (sol.is_flow_CTM_behavior(solver.getFwy())[i][j] == false) {
                 CTMbehavior = false;
                 break;}
             }
