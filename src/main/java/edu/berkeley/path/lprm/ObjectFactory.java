@@ -1,4 +1,4 @@
-package edu.berkeley.path.lprm.factory;
+package edu.berkeley.path.lprm;
 
 //import edu.berkeley.path.lprm.network.beats.Network;
 import edu.berkeley.path.beats.jaxb.Scenario;

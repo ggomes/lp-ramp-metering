@@ -1,7 +1,4 @@
-package edu.berkeley.path.lprm.lp;
-
-import edu.berkeley.path.lprm.lp.RampMeteringSolution;
-import edu.berkeley.path.lprm.lp.RampMeteringSolutionWriter;
+package edu.berkeley.path.lprm.rm;
 
 import java.io.*;
 import java.util.ArrayList;

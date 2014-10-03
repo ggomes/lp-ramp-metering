@@ -1,4 +1,4 @@
-package edu.berkeley.path.lprm.lp;
+package edu.berkeley.path.lprm.rm;
 
 import java.io.OutputStream;
 

@@ -1,9 +1,9 @@
 package edu.berkeley.path.lprm.test;
 
-import edu.berkeley.path.lprm.lp.RampMeteringSolution;
+import edu.berkeley.path.lprm.rm.RampMeteringSolution;
 import edu.berkeley.path.beats.jaxb.*;
-import edu.berkeley.path.lprm.factory.ObjectFactory;
-import edu.berkeley.path.lprm.lp.RampMeteringSolver;
+import edu.berkeley.path.lprm.ObjectFactory;
+import edu.berkeley.path.lprm.rm.RampMeteringSolver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import org.junit.Before;
 import org.junit.Test;

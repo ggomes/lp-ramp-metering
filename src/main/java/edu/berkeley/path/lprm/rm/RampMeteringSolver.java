@@ -1,9 +1,9 @@
-package edu.berkeley.path.lprm.lp;
+package edu.berkeley.path.lprm.rm;
 
 import edu.berkeley.path.beats.jaxb.*;
 import edu.berkeley.path.lprm.graph.LpNetwork;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
-import edu.berkeley.path.lprm.network.fwy.FwyNetwork;
+import edu.berkeley.path.lprm.fwy.FwyNetwork;
 
 /**
  * Created by gomes on 6/5/14.

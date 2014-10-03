@@ -1,7 +1,7 @@
 package edu.berkeley.path.lprm.test;
 
 import edu.berkeley.path.beats.jaxb.Scenario;
-import edu.berkeley.path.lprm.factory.ObjectFactory;
+import edu.berkeley.path.lprm.ObjectFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

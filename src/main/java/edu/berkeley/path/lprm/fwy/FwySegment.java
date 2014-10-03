@@ -1,4 +1,4 @@
-package edu.berkeley.path.lprm.network.fwy;
+package edu.berkeley.path.lprm.fwy;
 
 import edu.berkeley.path.beats.jaxb.Parameters;
 import edu.berkeley.path.beats.jaxb.Parameter;

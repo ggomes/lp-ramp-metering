@@ -1,10 +1,10 @@
-package edu.berkeley.path.lprm.lp;
+package edu.berkeley.path.lprm.rm;
 
 import edu.berkeley.path.lprm.lp.problem.Linear;
 import edu.berkeley.path.lprm.lp.problem.OptType;
 import edu.berkeley.path.lprm.lp.problem.Relation;
-import edu.berkeley.path.lprm.network.fwy.FwyNetwork;
-import edu.berkeley.path.lprm.network.fwy.FwySegment;
+import edu.berkeley.path.lprm.fwy.FwyNetwork;
+import edu.berkeley.path.lprm.fwy.FwySegment;
 
 /**
  * Created by gomes on 6/6/14.

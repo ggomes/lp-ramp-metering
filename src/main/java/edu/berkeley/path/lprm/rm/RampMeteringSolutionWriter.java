@@ -1,6 +1,4 @@
-package edu.berkeley.path.lprm.lp;
-
-import edu.berkeley.path.lprm.lp.RampMerteringSolutionWriterInterface;
+package edu.berkeley.path.lprm.rm;
 
 /**
  * Created by gomes on 9/10/2014.

@@ -1,11 +1,11 @@
-package edu.berkeley.path.lprm.lp;
+package edu.berkeley.path.lprm.rm;
 
 import edu.berkeley.path.lprm.lp.problem.PointValue;
 import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
 import edu.berkeley.path.lprm.lp.solver.Solver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
-import edu.berkeley.path.lprm.network.fwy.FwyNetwork;
-import edu.berkeley.path.lprm.network.fwy.FwySegment;
+import edu.berkeley.path.lprm.fwy.FwyNetwork;
+import edu.berkeley.path.lprm.fwy.FwySegment;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
