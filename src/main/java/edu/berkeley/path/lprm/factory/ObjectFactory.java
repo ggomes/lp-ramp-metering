@@ -32,7 +32,7 @@ final public class ObjectFactory {
             //Reset the classloader for main thread; need this if I want to run properly
             //with JAXB within MATLAB. (luis)
             Thread.currentThread().setContextClassLoader(ObjectFactory.class.getClassLoader());
-            context = JAXBContext.newInstance("jaxb");
+            context = JAXBContext.newInstance("edu.berkeley.path.lprm.jaxb");
             u = context.createUnmarshaller();
         } catch( JAXBException je ) {
             throw new Exception("Failed to create context for JAXB unmarshaller", je);

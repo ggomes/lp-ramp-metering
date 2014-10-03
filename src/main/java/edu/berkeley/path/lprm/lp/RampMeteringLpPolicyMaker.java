@@ -1,17 +1,13 @@
 package edu.berkeley.path.lprm.lp;
 
-import edu.berkeley.path.lprm.beats_link.RampMeteringLimitSet;
-import edu.berkeley.path.lprm.beats_link.RampMeteringPolicyMaker;
-import edu.berkeley.path.lprm.beats_link.RampMeteringPolicySet;
 import edu.berkeley.path.lprm.jaxb.*;
-import edu.berkeley.path.lprm.jaxb.Network;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.network.fwy.FwyNetwork;
 
 /**
  * Created by gomes on 6/5/14.
  */
-public class RampMeteringLpPolicyMaker implements RampMeteringPolicyMaker {
+public class RampMeteringLpPolicyMaker {
 
     protected FwyNetwork fwy;
     protected ProblemRampMetering LP;
@@ -35,12 +31,6 @@ public class RampMeteringLpPolicyMaker implements RampMeteringPolicyMaker {
 
     public void printLP(){
         System.out.println(LP);
-    }
-
-    @Override
-    public RampMeteringPolicySet givePolicy(Network net, FundamentalDiagramSet fd, DemandSet demand, SplitRatioSet splitRatios, InitialDensitySet ics, RampMeteringLimitSet control, Double dt) {
-
-        return null;
     }
 
     public FwyNetwork getFwy() {
