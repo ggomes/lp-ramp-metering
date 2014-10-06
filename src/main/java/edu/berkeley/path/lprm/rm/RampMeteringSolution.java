@@ -51,18 +51,21 @@ public final class RampMeteringSolution {
             case APACHE:
                 solver = new ApacheSolver();
                 break;
-//            case LPSOLVE:
-//                solver = new LpSolveSolver();
-//                break;
+            case LPSOLVE:
+                solver = new LpSolveSolver();
+                break;
 //            case GUROBI:
 //                solver = new GurobiSolver();
 //                break;
         }
 
+        // solve the problem
         result = solver.solve(LP);
 
+        // evaluate whether it is a valid ctm solution
         is_ctm = evaluate_is_ctm(LP,result,I,K);
 
+        // cast the solution into segments
         Xopt = new SegmentSolution[I];
 
         int i,k;
@@ -74,24 +77,21 @@ public final class RampMeteringSolution {
         for(i=0;i<I;i++){
 
             FwySegment seg = fwy.get_segment(i);
-
-
             Xopt[i] = new SegmentSolution(seg,K);
 
+            // make local copy of link ids (is this necessary?)
             mainLineIDs[i] = seg.get_main_line_link_id();
-
             if (seg.is_metered)
                 actuatedOnRampIDs[actuatedORCounter++] = seg.get_on_ramp_link_id(); // get_actuated_on_ramp_id();
-
             if (seg.has_off_ramp)
                 offRampIDs[frCounter++] = seg.get_off_ramp_id();
 
+            // store state in Xopt
             Xopt[i].n[0] = seg.get_no();
             for(k=0;k<K;k++){
                 Xopt[i].n[k+1] = result.get(getVar("n",i,k+1));
                 Xopt[i].f[k] = result.get(getVar("f", i, k));
             }
-
             if(seg.is_metered){
                 Xopt[i].l[0] = seg.get_lo();
                 for(k=0;k<K;k++){
@@ -100,6 +100,7 @@ public final class RampMeteringSolution {
                 }
             }
 
+            // add terms to TVH and TVM
             for (k=0;k<K;k++) {
                 double d = seg.get_demand_in_vps(k)*sim_dt;
                 TVH += result.get(getVar("n",i,k+1));
@@ -107,12 +108,12 @@ public final class RampMeteringSolution {
                     TVM += result.get(getVar("f", i, k)) / (1 - seg.get_split_ratio(k));
                 else
                     TVM += result.get(getVar("f", i, k));
-
                 if (seg.has_on_ramp){
                     TVM += (seg.is_metered? result.get(getVar("f", i, k)) : d);
                     TVH += (seg.is_metered? result.get(getVar("l",i,k+1)) : 0);
                 }
             }
+
         }
     }
 
@@ -136,13 +137,13 @@ public final class RampMeteringSolution {
 
     // performance ....................
 
-//    public double getTVH(){
-//        return  TVM;
-//    }
-//
-//    public double getTVM(){
-//        return TVH;
-//    }
+    public double getTVH(){
+        return  TVM;
+    }
+
+    public double getTVM(){
+        return TVH;
+    }
 
     // other ....................
 
@@ -159,9 +160,9 @@ public final class RampMeteringSolution {
 //    }
 
 
-//    public boolean is_CTM(){
-//        return is_ctm;
-//    }
+    public boolean is_ctm(){
+        return is_ctm;
+    }
 
     ////////////////////////////////////////////////////////
     // private statics

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 public class TestSmallNetwork {
 
@@ -46,7 +47,7 @@ public class TestSmallNetwork {
         SplitRatioSet split_ratios = scenario.getSplitRatioSet();
         RampMeteringSolver solver = new RampMeteringSolver(net, fds, split_ratios, actuators, K_dem, K_cool, eta, sim_dt_in_seconds);
 
-        ArrayList<String> errors = solver.getFwy().check_CFL_condition(sim_dt_in_seconds);
+        ArrayList<String> errors = solver.getFwy().check_cfl_condition(sim_dt_in_seconds);
         if (!errors.isEmpty()) {
             System.err.print(errors);
             throw new Exception("CFL error");
@@ -56,23 +57,12 @@ public class TestSmallNetwork {
         solver.set_data(ics, demands);
         RampMeteringSolution sol = solver.solve(solver_type);
 
-        //solver.printLP();
-
         sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
         sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.text);
         System.out.println(sol);
 
         assertNotNull(sol);
-//        boolean CTMbehavior = true;
-//        for (int i = 0; i < 3; i++){
-//            for (int j = 0; j < (K_cool + K_dem); j++) {
-//                if (sol.is_flow_CTM_behavior(solver.getFwy())[i][j] == false) {
-//                CTMbehavior = false;
-//                break;}
-//            }
-//        }
-//        assertEquals(true, CTMbehavior);
-
+        assertTrue(sol.is_ctm());
     }
 }
 

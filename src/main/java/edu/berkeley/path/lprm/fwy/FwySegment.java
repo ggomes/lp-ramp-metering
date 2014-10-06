@@ -108,11 +108,12 @@ public final class FwySegment {
         return this.n_max;
     }
 
-
     // lanes ...........................
+
     public double get_or_lanes(){
         return this.or_lanes;
     }
+
     // metering .........................
 
     public double get_rmax_vps(){
@@ -120,6 +121,7 @@ public final class FwySegment {
     }
 
     // link ids .........................
+
     public double get_main_line_link_id(){
         return this.ml_link_id;
     }
@@ -133,6 +135,7 @@ public final class FwySegment {
     }
 
     // initial conditions ..............
+
     public double get_no(){
         return this.no;
     }

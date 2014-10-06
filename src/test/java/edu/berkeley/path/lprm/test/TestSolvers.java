@@ -65,13 +65,13 @@ public class TestSolvers {
         assertEquals(result.get("y"),59,1e-4);
     }
 
-//    @Test
-//    public void testLpSolve() throws Exception {
-//        PointValue result = (new LpSolveSolver()).solve(problem);
-//        assertNotNull(result);
-//        assertEquals(result.get("x"),16,1e-4);
-//        assertEquals(result.get("y"),59,1e-4);
-//    }
+    @Test
+    public void testLpSolve() throws Exception {
+        PointValue result = (new LpSolveSolver()).solve(problem);
+        assertNotNull(result);
+        assertEquals(result.get("x"),16,1e-4);
+        assertEquals(result.get("y"),59,1e-4);
+    }
 
 //    @Test
 //    public void testGurobi() throws Exception {

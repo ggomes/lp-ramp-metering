@@ -276,12 +276,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
         }
 
-
-
     }
-
-
-
 
     public void set_rhs_from_fwy(FwyNetwork fwy){
 

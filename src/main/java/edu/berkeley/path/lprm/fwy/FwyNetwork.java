@@ -87,7 +87,7 @@ public final class FwyNetwork {
     // validate
     ///////////////////////////////////////////////////////////////////
 
-    public ArrayList<String> check_CFL_condition(double dt){
+    public ArrayList<String> check_cfl_condition(double dt){
         ArrayList<String> errors = new ArrayList<String>();
         for(int i=0;i<segments.size();i++){
             FwySegment seg = segments.get(i);
@@ -103,33 +103,19 @@ public final class FwyNetwork {
     // get
     ///////////////////////////////////////////////////////////////////
 
-//    public List<FwySegment> getSegments() {
-//        return segments;
-//    }
-
     public FwySegment get_segment(int i){
         return segments.get(i);
     }
 
     public int get_num_segments(){return num_segments;}
 
-
-//    }
     public int get_num_states(){
         return (num_segments+num_actuated_ors);
     }
 
-//    public int get_num_links(){
-//        return num_links;
-//    }
-
     public ArrayList<Long> get_link_ids(){
         return link_ids;
     }
-
-//    public ArrayList<Double> get_state_jam_densities(){
-//        return jam_density_of_states;
-//    }
 
     public Double get_link_jam_density(Long link_id,FundamentalDiagramSet fds, LpNetwork network) {
         LpLink desired_link = null;
@@ -142,9 +128,6 @@ public final class FwyNetwork {
         FundamentalDiagram fd = get_fd_for_link(desired_link,fds);
         return fd.getJamDensity()/desired_link.getLength();
     }
-
-
-
 
     ///////////////////////////////////////////////////////////////////
     // private
@@ -221,13 +204,6 @@ public final class FwyNetwork {
         }
         return null;
     }
-//    private Link start_node_onramp_or_source(Link link){
-//        for(Link ilink : link.getBegin_node().getInput_link()){
-//            if(isOnrampType(ilink) || isSource(ilink))
-//                return ilink;
-//        }
-//        return null;
-//    }
 
     private FundamentalDiagram get_fd_for_link(LpLink link, FundamentalDiagramSet fds){
         if(fds==null)
@@ -294,7 +270,6 @@ public final class FwyNetwork {
             seg.set_constant_demand_segment(demand_value,dt);}
     }
 
-
     public void set_density_without_jaxb(Long link_id,double density_value){
         int index = ml_link_id.indexOf(link_id);
         if (index>=0)
@@ -304,8 +279,6 @@ public final class FwyNetwork {
             if(index>=0)
              segments.get(index).add_to_lo_in_vpm(density_value);
     }
-
-
 
     public void set_demands(DemandSet demand_set){
 
