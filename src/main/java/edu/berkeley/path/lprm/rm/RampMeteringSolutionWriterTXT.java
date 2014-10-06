@@ -12,7 +12,6 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
         fr,
         actuatedOr,
         ml;
-
     }
 
     @Override
@@ -93,7 +92,7 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
     @Override
     public void write_to_stream(OutputStream ps,RampMeteringSolution rm,String varname,int numK){
         try {
-            ArrayList<double[]> matrix = rm.get_matrix(varname);
+            ArrayList<Double[]> matrix = rm.get_matrix(varname);
             for(int i=0;i<matrix.size();i++)
                 if(matrix.get(i)!=null)
                     ps.write(toBytes(format_row(matrix.get(i), numK, "\t") + "\n"));
@@ -106,16 +105,15 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
         try {
             switch (linkType) {
                 case ml:
-                    double[] mainLineIds = rm.get_ml_ids();
-                    ps.write(toBytes(format_column(mainLineIds, "\n")));
+
+
+                ps.write(toBytes(format_column(rm.get_mainline_ids(), "\n")));
                     break;
                 case fr:
-                    double[] offRampIds = rm.get_ml_ids();
-                    ps.write(toBytes(format_column(offRampIds, "\n")));
+                    ps.write(toBytes(format_column(rm.get_offramp_ids(), "\n")));
                     break;
                 case actuatedOr:
-                    double[] actuatedOnRampIds = rm.get_fr_ids();
-                    ps.write(toBytes(format_column(actuatedOnRampIds, "\n")));
+                    ps.write(toBytes(format_column(rm.get_metered_onramp_ids(), "\n")));
             }
 
 
@@ -124,23 +122,9 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
         }
     }
 
-
-
-
-
-
-//            double[] mainLineIds = rm.get_ml_ids();
-//            ps.write(toBytes(format_column(mainLineIds,"\n")));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
     public void write_to_stream_mainline_ids(OutputStream ps,RampMeteringSolution rm){
         try {
-            double[] mainLineIds = rm.get_ml_ids();
-                    ps.write(toBytes(format_column(mainLineIds,"\n")));
+            ps.write(toBytes(format_column(rm.get_mainline_ids(),"\n")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -148,8 +132,7 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
 
     public void write_to_stream_or_ids(OutputStream ps,RampMeteringSolution rm){
         try {
-            double[] actuatedOnRampIds = rm.get_actuated_or_ids();
-            ps.write(toBytes(format_column(actuatedOnRampIds,"\n")));
+            ps.write(toBytes(format_column(rm.get_metered_onramp_ids(),"\n")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -157,8 +140,7 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
 
     public void write_to_stream_fr_ids(OutputStream ps,RampMeteringSolution rm){
         try {
-            double[] offRampIds = rm.get_fr_ids();
-            ps.write(toBytes(format_column(offRampIds,"\n")));
+            ps.write(toBytes(format_column(rm.get_offramp_ids(),"\n")));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -11,36 +11,36 @@ import java.util.ArrayList;
 public final class FwySegment {
 
     // link references
-    private Long ml_link_id;
-    private Long or_link_id;
-    private Long fr_link_id;
-    private Long fr_node_id;
+    protected Long ml_link_id;
+    protected Long or_link_id;
+    protected Long fr_link_id;
+    protected Long fr_node_id;
 
     // fundamental diagram
-    private Double vf;        // [link/sec] free flow speed
-    private Double w;         // [link/sec] congestion wave speed
-    private Double f_max;     // [veh/sec] mainline capacity
-    private Double n_max;     // [veh/link] mainline jam density
-    private Double ml_link_length; // [m] length of the mainline link
-    private Double or_link_length; // [m] length of the onramp link
-    private Double or_lanes;  // [-] onramp lanes
+    protected Double vf;        // [link/sec] free flow speed
+    protected Double w;         // [link/sec] congestion wave speed
+    protected Double f_max;     // [veh/sec] mainline capacity
+    protected Double n_max;     // [veh/link] mainline jam density
+    protected Double ml_link_length; // [m] length of the mainline link
+    protected Double or_link_length; // [m] length of the onramp link
+    protected Double or_lanes;  // [-] onramp lanes
 
     // initial condition
-    private Double no;        // [veh] initial ml vehicles
-    private Double lo;        // [veh] initial or vehicles
+    protected Double no;        // [veh] initial ml vehicles
+    protected Double lo;        // [veh] initial or vehicles
 
     // metering
-    public boolean is_metered;
-    public boolean has_off_ramp;
-    public boolean has_on_ramp;
-    public Double l_max;     // [veh] maximum or queue length
-    private Double r_max;     // [veh/sec] maximum or metering rate
+    protected boolean is_metered;
+    protected boolean has_off_ramp;
+    protected boolean has_on_ramp;
+    protected Double l_max;     // [veh] maximum or queue length
+    protected Double r_max;     // [veh/sec] maximum or metering rate
 
     // data profiles
-    private ArrayList<Double> demand_profile;         // [veh/sec] onramp demands
-    private double demand_profile_dt;                 // [sec]
-    private ArrayList<Double> split_ratio_profile;    // [veh] offramp splits
-    private double split_ratio_profile_dt;            // [sec]
+    protected ArrayList<Double> demand_profile;         // [veh/sec] onramp demands
+    protected double demand_profile_dt;                 // [sec]
+    protected ArrayList<Double> split_ratio_profile;    // [veh] offramp splits
+    protected double split_ratio_profile_dt;            // [sec]
 
     ///////////////////////////////////////////////////////////////////
     // construction
@@ -116,21 +116,37 @@ public final class FwySegment {
 
     // metering .........................
 
+    public boolean is_metered(){
+        return is_metered;
+    }
+
+    public Double get_lmax(){
+        return l_max;
+    }
+
     public double get_rmax_vps(){
         return this.r_max;
     }
 
+    // topology ............................
+    public boolean has_offramp(){
+        return has_off_ramp;
+    }
+    public boolean has_onramp(){
+        return has_on_ramp;
+    }
+
     // link ids .........................
 
-    public double get_main_line_link_id(){
+    public long get_main_line_link_id(){
         return this.ml_link_id;
     }
 
-    public double get_on_ramp_link_id(){
+    public long get_on_ramp_link_id(){
         return this.or_link_id;
     }
 
-    public double get_off_ramp_id(){
+    public long get_off_ramp_id(){
         return this.fr_link_id;
     }
 
@@ -196,12 +212,20 @@ public final class FwySegment {
                 split_ratio_profile.get(split_ratio_profile.size()-1);
     }
 
+    public void set_no_in_vpm(double x){
+        no = x*ml_link_length;
+    }
+
     public void add_to_no_in_vpm(double x){
         no += x*ml_link_length;
     }
 
     public void add_to_lo_in_vpm(double x){
         lo += x*or_link_length;
+    }
+
+    public void set_lo_in_vpm(double x){
+        lo = x*or_link_length;
     }
 
     ///////////////////////////////////////////////////////////////////

@@ -1,6 +1,5 @@
 package edu.berkeley.path.lprm;
 
-//import edu.berkeley.path.lprm.network.beats.Network;
 import edu.berkeley.path.beats.jaxb.Scenario;
 import org.xml.sax.SAXException;
 

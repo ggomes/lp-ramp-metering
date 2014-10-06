@@ -27,7 +27,7 @@ public class RampMeteringSolutionWriterMAT extends RampMeteringSolutionWriter {
     @Override
     public void write_to_stream(OutputStream ps,RampMeteringSolution rm,String varname,int numK){
         try {
-            ArrayList<double[]> matrix = rm.get_matrix(varname);
+            ArrayList<Double[]> matrix = rm.get_matrix(varname);
             ps.write(toBytes(varname+"=[...\n"));
             writeMatrix(ps, matrix, numK);
             ps.write(toBytes("];\n"));
@@ -46,7 +46,7 @@ public class RampMeteringSolutionWriterMAT extends RampMeteringSolutionWriter {
         return ps;
     }
 
-    private void writeMatrix(OutputStream ps,ArrayList<double[]> matrix,int numTime) throws IOException {
+    private void writeMatrix(OutputStream ps,ArrayList<Double[]> matrix,int numTime) throws IOException {
         int i;
         for(i=0;i<matrix.size()-1;i++)
             if(matrix.get(i)!=null)

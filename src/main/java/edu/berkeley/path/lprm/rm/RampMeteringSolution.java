@@ -17,14 +17,17 @@ public final class RampMeteringSolution {
 
     public enum OutputFormat {text,matlab};
 
+    protected ProblemRampMetering LP;
+    protected FwyNetwork fwy;
+    protected SolverType solver_type;
     protected PointValue result;
     protected SegmentSolution [] Xopt;      // unpacked result in a convenient format
 
     protected boolean is_ctm;
 
-    protected double[] mainLineIDs;
-    protected double[] actuatedOnRampIDs;
-    protected double[] offRampIDs;
+//    protected double[] mainLineIDs;
+//    private double[] actuatedOnRampIDs;
+//    private double[] offRampIDs;
     protected double TVH;
     protected double TVM;
 
@@ -38,22 +41,25 @@ public final class RampMeteringSolution {
 
     public RampMeteringSolution(ProblemRampMetering LP, FwyNetwork fwy, SolverType solver_type){
 
-        this.I = fwy.num_segments;
+        this.fwy = fwy;
+        this.LP = LP;
+        this.solver_type = solver_type;
+        this.I = fwy.get_num_segments();
         this.K = LP.K;
         this.sim_dt = LP.sim_dt_in_seconds;
 
-        mainLineIDs = new double[I];
-        actuatedOnRampIDs = new double[fwy.num_actuated_ors];
-        offRampIDs = new double[fwy.num_frs];
+//        mainLineIDs = new double[I];
+//        actuatedOnRampIDs = new double[fwy.num_actuated_ors];
+//        offRampIDs = new double[fwy.num_frs];
 
         Solver solver = null;
         switch(solver_type){
             case APACHE:
                 solver = new ApacheSolver();
                 break;
-            case LPSOLVE:
-                solver = new LpSolveSolver();
-                break;
+//            case LPSOLVE:
+//                solver = new LpSolveSolver();
+//                break;
 //            case GUROBI:
 //                solver = new GurobiSolver();
 //                break;
@@ -79,12 +85,12 @@ public final class RampMeteringSolution {
             FwySegment seg = fwy.get_segment(i);
             Xopt[i] = new SegmentSolution(seg,K);
 
-            // make local copy of link ids (is this necessary?)
-            mainLineIDs[i] = seg.get_main_line_link_id();
-            if (seg.is_metered)
-                actuatedOnRampIDs[actuatedORCounter++] = seg.get_on_ramp_link_id(); // get_actuated_on_ramp_id();
-            if (seg.has_off_ramp)
-                offRampIDs[frCounter++] = seg.get_off_ramp_id();
+//            // make local copy of link ids (is this necessary?)
+//            mainLineIDs[i] = seg.get_main_line_link_id();
+//            if (seg.is_metered())
+//                actuatedOnRampIDs[actuatedORCounter++] = seg.get_on_ramp_link_id(); // get_actuated_on_ramp_id();
+//            if (seg.has_offramp())
+//                offRampIDs[frCounter++] = seg.get_off_ramp_id();
 
             // store state in Xopt
             Xopt[i].n[0] = seg.get_no();
@@ -92,7 +98,7 @@ public final class RampMeteringSolution {
                 Xopt[i].n[k+1] = result.get(getVar("n",i,k+1));
                 Xopt[i].f[k] = result.get(getVar("f", i, k));
             }
-            if(seg.is_metered){
+            if(seg.is_metered()){
                 Xopt[i].l[0] = seg.get_lo();
                 for(k=0;k<K;k++){
                     Xopt[i].l[k+1] = result.get(getVar("l",i,k+1));
@@ -104,13 +110,13 @@ public final class RampMeteringSolution {
             for (k=0;k<K;k++) {
                 double d = seg.get_demand_in_vps(k)*sim_dt;
                 TVH += result.get(getVar("n",i,k+1));
-                if (seg.has_off_ramp)
+                if (seg.has_offramp())
                     TVM += result.get(getVar("f", i, k)) / (1 - seg.get_split_ratio(k));
                 else
                     TVM += result.get(getVar("f", i, k));
-                if (seg.has_on_ramp){
-                    TVM += (seg.is_metered? result.get(getVar("f", i, k)) : d);
-                    TVH += (seg.is_metered? result.get(getVar("l",i,k+1)) : 0);
+                if (seg.has_onramp()){
+                    TVM += (seg.is_metered()? result.get(getVar("f", i, k)) : d);
+                    TVH += (seg.is_metered()? result.get(getVar("l",i,k+1)) : 0);
                 }
             }
 
@@ -123,17 +129,19 @@ public final class RampMeteringSolution {
 
     // Link ids ....................
 
-    public double[] get_ml_ids(){
-        return mainLineIDs;
+    public ArrayList<Long> get_mainline_ids(){
+        return fwy.get_mainline_ids();
     }
 
-    public double[] get_actuated_or_ids(){
-        return actuatedOnRampIDs;
+    public ArrayList<Long> get_offramp_ids(){
+        return fwy.get_offramp_ids();
     }
 
-    public double[] get_fr_ids(){
-        return offRampIDs;
+    public ArrayList<Long> get_metered_onramp_ids(){
+        return fwy.get_metered_onramp_ids();
     }
+
+
 
     // performance ....................
 
@@ -150,15 +158,6 @@ public final class RampMeteringSolution {
     public double getSim_dt(){
         return sim_dt;
     }
-
-//    public double get_cost(){
-//        return result.cost;
-//    }
-//
-//    public PointValue get_PointValue(){
-//        return result;
-//    }
-
 
     public boolean is_ctm(){
         return is_ctm;
@@ -243,20 +242,20 @@ public final class RampMeteringSolution {
     ////////////////////////////////////////////////////////
 
     public class SegmentSolution {
-        protected double [] n;
-        protected double [] l;
-        protected double [] f;
-        protected double [] r;
+        protected Double [] n;
+        protected Double [] l;
+        protected Double [] f;
+        protected Double [] r;
 
         public SegmentSolution(FwySegment fseg,int K){
-            n = new double[K+1];
-            f = new double[K];
-            if(fseg.is_metered){
-                l = new double[K+1];
-                r = new double[K];
+            n = new Double[K+1];
+            f = new Double[K];
+            if(fseg.is_metered()){
+                l = new Double[K+1];
+                r = new Double[K];
             }
         }
-        public double [] get(String name){
+        public Double [] get(String name){
             if(name.equalsIgnoreCase("n"))
                 return n;
             if(name.equalsIgnoreCase("l"))
@@ -293,8 +292,8 @@ public final class RampMeteringSolution {
         writer.write_to_file(filename, this);
     }
 
-    public ArrayList<double[]> get_matrix(String name){
-        ArrayList<double[]> X = new ArrayList<double[]>();
+    public ArrayList<Double[]> get_matrix(String name){
+        ArrayList<Double[]> X = new ArrayList<Double[]>();
         for(SegmentSolution segsol : Xopt)
             X.add(segsol.get(name));
         return X;
