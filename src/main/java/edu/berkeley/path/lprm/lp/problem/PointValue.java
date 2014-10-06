@@ -14,6 +14,7 @@ public class PointValue {
     public HashMap<String,Double> name_value = new HashMap<String,Double>();  // variable name -> value
 
     public PointValue(){}
+
     public PointValue(ArrayList<String> names,double [] values,double cost){
         if(names.size()!=values.length)
             return;

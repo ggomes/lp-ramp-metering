@@ -91,9 +91,6 @@ public class Problem {
                 r = ConstraintState.violated;
             else
                 r = ConstraintState.inactive;
-//            if(rhs)
-
-//            ConstraintState lin_state = cnst.evaluate(P,epsilon);
             result.put(var_name,r);
         }
         return result;
@@ -117,9 +114,6 @@ public class Problem {
                 r = ConstraintState.violated;
             else
                 r = ConstraintState.inactive;
-//            if(rhs)
-
-//            ConstraintState lin_state = cnst.evaluate(P,epsilon);
             result.put(var_name,r);
         }
         return result;

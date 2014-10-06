@@ -63,7 +63,7 @@ public final class FwyNetwork {
             link_ids.add(onramp==null?null:onramp.getId());
 //            jam_density_of_states.add((onramp==null?null:fd.getJamDensity()));
 
-            Link onramp_source = get_onramp_source(onramp);
+            LpLink onramp_source = get_onramp_source(onramp);
             or_source_id.add(onramp_source==null?null:onramp_source.getId());
 
             if (offramp!=null){
@@ -71,7 +71,7 @@ public final class FwyNetwork {
                 link_ids.add(offramp.getId());}
 //                jam_density_of_states.add((onramp==null?null:fd.getJamDensity()));
 
-            fr_node_id.add(offramp == null ? null : offramp.getBegin_node().getId());
+            fr_node_id.add(offramp == null ? null : offramp.getBegin().getId());
             link = next_freeway_link(link);
         }
 
@@ -131,18 +131,16 @@ public final class FwyNetwork {
 //        return jam_density_of_states;
 //    }
 
-    public Double get_link_jam_density(Long link_id,FundamentalDiagramSet fds, jaxb.Network
-                                        network) {
-        Link desired_link = new Link();
-        for (jaxb.Link jlink : network.getLinkList().getLink()) {
-            if (jlink.getId() == link_id) {
-                desired_link = (Link) jlink;
+    public Double get_link_jam_density(Long link_id,FundamentalDiagramSet fds, LpNetwork network) {
+        LpLink desired_link = null;
+        for (LpLink link : network.getLinks() ) {
+            if (link.getId() == link_id) {
+                desired_link = link;
                 break;
             }
         }
         FundamentalDiagram fd = get_fd_for_link(desired_link,fds);
         return fd.getJamDensity()/desired_link.getLength();
-
     }
 
 
@@ -175,9 +173,6 @@ public final class FwyNetwork {
             LpNode first_freewayLink_begin_node = link.getBegin();
                   LpNode first_freewayLink_end_node = link.getEnd();
               }
-
-
-
         }
         // there must be exactly one of these
         if(first_fwy_list.isEmpty())
@@ -331,7 +326,7 @@ public final class FwyNetwork {
                                 demand.add(0d);
                         for(int i=0;i<strlist.size();i++){
                             double val = demand.get(i);
-                            val += Double.parseDouble(strlist.get(i))*seg.or_lanes;
+                            val += Double.parseDouble(strlist.get(i))*seg.get_or_lanes();
                             demand.set(i,val);
                         }
                     }

@@ -65,8 +65,8 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                 double time = k*sim_dt_in_seconds;
                 double betabar = 1-seg.get_split_ratio(time);
                 double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
-                double no = k==0? seg.no : 0;
-                double lo = k==0? seg.lo : 0;
+                double no = k==0? seg.get_no() : 0;
+                double lo = k==0? seg.get_lo() : 0;
 
                 // MAINLINE CONSERVATION .............................................
 
@@ -127,7 +127,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
                     double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
-                    double next_no = k==0? next_seg.no : 0;
+                    double next_no = k==0? next_seg.get_no() : 0;
 
                     Linear C4 = new Linear();
 
@@ -146,7 +146,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                     // RHS
                     //     {always}              {k=0}             {!metered}
                     // w[i+1]*njam[i+1] - w[i+1]*n[i+1][0] - w[i+1]*gamma*d[i+1][k]
-                    rhs = next_w*next_seg.n_max;
+                    rhs = next_w*next_seg.get_nmax();
                     rhs += -next_w*next_no;
                     rhs += !next_seg.is_metered ? -next_w*fwy.gamma*next_d : 0;
                     C4.set_rhs(rhs);
@@ -238,8 +238,8 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 //                if seg.
 
 //                double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
-                double no = k==0? seg.no : 0;
-                double lo = k==0? seg.lo : 0;
+                double no = k==0? seg.get_no() : 0;
+                double lo = k==0? seg.get_lo() : 0;
 
                 // MAINLINE CONSERVATION ..............................
                 rhs = no;
@@ -257,9 +257,9 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
                     double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
-                    double next_no = k==0? next_seg.no : 0;
+                    double next_no = k==0? next_seg.get_no() : 0;
 
-                    rhs = next_w*next_seg.n_max;
+                    rhs = next_w*next_seg.get_nmax();
                     rhs += -next_w*next_no;
                     rhs += !next_seg.is_metered ? -next_w*fwy.gamma*next_d : 0;
                     set_constraint_rhs(getCnstr(CnstType.MLFLW_CNG,index,k),rhs);
@@ -298,8 +298,8 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                 double time = k*sim_dt_in_seconds;
                 double betabar = 1-seg.get_split_ratio(time);
                 double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
-                double no = k==0? seg.no : 0;
-                double lo = k==0? seg.lo : 0;
+                double no = k==0? seg.get_no() : 0;
+                double lo = k==0? seg.get_lo() : 0;
 
                 // MAINLINE CONSERVATION ..............................
                 rhs = no;
@@ -317,9 +317,9 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
                     double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
-                    double next_no = k==0? next_seg.no : 0;
+                    double next_no = k==0? next_seg.get_no() : 0;
 
-                    rhs = next_w*next_seg.n_max;
+                    rhs = next_w*next_seg.get_nmax();
                     rhs += -next_w*next_no;
                     rhs += !next_seg.is_metered ? -next_w*fwy.gamma*next_d : 0;
                     set_constraint_rhs(getCnstr(CnstType.MLFLW_CNG,i,k),rhs);

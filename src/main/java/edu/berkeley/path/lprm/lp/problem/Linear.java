@@ -15,10 +15,7 @@ public class Linear {
     private double rhs = Double.NaN;
 
     // construction ..........................................
-
-    public Linear(){
-
-    }
+    public Linear(){}
 
     // set / add .............................................
 
