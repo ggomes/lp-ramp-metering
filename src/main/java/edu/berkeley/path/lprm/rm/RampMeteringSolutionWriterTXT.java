@@ -8,6 +8,13 @@ import java.util.ArrayList;
  */
 public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
 
+    protected enum network_data{
+        fr,
+        actuatedOr,
+        ml;
+
+    }
+
     @Override
     public void write_to_file(String filename, RampMeteringSolution rm){
 
@@ -28,6 +35,43 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
         ps=open_file(filename,"r");
         write_to_stream(ps,rm,"r", rm.K);
         ps.close();
+
+//        ps=open_file(filename,"off_ramp_Ids");
+//        write_ids_to_stream(ps,rm,network_data.fr);
+//        ps.close();
+//
+//        ps=open_file(filename,"main_line_ids");
+//        write_ids_to_stream(ps,rm,network_data.ml);
+//        ps.close();
+//
+//        ps=open_file(filename,"actuated_on_ramp_Ids");
+//        write_ids_to_stream(ps,rm,network_data.actuatedOr);
+//        ps.close();
+//
+//
+//
+//        ps=open_file(filename,"sim_dt");
+//        write_to_stream_simdt(ps,rm);
+//        ps.close();
+
+
+        ps=open_file(filename,"main_line_ids");
+        write_to_stream_mainline_ids(ps,rm);
+        ps.close();
+
+        ps=open_file(filename,"actuated_on_ramp_Ids");
+        write_to_stream_or_ids(ps,rm);
+        ps.close();
+
+        ps=open_file(filename,"off_ramp_Ids");
+        write_to_stream_fr_ids(ps,rm);
+        ps.close();
+
+        ps=open_file(filename,"sim_dt");
+        write_to_stream_simdt(ps,rm);
+        ps.close();
+
+
     }
 
     @Override
@@ -53,6 +97,77 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
             for(int i=0;i<matrix.size();i++)
                 if(matrix.get(i)!=null)
                     ps.write(toBytes(format_row(matrix.get(i), numK, "\t") + "\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void write_ids_to_stream(OutputStream ps,RampMeteringSolution rm,network_data linkType) {
+        try {
+            switch (linkType) {
+                case ml:
+                    double[] mainLineIds = rm.get_ml_ids();
+                    ps.write(toBytes(format_column(mainLineIds, "\n")));
+                    break;
+                case fr:
+                    double[] offRampIds = rm.get_ml_ids();
+                    ps.write(toBytes(format_column(offRampIds, "\n")));
+                    break;
+                case actuatedOr:
+                    double[] actuatedOnRampIds = rm.get_fr_ids();
+                    ps.write(toBytes(format_column(actuatedOnRampIds, "\n")));
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
+//            double[] mainLineIds = rm.get_ml_ids();
+//            ps.write(toBytes(format_column(mainLineIds,"\n")));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
+    public void write_to_stream_mainline_ids(OutputStream ps,RampMeteringSolution rm){
+        try {
+            double[] mainLineIds = rm.get_ml_ids();
+                    ps.write(toBytes(format_column(mainLineIds,"\n")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void write_to_stream_or_ids(OutputStream ps,RampMeteringSolution rm){
+        try {
+            double[] actuatedOnRampIds = rm.get_actuated_or_ids();
+            ps.write(toBytes(format_column(actuatedOnRampIds,"\n")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void write_to_stream_fr_ids(OutputStream ps,RampMeteringSolution rm){
+        try {
+            double[] offRampIds = rm.get_fr_ids();
+            ps.write(toBytes(format_column(offRampIds,"\n")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void write_to_stream_simdt(OutputStream ps,RampMeteringSolution rm){
+        try {
+            double simdt = rm.getSim_dt();
+            ps.write(toBytes((simdt+"\n")));
         } catch (IOException e) {
             e.printStackTrace();
         }

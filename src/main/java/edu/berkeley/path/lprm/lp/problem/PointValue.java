@@ -11,7 +11,7 @@ import java.util.Map;
 public class PointValue {
 
     public double cost;
-    public HashMap<String,Double> name_value = new HashMap<String,Double>();
+    public HashMap<String,Double> name_value = new HashMap<String,Double>();  // variable name -> value
 
     public PointValue(){}
     public PointValue(ArrayList<String> names,double [] values,double cost){

@@ -7,6 +7,8 @@ import java.util.*;
  */
 public class Problem {
 
+    public enum ConstraintState {violated,active,inactive};
+
     private HashMap<String,Linear> constraints = new HashMap<String,Linear>();
     private HashMap<String,Double> upper_bounds = new HashMap<String,Double>();
     private HashMap<String,Double> lower_bounds = new HashMap<String,Double>();
@@ -70,6 +72,71 @@ public class Problem {
 
     public OptType get_opt_type(){
         return opt_type;
+    }
+
+    public HashMap<String,ConstraintState> evaluate_upper_bounds(PointValue P,double epsilon) {
+        HashMap<String,ConstraintState> result = new HashMap<String,ConstraintState>();
+
+        Iterator it = upper_bounds.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            String var_name = (String) pairs.getKey();
+            Double rhs = (Double) pairs.getValue();
+            Double lhs = P.get(var_name);
+            ConstraintState r = null;
+
+            if(Math.abs(rhs-lhs)<epsilon)
+                r = ConstraintState.active;
+            else if(lhs>rhs+epsilon)
+                r = ConstraintState.violated;
+            else
+                r = ConstraintState.inactive;
+//            if(rhs)
+
+//            ConstraintState lin_state = cnst.evaluate(P,epsilon);
+            result.put(var_name,r);
+        }
+        return result;
+    }
+
+    public HashMap<String,ConstraintState> evaluate_lower_bounds(PointValue P,double epsilon) {
+
+        HashMap<String,ConstraintState> result = new HashMap<String,ConstraintState>();
+
+        Iterator it = lower_bounds.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            String var_name = (String) pairs.getKey();
+            Double rhs = (Double) pairs.getValue();
+            Double lhs = P.get(var_name);
+            ConstraintState r = null;
+
+            if(Math.abs(rhs-lhs)<epsilon)
+                r = ConstraintState.active;
+            else if(lhs<rhs-epsilon)
+                r = ConstraintState.violated;
+            else
+                r = ConstraintState.inactive;
+//            if(rhs)
+
+//            ConstraintState lin_state = cnst.evaluate(P,epsilon);
+            result.put(var_name,r);
+        }
+        return result;
+
+    }
+
+    public HashMap<String,ConstraintState> evaluate_constraints(PointValue P,double epsilon) {
+        HashMap<String,ConstraintState> result = new HashMap<String,ConstraintState>();
+        Iterator it = constraints.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            String cnst_name = (String) pairs.getKey();
+            Linear cnst = (Linear) pairs.getValue();
+            ConstraintState lin_state = cnst.evaluate(P,epsilon);
+            result.put(cnst_name,lin_state);
+        }
+        return result;
     }
 
     @Override

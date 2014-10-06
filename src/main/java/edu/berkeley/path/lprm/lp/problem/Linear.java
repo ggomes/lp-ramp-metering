@@ -57,6 +57,34 @@ public class Linear {
         return coefficients.keySet();
     }
 
+    public Problem.ConstraintState evaluate(PointValue P,double epsilon){
+
+        Problem.ConstraintState result = null;
+        double lhs = 0d;
+        Iterator it = coefficients.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            String var_name = (String) pairs.getKey();
+            Double alpha = (Double) pairs.getValue();
+            lhs += alpha*P.get(var_name);
+        }
+
+        double diff = lhs-rhs;
+        if(Math.abs(diff)<epsilon)
+            return Problem.ConstraintState.active;
+
+        switch(relation){
+            case EQ:
+                return Problem.ConstraintState.violated;
+            case GEQ:
+                return diff>epsilon ? Problem.ConstraintState.inactive : Problem.ConstraintState.violated;
+            case LEQ:
+                return diff<-epsilon ? Problem.ConstraintState.inactive : Problem.ConstraintState.violated;
+            default:
+                return null;
+        }
+    }
+
     @Override
     public String toString() {
         String str = "";

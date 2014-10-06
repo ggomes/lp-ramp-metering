@@ -12,14 +12,20 @@ import java.util.List;
 public final class FwyNetwork {
 
     public int num_segments;           // number of segments
+    public int num_actuated_ors;
+    public int num_frs;
+    public int num_links;
     public double gamma = 1d;          // merge coefficient
 
     private ArrayList<FwySegment> segments;
-    private ArrayList<Long> ml_link_id;
+    public ArrayList<Long> ml_link_id;
     private ArrayList<Long> fr_link_id;
     private ArrayList<Long> or_link_id;
     private ArrayList<Long> or_source_id;
     private ArrayList<Long> fr_node_id;
+    private ArrayList<Long> actuated_or_link_id;
+//    private ArrayList<Double> jam_density_of_states;
+    private ArrayList<Long> link_ids;
 
     ///////////////////////////////////////////////////////////////////
     // construction
@@ -31,6 +37,9 @@ public final class FwyNetwork {
         ml_link_id = new ArrayList<Long>();
         fr_link_id = new ArrayList<Long>();
         or_link_id = new ArrayList<Long>();
+        link_ids = new ArrayList<Long>();
+//        jam_density_of_states = new ArrayList<Double>();
+        actuated_or_link_id = new ArrayList<Long>();
         or_source_id = new ArrayList<Long>();
         fr_node_id = new ArrayList<Long>();
 
@@ -41,17 +50,37 @@ public final class FwyNetwork {
             LpLink offramp = end_node_offramp(link);
             FundamentalDiagram fd = get_fd_for_link(link,fds);
             Actuator actuator = get_onramp_actuator(onramp,actuatorset);
+
+            if (actuator!=null)
+                actuated_or_link_id.add(actuator.getScenarioElement().getId());
+
             segments.add(new FwySegment(link,onramp,offramp,fd,actuator));
             ml_link_id.add(link.getId());
+            link_ids.add(link.getId());
+//            jam_density_of_states.add((fd.getJamDensity()));
+
             or_link_id.add(onramp==null?null:onramp.getId());
-            LpLink onramp_source = get_onramp_source(onramp);
+            link_ids.add(onramp==null?null:onramp.getId());
+//            jam_density_of_states.add((onramp==null?null:fd.getJamDensity()));
+
+            Link onramp_source = get_onramp_source(onramp);
             or_source_id.add(onramp_source==null?null:onramp_source.getId());
-            fr_link_id.add(offramp==null?null:offramp.getId());
-            fr_node_id.add(offramp == null ? null : offramp.getBegin().getId());
+
+            if (offramp!=null){
+                fr_link_id.add(offramp.getId());
+                link_ids.add(offramp.getId());}
+//                jam_density_of_states.add((onramp==null?null:fd.getJamDensity()));
+
+            fr_node_id.add(offramp == null ? null : offramp.getBegin_node().getId());
             link = next_freeway_link(link);
         }
 
         num_segments = segments.size();
+        num_actuated_ors = actuated_or_link_id.size();
+        num_frs = fr_link_id.size();
+        num_links = link_ids.size();
+
+
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -81,6 +110,43 @@ public final class FwyNetwork {
     public FwySegment get_segment(int i){
         return segments.get(i);
     }
+
+    public int get_num_segments(){return num_segments;}
+
+
+//    }
+    public int get_num_states(){
+        return (num_segments+num_actuated_ors);
+    }
+
+//    public int get_num_links(){
+//        return num_links;
+//    }
+
+    public ArrayList<Long> get_link_ids(){
+        return link_ids;
+    }
+
+//    public ArrayList<Double> get_state_jam_densities(){
+//        return jam_density_of_states;
+//    }
+
+    public Double get_link_jam_density(Long link_id,FundamentalDiagramSet fds, jaxb.Network
+                                        network) {
+        Link desired_link = new Link();
+        for (jaxb.Link jlink : network.getLinkList().getLink()) {
+            if (jlink.getId() == link_id) {
+                desired_link = (Link) jlink;
+                break;
+            }
+        }
+        FundamentalDiagram fd = get_fd_for_link(desired_link,fds);
+        return fd.getJamDensity()/desired_link.getLength();
+
+    }
+
+
+
 
     ///////////////////////////////////////////////////////////////////
     // private
@@ -224,6 +290,27 @@ public final class FwyNetwork {
                 segments.get(index).add_to_lo_in_vpm(Double.parseDouble(D.getContent()));
         }
     }
+
+    public void set_demand_without_jaxb(Long link_id,Double demand_value,double dt){
+        int index = ml_link_id.indexOf(link_id);
+        FwySegment seg;
+        if(index>=0){
+            seg = segments.get(index);
+            seg.set_constant_demand_segment(demand_value,dt);}
+    }
+
+
+    public void set_density_without_jaxb(Long link_id,double density_value){
+        int index = ml_link_id.indexOf(link_id);
+        if (index>=0)
+            segments.get(index).add_to_no_in_vpm(density_value);
+
+        index = or_link_id.indexOf(link_id);
+            if(index>=0)
+             segments.get(index).add_to_lo_in_vpm(density_value);
+    }
+
+
 
     public void set_demands(DemandSet demand_set){
 

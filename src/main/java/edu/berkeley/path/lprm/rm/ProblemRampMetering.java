@@ -215,6 +215,74 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
         }
     }
 
+    public void set_rhs_for_link(FwyNetwork fwy,Long link_id,double input_demand){
+
+        int index = fwy.ml_link_id.indexOf(link_id);
+        FwySegment seg;
+        double rhs;
+        double d = 0;
+
+        if(index>=0){
+
+            seg = fwy.get_segment(index);
+
+            if (seg.has_on_ramp)
+            d = input_demand * sim_dt_in_seconds;
+
+            double vf = seg.get_vf_link_per_sec()*sim_dt_in_seconds;
+
+            for(int k=0;k<K;k++){
+
+                double time = k*sim_dt_in_seconds;
+                double betabar = 1-seg.get_split_ratio(time);
+//                if seg.
+
+//                double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                double no = k==0? seg.no : 0;
+                double lo = k==0? seg.lo : 0;
+
+                // MAINLINE CONSERVATION ..............................
+                rhs = no;
+                rhs += !seg.is_metered ? d : 0;
+                set_constraint_rhs(getCnstr(CnstType.MLCONS,index,k),rhs);
+
+                // MAINLINE FREEFLOW .................................
+                rhs = betabar*vf*no;
+                rhs += !seg.is_metered ? betabar*vf*fwy.gamma*d : 0;
+                set_constraint_rhs(getCnstr(CnstType.MLFLW_FF,index,k),rhs);
+
+                // MAINLINE CONGESTION ..............................
+                if(index<fwy.num_segments-1){
+                    FwySegment next_seg = fwy.get_segment(index+1);
+
+                    double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
+                    double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                    double next_no = k==0? next_seg.no : 0;
+
+                    rhs = next_w*next_seg.n_max;
+                    rhs += -next_w*next_no;
+                    rhs += !next_seg.is_metered ? -next_w*fwy.gamma*next_d : 0;
+                    set_constraint_rhs(getCnstr(CnstType.MLFLW_CNG,index,k),rhs);
+                }
+
+                if(seg.is_metered){
+                    // OR CONSERVATION .............................
+                    set_constraint_rhs(getCnstr(CnstType.ORCONS,index,k),d+lo);
+
+                    // OR DEMAND ...................................
+                    set_constraint_rhs(getCnstr(CnstType.ORFLW_DEM,index,k),d+lo);
+                }
+            }
+
+        }
+
+
+
+    }
+
+
+
+
     public void set_rhs_from_fwy(FwyNetwork fwy){
 
         int i,k;
