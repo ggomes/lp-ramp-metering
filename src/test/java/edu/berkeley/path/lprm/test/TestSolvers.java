@@ -1,7 +1,11 @@
 package edu.berkeley.path.lprm.test;
 
+import edu.berkeley.path.beats.jaxb.Scenario;
+import edu.berkeley.path.lprm.ObjectFactory;
 import edu.berkeley.path.lprm.lp.problem.*;
 import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
+import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
+import edu.berkeley.path.lprm.rm.RampMeteringSolver;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,24 +44,28 @@ public class TestSolvers {
     @Test
     public void testApacheProblemB() throws Exception {
         PointValue result = (new ApacheSolver()).solve(problem_B);
+        System.out.println("APACHE -----------------------------------");
+        System.out.println(result.get_cost());
+        System.out.println(result);
         assertNotNull(result);
     }
 
-//    @Test
-//    public void testLpSolve() throws Exception {
-//        PointValue result = (new LpSolveSolver()).solve(problem_A);
-//        assertNotNull(result);
-//        assertEquals(result.get("x"),16,1e-4);
-//        assertEquals(result.get("y"),59,1e-4);
-//    }
+    @Test
+    public void testLpSolveProblemA() throws Exception {
+        PointValue result = (new LpSolveSolver()).solve(problem_A);
+        assertNotNull(result);
+        assertEquals(result.get("x"),16,1e-4);
+        assertEquals(result.get("y"),59,1e-4);
+    }
 
-//    @Test
-//    public void testGurobi() throws Exception {
-//        PointValue result = (new GurobiSolver()).solve(problem_A);
-//        assertNotNull(result);
-//        assertEquals(result.get("x"),16,1e-4);
-//        assertEquals(result.get("y"),59,1e-4);
-//    }
+    @Test
+    public void testLpSolveProblemB() throws Exception {
+        PointValue result = (new LpSolveSolver()).solve(problem_B);
+        System.out.println("LPSOLVE -----------------------------------");
+        assertNotNull(result);
+        System.out.println(result.get_cost());
+//        assertEquals(4.112537005198651,result.get_cost(),1e-6);
+    }
 
     private Problem load_problem_A(){
 
@@ -94,7 +102,13 @@ public class TestSolvers {
     }
 
     private Problem load_problem_B(){
-        return null;
+        try {
+            RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",12d,12d,.1d,3d);
+            return solver.getLP();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

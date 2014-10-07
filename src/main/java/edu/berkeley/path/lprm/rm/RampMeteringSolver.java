@@ -2,6 +2,10 @@ package edu.berkeley.path.lprm.rm;
 
 import edu.berkeley.path.beats.jaxb.*;
 import edu.berkeley.path.lprm.graph.LpNetwork;
+import edu.berkeley.path.lprm.lp.problem.PointValue;
+import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
+import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
+import edu.berkeley.path.lprm.lp.solver.Solver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.ObjectFactory;
@@ -15,6 +19,7 @@ public class RampMeteringSolver {
 
     protected FwyNetwork fwy;
     protected ProblemRampMetering LP;
+    protected Solver lp_solver;
 
     ///////////////////////////////////////
     // construction
@@ -28,17 +33,29 @@ public class RampMeteringSolver {
     }
 
     public RampMeteringSolver(Scenario scenario, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
-        this( scenario.getNetworkSet().getNetwork().get(0) ,
-              scenario.getFundamentalDiagramSet() ,
-              scenario.getSplitRatioSet() ,
-              scenario.getActuatorSet() ,
-              K_dem,K_cool,eta,sim_dt_in_seconds);
-    }
 
-    public RampMeteringSolver(Network net, FundamentalDiagramSet fd_set, SplitRatioSet split_ratios, ActuatorSet actuator_set, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
-        fwy = new FwyNetwork(new LpNetwork(net),fd_set,actuator_set);
+        // extract scenario components
+        Network network = scenario.getNetworkSet().getNetwork().get(0);
+        FundamentalDiagramSet fd_set = scenario.getFundamentalDiagramSet();
+        SplitRatioSet split_ratios = scenario.getSplitRatioSet();
+        ActuatorSet actuator_set = scenario.getActuatorSet();
+        InitialDensitySet id_set = scenario.getInitialDensitySet();
+        DemandSet demand_set = scenario.getDemandSet();
+
+        // create the freeway object
+        fwy = new FwyNetwork(new LpNetwork(network),fd_set,actuator_set);
         fwy.set_split_ratios(split_ratios);
+
+        // check CFL
+        String errors = fwy.check_cfl_condition(sim_dt_in_seconds);
+        if (!errors.isEmpty())
+            throw new Exception("CFL error\n"+errors);
+
+        // create the lp object
         LP = new ProblemRampMetering(fwy,K_dem,K_cool,eta,sim_dt_in_seconds);
+
+        // set rhs data
+        set_data(id_set,demand_set);
     }
 
     ///////////////////////////////////////
@@ -73,6 +90,10 @@ public class RampMeteringSolver {
         return fwy;
     }
 
+    public ProblemRampMetering getLP(){
+        return LP;
+    }
+
     public ArrayList<Long> get_mainline_ids(){
         return fwy.get_mainline_ids();
     }
@@ -81,16 +102,30 @@ public class RampMeteringSolver {
         return fwy.get_metered_onramp_ids();
     }
 
-    public ArrayList<String> check_cfl_condition(){
-        return fwy.check_cfl_condition(LP.sim_dt_in_seconds);
-    }
-
     ///////////////////////////////////////
     // solve
     ///////////////////////////////////////
 
     public RampMeteringSolution solve(SolverType solver_type) throws Exception {
-        return new RampMeteringSolution(LP,fwy,solver_type);
+
+        // create a lp_solver
+        switch(solver_type){
+            case APACHE:
+                lp_solver = new ApacheSolver();
+                break;
+            case LPSOLVE:
+                lp_solver = new LpSolveSolver();
+                break;
+//            case GUROBI:
+//                lp_solver = new GurobiSolver();
+//                break;
+        }
+
+        // solve the problem
+        PointValue result = lp_solver.solve(LP);
+
+        // cast the result as a RampMeteringSolution
+        return new RampMeteringSolution(LP,fwy,result);
     }
 
     ///////////////////////////////////////
@@ -99,6 +134,10 @@ public class RampMeteringSolver {
 
     public void printLP(){
         System.out.println(LP);
+    }
+
+    public void print_solver_lp(){
+        System.out.println(lp_solver);
     }
 
 }

@@ -96,7 +96,7 @@ public class Linear {
             if(Linear.equals(Math.abs(value),1d))
                 str +=  pairs.getKey();
             else
-                str +=  String.format("%.2f",Math.abs(value)) + " " + pairs.getKey();
+                str +=  String.format("%f",Math.abs(value)) + " " + pairs.getKey();
         }
         if(relation!=null){
             switch(relation){
@@ -112,7 +112,7 @@ public class Linear {
             }
 
             if(!Double.isNaN(rhs))
-                str += String.format("%.2f",rhs);
+                str += String.format("%f",rhs);
         }
         return str;
     }

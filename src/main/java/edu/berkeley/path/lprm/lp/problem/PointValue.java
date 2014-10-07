@@ -13,7 +13,14 @@ public class PointValue {
     public double cost;
     public HashMap<String,Double> name_value = new HashMap<String,Double>();  // variable name -> value
 
-    public PointValue(){}
+    ///////////////////////////////////////////
+    // Construction
+    ///////////////////////////////////////////
+
+    public PointValue(PointValue x){
+        this.cost = x.cost;
+        this.name_value = x.name_value;
+    }
 
     public PointValue(ArrayList<String> names,double [] values,double cost){
         if(names.size()!=values.length)
@@ -23,9 +30,9 @@ public class PointValue {
             add_value(names.get(i),values[i]);
     }
 
-    public void set_cost(double c){
-        this.cost = c;
-    }
+    ///////////////////////////////////////////
+    // get/set
+    ///////////////////////////////////////////
 
     public void add_value(String name,double value){
         name_value.put(name,value);
@@ -42,6 +49,14 @@ public class PointValue {
     public String [] get_names(){
         return name_value.keySet().toArray(new String[name_value.size()]);
     }
+
+    public double get_cost(){
+        return cost;
+    }
+
+    ///////////////////////////////////////////
+    // print
+    ///////////////////////////////////////////
 
     @Override
     public String toString() {

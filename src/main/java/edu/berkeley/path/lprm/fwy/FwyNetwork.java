@@ -86,14 +86,14 @@ public final class FwyNetwork {
     // validate
     ///////////////////////////////////////////////////////////////////
 
-    public ArrayList<String> check_cfl_condition(double dt){
-        ArrayList<String> errors = new ArrayList<String>();
+    public String check_cfl_condition(double dt){
+        String errors = "";
         for(int i=0;i<segments.size();i++){
             FwySegment seg = segments.get(i);
             if(seg.get_vf_link_per_sec()*dt>1.0)
-                errors.add(String.format("vf=%f in segment %d",seg.get_vf_link_per_sec()*dt,i));
+                errors += String.format("vf=%f in segment %d\n",seg.get_vf_link_per_sec()*dt,i);
             if(seg.get_w_link_per_sec()*dt>1.0)
-                errors.add(String.format("w=%f in segment %d",seg.get_vf_link_per_sec()*dt,i));
+                errors += String.format("w=%f in segment %d\n",seg.get_vf_link_per_sec()*dt,i);
         }
         return errors;
     }

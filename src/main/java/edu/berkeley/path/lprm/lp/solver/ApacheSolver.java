@@ -1,6 +1,7 @@
 package edu.berkeley.path.lprm.lp.solver;
 
 import edu.berkeley.path.lprm.lp.problem.*;
+import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.optimization.GoalType;
 import org.apache.commons.math3.optimization.PointValuePair;
 import org.apache.commons.math3.optimization.linear.LinearConstraint;
@@ -18,6 +19,7 @@ import java.util.Map;
  */
 public class ApacheSolver implements Solver {
 
+
     public static HashMap<Relation,Relationship> relation_map = new HashMap<Relation,Relationship>();
     public static HashMap<OptType,GoalType> opt_map = new HashMap<OptType,GoalType>();
     static {
@@ -27,22 +29,28 @@ public class ApacheSolver implements Solver {
         opt_map.put(OptType.MAX,GoalType.MAXIMIZE);
         opt_map.put(OptType.MIN,GoalType.MINIMIZE);
     }
+    private ApacheProblem problem;
 
     @Override
     public PointValue solve(Problem P) {
-        ApacheProblem aP = new ApacheProblem(P);
+        problem = new ApacheProblem(P);
         SimplexSolver solver = new SimplexSolver();
         PointValuePair pair = solver.optimize(
-                aP.get_obj(),
-                aP.get_constraints(),
-                aP.get_goalType(),
+                problem.get_obj(),
+                problem.get_constraints(),
+                problem.get_goalType(),
                 false );
-        return new PointValue(aP.get_unknowns(),pair.getPoint(),pair.getValue());
+        return new PointValue(problem.get_unknowns(),pair.getPoint(),pair.getValue());
+    }
+
+    @Override
+    public String toString() {
+        return problem.toString();
     }
 
     private class ApacheProblem {
 
-        private ArrayList<String>  unknowns;
+        private ArrayList<String> unknowns;
         private int num_unknowns;
         private LinearObjectiveFunction obj;
         private ArrayList<LinearConstraint> constraints;
@@ -101,19 +109,42 @@ public class ApacheSolver implements Solver {
         public LinearObjectiveFunction get_obj(){
             return obj;
         }
+
         public ArrayList<LinearConstraint> get_constraints(){
             return constraints;
         }
+
         public GoalType get_goalType(){
             return goalType;
         }
+
         public ArrayList<String> get_unknowns(){
             return unknowns;
         }
+
         public int get_num_unknowns(){
             return num_unknowns;
         }
 
+        @Override
+        public String toString() {
+            String str = "";
+            str += goalType + " ";
+            RealVector coef = obj.getCoefficients();
+            for(int i=0;i<num_unknowns;i++)
+                str += (coef.getEntry(i)>=0 ? " +" : " ") + coef.getEntry(i) + " " + unknowns.get(i);
+            str += "\nSubject to:\n";
+            for(LinearConstraint cnst : constraints){
+                for(int i=0;i<num_unknowns;i++){
+                    coef = cnst.getCoefficients();
+                    if(coef.getEntry(i)!=0d){
+                        str += (coef.getEntry(i)>=0 ? " +" : " ") + coef.getEntry(i) + " " + unknowns.get(i);
+                    }
+                }
+                str += " " + cnst.getRelationship() + " " + cnst.getValue() + "\n";
+            }
+            return str;
+        }
     }
 
 }

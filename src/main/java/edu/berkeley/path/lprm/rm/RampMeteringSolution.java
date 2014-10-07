@@ -13,63 +13,34 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public final class RampMeteringSolution {
+public final class RampMeteringSolution extends PointValue {
 
     public enum OutputFormat {text,matlab};
 
     protected ProblemRampMetering LP;
     protected FwyNetwork fwy;
-    protected SolverType solver_type;
-    protected PointValue result;
     protected SegmentSolution [] Xopt;      // unpacked result in a convenient format
 
     protected boolean is_ctm;
-
-//    protected double[] mainLineIDs;
-//    private double[] actuatedOnRampIDs;
-//    private double[] offRampIDs;
     protected double TVH;
     protected double TVM;
-
-    public int K;
-    protected int I;
-    protected double sim_dt;
 
     ////////////////////////////////////////////////////////
     // CONSTRUCTION
     ////////////////////////////////////////////////////////
 
-    public RampMeteringSolution(ProblemRampMetering LP, FwyNetwork fwy, SolverType solver_type){
+    public RampMeteringSolution(ProblemRampMetering LP, FwyNetwork fwy, PointValue result){
+
+        super(result);
 
         this.fwy = fwy;
         this.LP = LP;
-        this.solver_type = solver_type;
-        this.I = fwy.get_num_segments();
-        this.K = LP.K;
-        this.sim_dt = LP.sim_dt_in_seconds;
-
-//        mainLineIDs = new double[I];
-//        actuatedOnRampIDs = new double[fwy.num_actuated_ors];
-//        offRampIDs = new double[fwy.num_frs];
-
-        Solver solver = null;
-        switch(solver_type){
-            case APACHE:
-                solver = new ApacheSolver();
-                break;
-//            case LPSOLVE:
-//                solver = new LpSolveSolver();
-//                break;
-//            case GUROBI:
-//                solver = new GurobiSolver();
-//                break;
-        }
-
-        // solve the problem
-        result = solver.solve(LP);
+        int I = fwy.get_num_segments();
+        int K = LP.K;
+        double sim_dt = LP.sim_dt_in_seconds;
 
         // evaluate whether it is a valid ctm solution
-        is_ctm = evaluate_is_ctm(LP,result,I,K);
+        is_ctm = evaluate_is_ctm(LP,result);
 
         // cast the solution into segments
         Xopt = new SegmentSolution[I];
@@ -141,8 +112,6 @@ public final class RampMeteringSolution {
         return fwy.get_metered_onramp_ids();
     }
 
-
-
     // performance ....................
 
     public double getTVH(){
@@ -155,8 +124,16 @@ public final class RampMeteringSolution {
 
     // other ....................
 
+    public ProblemRampMetering get_lp(){
+        return LP;
+    }
+
+    public FwyNetwork get_fwy(){
+        return fwy;
+    }
+
     public double getSim_dt(){
-        return sim_dt;
+        return LP.sim_dt_in_seconds;
     }
 
     public boolean is_ctm(){
@@ -171,7 +148,10 @@ public final class RampMeteringSolution {
         return ProblemRampMetering.getVar(name,seg_index,timestep);
     }
 
-    private static boolean evaluate_is_ctm(ProblemRampMetering LP,PointValue result,int I,int K){
+    private static boolean evaluate_is_ctm(ProblemRampMetering LP,PointValue result){
+
+        int I = LP.fwy.get_num_segments();
+        int K = LP.K;
 
         double epsilon = Math.pow(10,-6);
         HashMap<String,Problem.ConstraintState> constraint_evaluation = LP.evaluate_constraints(result,epsilon);

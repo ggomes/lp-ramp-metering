@@ -15,11 +15,11 @@ import static junit.framework.Assert.assertTrue;
 public class TestSmallNetwork {
 
     private double sim_dt_in_seconds = 3d;
-    private double K_dem_seconds = 9d;
-    private double K_cool_seconds = 3d;
+    private double K_dem_seconds = 12d;
+    private double K_cool_seconds = 12d;
     private double eta = .1d;
 
-    private SolverType solver_type = SolverType.APACHE;
+    private SolverType solver_type = SolverType.LPSOLVE;
 
     @Test
     public void testSmallNetwork() throws Exception {
@@ -30,20 +30,13 @@ public class TestSmallNetwork {
         int K_cool = (int) Math.round(K_cool_seconds / sim_dt_in_seconds);
 
         RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds);
-
-        ArrayList<String> errors = solver.getFwy().check_cfl_condition(sim_dt_in_seconds);
-        if (!errors.isEmpty()) {
-            System.err.print(errors);
-            throw new Exception("CFL error");
-        }
-        InitialDensitySet ics = scenario.getInitialDensitySet();
-        DemandSet demands = scenario.getDemandSet();
-        solver.set_data(ics, demands);
         RampMeteringSolution sol = solver.solve(solver_type);
 
-        sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
-        sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.text);
-        System.out.println(sol);
+//        sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
+//        sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.text);
+//        System.out.println(sol);
+
+        System.out.println(sol.get_cost());
 
         assertNotNull(sol);
         assertTrue(sol.is_ctm());

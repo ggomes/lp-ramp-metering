@@ -36,15 +36,8 @@ public class BatchRunner {
 
         String config = "data/config/smallNetwork.xml";
 
-        // create the solver
+        // create the lp_solver
         RampMeteringSolver solver = new RampMeteringSolver(config,K_dem_seconds,K_cool_seconds,eta,sim_dt_in_seconds);
-
-        // check for cfl errors
-        ArrayList<String> errors = solver.check_cfl_condition();
-        if (!errors.isEmpty()) {
-            System.err.print(errors);
-            throw new Exception("CFL error");
-        }
 
         // get all state link ids
         ArrayList<Long> link_ids = new ArrayList<Long>();
@@ -74,8 +67,8 @@ public class BatchRunner {
             for(int i=0;i<link_ids.size();i++) {
                 long link_id = link_ids.get(i);
                 solver.set_density(link_id, ic.get(i));
-//                solver.set_demand_link_network(link_id, demandValue, sim_dt_in_seconds);
-//                solver.set_rhs_link(link_ids.get(i), demandValue);
+//                lp_solver.set_demand_link_network(link_id, demandValue, sim_dt_in_seconds);
+//                lp_solver.set_rhs_link(link_ids.get(i), demandValue);
             }
             solver.read_rhs_from_fwy();
             RampMeteringSolution sol = solver.solve(solver_type);
@@ -92,11 +85,11 @@ public class BatchRunner {
 
 //        // iterate through segments in the freeway, add a state for each mainline or metered onramp
 //
-//        // (NOTE: the solver need not expose fwy)
-//        link_ids = solver.getFwy().get_link_ids();
+//        // (NOTE: the lp_solver need not expose fwy)
+//        link_ids = lp_solver.getFwy().get_link_ids();
 //        num_links = link_ids.size();
 //
-//        int num_states = solver.getFwy().get_num_states();
+//        int num_states = lp_solver.getFwy().get_num_states();
 //
 //        int nDivisions = 1;
 //        double max_demand = 20;
@@ -119,7 +112,7 @@ public class BatchRunner {
 //        for (int i = 0; i < num_states; i++) {
 //
 //            // (NOTE: Why should one have to provide fds and net?)
-//            jamDensity = solver.getFwy().get_link_jam_density(link_ids.get(i),fds,net);
+//            jamDensity = lp_solver.getFwy().get_link_jam_density(link_ids.get(i),fds,net);
 //
 //            for (int j=0;j<=nDivisions;j++){
 //                index += 1;
@@ -127,10 +120,10 @@ public class BatchRunner {
 //                init_dens_row[i] = densityValue;
 //                Double demandValue = 1.5;
 //
-//                solver.set_density(link_ids.get(i), densityValue);
-//                solver.set_demand_link_network(link_ids.get(i), demandValue, sim_dt_in_seconds);
-//                solver.set_rhs_link(link_ids.get(i), demandValue);
-//                RampMeteringSolution sol = solver.solve(solver_type);
+//                lp_solver.set_density(link_ids.get(i), densityValue);
+//                lp_solver.set_demand_link_network(link_ids.get(i), demandValue, sim_dt_in_seconds);
+//                lp_solver.set_rhs_link(link_ids.get(i), demandValue);
+//                RampMeteringSolution sol = lp_solver.solve(solver_type);
 //
 //                if (i==0 && j==1){
 //                    lp_results_printer.print_config_data(sol);

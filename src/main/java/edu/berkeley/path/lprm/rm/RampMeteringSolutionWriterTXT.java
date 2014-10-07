@@ -17,22 +17,23 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
     @Override
     public void write_to_file(String filename, RampMeteringSolution rm){
 
+        int K = rm.LP.K;
         PrintStream ps;
 
         ps=open_file(filename,"n");
-        write_to_stream(ps,rm,"n", rm.K+1);
+        write_to_stream(ps,rm,"n", K+1);
         ps.close();
 
         ps=open_file(filename,"f");
-        write_to_stream(ps,rm,"f", rm.K);
+        write_to_stream(ps,rm,"f", K);
         ps.close();
 
         ps=open_file(filename,"l");
-        write_to_stream(ps,rm,"l", rm.K+1);
+        write_to_stream(ps,rm,"l", K+1);
         ps.close();
 
         ps=open_file(filename,"r");
-        write_to_stream(ps,rm,"r", rm.K);
+        write_to_stream(ps,rm,"r", K);
         ps.close();
 
 //        ps=open_file(filename,"off_ramp_Ids");
@@ -76,14 +77,15 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
     @Override
     public void write_all_to_stream(OutputStream ps,RampMeteringSolution rm){
         try {
+            int K = rm.LP.K;
             ps.write(toBytes("n:\n"));
-            write_to_stream(ps, rm, "n", rm.K + 1);
+            write_to_stream(ps, rm, "n", K + 1);
             ps.write(toBytes("\nf:\n"));
-            write_to_stream(ps, rm, "f", rm.K);
+            write_to_stream(ps, rm, "f", K);
             ps.write(toBytes("\nl:\n"));
-            write_to_stream(ps, rm, "l", rm.K + 1);
+            write_to_stream(ps, rm, "l", K + 1);
             ps.write(toBytes("\nr:\n"));
-            write_to_stream(ps,rm,"r", rm.K);
+            write_to_stream(ps,rm,"r", K);
         } catch (IOException e) {
             e.printStackTrace();
         }

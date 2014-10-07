@@ -18,10 +18,11 @@ public class RampMeteringSolutionWriterMAT extends RampMeteringSolutionWriter {
 
     @Override
     public void write_all_to_stream(OutputStream ps,RampMeteringSolution rm){
-        write_to_stream(ps,rm,"n",rm.K+1);
-        write_to_stream(ps,rm,"f",rm.K);
-        write_to_stream(ps,rm,"l",rm.K+1);
-        write_to_stream(ps,rm,"r",rm.K);
+        int K = rm.LP.K;
+        write_to_stream(ps,rm,"n",K+1);
+        write_to_stream(ps,rm,"f",K);
+        write_to_stream(ps,rm,"l",K+1);
+        write_to_stream(ps,rm,"r",K);
     }
 
     @Override
