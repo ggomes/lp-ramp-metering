@@ -31,13 +31,19 @@ public class RampMeteringSolver {
 
     public RampMeteringSolver(Scenario scenario, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
 
-        // extract scenario components
-        Network network = scenario.getNetworkSet().getNetwork().get(0);
-        FundamentalDiagramSet fd_set = scenario.getFundamentalDiagramSet();
-        SplitRatioSet split_ratios = scenario.getSplitRatioSet();
-        ActuatorSet actuator_set = scenario.getActuatorSet();
+        this(scenario.getNetworkSet().getNetwork().get(0) ,
+             scenario.getFundamentalDiagramSet() ,
+             scenario.getSplitRatioSet() ,
+             scenario.getActuatorSet(),
+             K_dem,K_cool,eta,sim_dt_in_seconds);
+
+        // set rhs data
         InitialDensitySet id_set = scenario.getInitialDensitySet();
         DemandSet demand_set = scenario.getDemandSet();
+        set_data(id_set,demand_set);
+    }
+
+    public RampMeteringSolver(Network network,FundamentalDiagramSet fd_set,SplitRatioSet split_ratios,ActuatorSet actuator_set, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
 
         // create the freeway object
         fwy = new FwyNetwork(new LpNetwork(network),fd_set,actuator_set);
@@ -51,9 +57,8 @@ public class RampMeteringSolver {
         // create the lp object
         LP = new ProblemRampMetering(fwy,K_dem,K_cool,eta,sim_dt_in_seconds);
 
-        // set rhs data
-        set_data(id_set,demand_set);
     }
+
 
     ///////////////////////////////////////
     // setters / getters
@@ -103,6 +108,10 @@ public class RampMeteringSolver {
     // solve
     ///////////////////////////////////////
 
+    public RampMeteringSolution solve() throws Exception {
+        return this.solve(SolverType.LPSOLVE);
+    }
+
     public RampMeteringSolution solve(SolverType solver_type) throws Exception {
 
         // create a lp_solver
@@ -113,9 +122,9 @@ public class RampMeteringSolver {
             case LPSOLVE:
                 lp_solver = new LpSolveSolver();
                 break;
-            case GUROBI:
-                lp_solver = new GurobiSolver();
-                break;
+//            case GUROBI:
+//                lp_solver = new GurobiSolver();
+//                break;
         }
 
         // solve the problem

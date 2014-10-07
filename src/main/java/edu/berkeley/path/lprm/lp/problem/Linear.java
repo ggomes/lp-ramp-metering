@@ -18,7 +18,6 @@ public class Linear {
     public Linear(){}
 
     // set / add .............................................
-
     public void set_relation(Relation rel){
         this.relation = rel;
     }
