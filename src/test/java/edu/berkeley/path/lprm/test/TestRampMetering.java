@@ -1,8 +1,5 @@
 package edu.berkeley.path.lprm.test;
 
-import edu.berkeley.path.lprm.lp.problem.*;
-import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
-import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.rm.RampMeteringSolution;
 import edu.berkeley.path.lprm.rm.RampMeteringSolver;
@@ -15,24 +12,49 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestRampMetering {
 
+    private double kdem = 450d;
+    private double kcool = 180d;
+    private double eta = 0.1;
+    private double dt = 3;
+
     @Test
-    public void testApacheProblem() throws Exception {
-        System.out.println("APACHE -----------------------------------");
-        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",12d,12d,.1d,3d);
-        RampMeteringSolution result = solver.solve(SolverType.APACHE);
-        solver.print_solver_lp();
+    public void testGurobiProblem() throws Exception {
+        System.out.println("Gurobi -----------------------------------");
+        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt);
+        RampMeteringSolution result = solver.solve(SolverType.GUROBI);
+        System.out.println(result.get_cost());
+//        System.out.println(result.evaluate_constraints(1e-4));
+//        solver.print_solver_lp();
 //        System.out.println(result);
+//        solver.printLP();
         assertNotNull(result);
     }
 
-    @Test
-    public void testLpSolveProblem() throws Exception {
-        System.out.println("LPSOLVE -----------------------------------");
-        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",12d,12d,.1d,3d);
-        RampMeteringSolution result = solver.solve(SolverType.LPSOLVE);
-        solver.printLP();
+//    @Test
+//    public void testApacheProblem() throws Exception {
+//        System.out.println("APACHE -----------------------------------");
+//        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt);
+//        RampMeteringSolution result = solver.solve(SolverType.APACHE);
+//        System.out.println(result.get_cost());
+////        System.out.println(result.evaluate_constraints(1e-4));
+////        solver.print_solver_lp();
 //        System.out.println(result);
-        assertNotNull(result);
-    }
+////        result.print_to_file("apache", RampMeteringSolution.OutputFormat.matlab);
+////        solver.printLP();
+//        assertNotNull(result);
+//    }
+
+//    @Test
+//    public void testLpSolveProblem() throws Exception {
+//        System.out.println("LPSOLVE -----------------------------------");
+//        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt);
+//        RampMeteringSolution result = solver.solve(SolverType.LPSOLVE);
+//        System.out.println(result.get_cost());
+////        System.out.println(result.evaluate_constraints(1e-4));
+////        solver.printLP();
+////        result.print_to_file("lpsolve", RampMeteringSolution.OutputFormat.matlab);
+////        System.out.println(result);
+//        assertNotNull(result);
+//    }
 
 }

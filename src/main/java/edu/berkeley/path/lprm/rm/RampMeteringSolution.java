@@ -140,6 +140,15 @@ public final class RampMeteringSolution extends PointValue {
         return is_ctm;
     }
 
+    public HashMap<String,Problem.ConstraintState> evaluate_constraints(double epsilon){
+        HashMap<String,Problem.ConstraintState> x = new HashMap<String,Problem.ConstraintState>();
+        x.putAll(LP.evaluate_constraints(this,epsilon));
+        x.putAll(LP.evaluate_lower_bounds(this,epsilon));
+        x.putAll(LP.evaluate_upper_bounds(this,epsilon));
+        return x;
+    }
+
+
     ////////////////////////////////////////////////////////
     // private statics
     ////////////////////////////////////////////////////////

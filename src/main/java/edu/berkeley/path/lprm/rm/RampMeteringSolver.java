@@ -3,10 +3,7 @@ package edu.berkeley.path.lprm.rm;
 import edu.berkeley.path.beats.jaxb.*;
 import edu.berkeley.path.lprm.graph.LpNetwork;
 import edu.berkeley.path.lprm.lp.problem.PointValue;
-import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
-import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
-import edu.berkeley.path.lprm.lp.solver.Solver;
-import edu.berkeley.path.lprm.lp.solver.SolverType;
+import edu.berkeley.path.lprm.lp.solver.*;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.ObjectFactory;
 
@@ -116,9 +113,9 @@ public class RampMeteringSolver {
             case LPSOLVE:
                 lp_solver = new LpSolveSolver();
                 break;
-//            case GUROBI:
-//                lp_solver = new GurobiSolver();
-//                break;
+            case GUROBI:
+                lp_solver = new GurobiSolver();
+                break;
         }
 
         // solve the problem

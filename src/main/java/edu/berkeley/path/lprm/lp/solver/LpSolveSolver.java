@@ -103,13 +103,13 @@ public class LpSolveSolver implements Solver {
             }
 
             // print problem to file
-//            System.out.println("Writing files.");
-//            lp_solver.writeLp("data\\output\\model.lp");
-//            lp_solver.writeMps("data\\output\\model.mps");
+            lp_solver.writeLp("out\\model.lp");
+            lp_solver.writeFreeMps("out\\model.mps");
 
             // I only want to see important messages on screen while solving
             lp_solver.setVerbose(LpSolve.IMPORTANT);
 
+//            lp_solver.printConstraints(0);
 //            System.out.println("LpSolve unknowns: " + lp_solver.getNcolumns());
 //            System.out.println("LpSolve constraints: " + lp_solver.getNrows());
 
@@ -131,7 +131,6 @@ public class LpSolveSolver implements Solver {
         return new PointValue(unknowns,opt_values,opt_cost);
 
     }
-
 
     @Override
     public String toString() {
