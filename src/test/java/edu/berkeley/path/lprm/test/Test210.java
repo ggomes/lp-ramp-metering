@@ -7,6 +7,10 @@ import edu.berkeley.path.lprm.rm.RampMeteringSolution;
 import edu.berkeley.path.lprm.rm.RampMeteringSolver;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -40,6 +44,12 @@ public class Test210 {
 //        System.out.println(sol);
 
         System.out.println(sol.get_cost());
+
+        HashMap<Long,Double[]> profiles= sol.get_metering_profiles();
+        for (Map.Entry<Long,Double[]> entry : profiles.entrySet()) {
+            Double [] c= entry.getValue();
+            System.out.println(entry.getKey() + ": " + Arrays.toString(c) );
+        }
 
         assertNotNull(sol);
         assertTrue(sol.is_ctm());

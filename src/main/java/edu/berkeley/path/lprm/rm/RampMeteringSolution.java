@@ -56,13 +56,6 @@ public final class RampMeteringSolution extends PointValue {
             FwySegment seg = fwy.get_segment(i);
             Xopt[i] = new SegmentSolution(seg,K);
 
-//            // make local copy of link ids (is this necessary?)
-//            mainLineIDs[i] = seg.get_main_line_link_id();
-//            if (seg.is_metered())
-//                actuatedOnRampIDs[actuatedORCounter++] = seg.get_on_ramp_link_id(); // get_actuated_on_ramp_id();
-//            if (seg.has_offramp())
-//                offRampIDs[frCounter++] = seg.get_off_ramp_id();
-
             // store state in Xopt
             Xopt[i].n[0] = seg.get_no();
             for(k=0;k<K;k++){
@@ -148,6 +141,16 @@ public final class RampMeteringSolution extends PointValue {
         return x;
     }
 
+    // computes metering rates
+    public HashMap<Long,Double[]> get_metering_profiles(){
+        HashMap<Long,Double[]> profiles = new HashMap<Long,Double[]>();
+        for(int i=0;i<fwy.get_num_segments();i++){
+            FwySegment seg = fwy.get_segment(i);
+            if(seg.is_metered())
+                profiles.put( seg.get_on_ramp_link_id() , Xopt[i].r.clone() );
+        }
+        return profiles;
+    }
 
     ////////////////////////////////////////////////////////
     // private statics
@@ -230,11 +233,11 @@ public final class RampMeteringSolution extends PointValue {
     // internal class
     ////////////////////////////////////////////////////////
 
-    public class SegmentSolution {
-        protected Double [] n;
-        protected Double [] l;
-        protected Double [] f;
-        protected Double [] r;
+    private class SegmentSolution {
+        public Double [] n;
+        public Double [] l;
+        public Double [] f;
+        public Double [] r;
 
         public SegmentSolution(FwySegment fseg,int K){
             n = new Double[K+1];
