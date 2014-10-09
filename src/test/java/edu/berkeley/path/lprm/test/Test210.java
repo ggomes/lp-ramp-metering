@@ -10,18 +10,18 @@ import org.junit.Test;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
-/**
- * Created by gomes on 10/7/14.
- */
+
 public class Test210 {
 
-    private SolverType solver_type = SolverType.LPSOLVE;
+    private SolverType solver_type = SolverType.GUROBI;
 
     @Test
     public void test210() throws Exception {
 
-        double K_dem_seconds = 720;
-        double K_cool_seconds = 20;
+        long time = System.currentTimeMillis();
+
+        double K_dem_seconds = 70;
+        double K_cool_seconds = 10;
         double sim_dt_in_seconds = 5;
         double eta = 0.1;
 
@@ -43,5 +43,9 @@ public class Test210 {
 
         assertNotNull(sol);
         assertTrue(sol.is_ctm());
+
+
+        System.out.println("done in " + (System.currentTimeMillis()-time));
+
     }
 }

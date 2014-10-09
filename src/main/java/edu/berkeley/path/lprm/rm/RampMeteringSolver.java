@@ -122,9 +122,9 @@ public class RampMeteringSolver {
             case LPSOLVE:
                 lp_solver = new LpSolveSolver();
                 break;
-//            case GUROBI:
-//                lp_solver = new GurobiSolver();
-//                break;
+            case GUROBI:
+                lp_solver = new GurobiSolver();
+                break;
         }
 
         // solve the problem

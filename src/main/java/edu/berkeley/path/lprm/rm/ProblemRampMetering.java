@@ -205,14 +205,14 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                     add_constraint(C5,getCnstr(CnstType.ORFLW_DEM,i,k));
 
                     // MAX METERING RATE: r[i][k] <= rmax[i] ............................
-                    if(!Double.isInfinite(r_max))
+                    if(!Double.isInfinite(r_max) && !Double.isNaN(r_max))
                         add_upper_bound(getVar("r", i, k),r_max);
 
                     // ONRAMP FLOW NON-NEGATIVE: r[i][k] >= 0 ...........................
                     add_lower_bound(getVar("r",i,k),0d);
 
                     // ONRAMP MAX QUEUE: l[i][k+1] <= lmax[i] .............................
-                    if(!seg.get_lmax().isInfinite())
+                    if(!seg.get_lmax().isInfinite() && !seg.get_lmax().isNaN())
                         add_upper_bound(getVar("l",i,k+1),seg.get_lmax());
                 }
             }

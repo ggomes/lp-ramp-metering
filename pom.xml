@@ -102,25 +102,22 @@
         </dependency>
 		-->
 
-		<!-- LPSOLVE 
-		<dependency>
-			<groupId>net.sf.jsci</groupId>
-			<artifactId>lpsolve</artifactId>
-			<version>2003-11-03</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>local-lpsolve</groupId>
-			<artifactId>lpsolve</artifactId>
-			<version>5.5</version>
-		</dependency>
-		-->
+		<!-- LPSOLVE -->
 		<dependency>
 			<groupId>edu.berkeley.path</groupId>
 			<artifactId>lpsolve</artifactId>
 			<version>5.5.2.0</version>
 		</dependency>
 
+		<!-- GUROBI -->
+		<dependency>
+			<groupId>edu.berkeley.path</groupId>
+			<artifactId>gurobi</artifactId>
+			<version>5.6.3</version>
+		</dependency>
+		
+		
+		
 
 		<!-- apache math -->
 		<dependency>
