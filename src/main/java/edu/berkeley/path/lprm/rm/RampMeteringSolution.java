@@ -192,27 +192,30 @@ public final class RampMeteringSolution extends PointValue {
                 Problem.ConstraintState ml_cons_const = constraint_evaluation.get(ml_cons_key);
                 Problem.ConstraintState or_positive_const = lower_bounds_evaluation.get(or_positive_key);
 
+
                 if (ml_FFL_const == Problem.ConstraintState.active)
                     CTM_behavior.put(ml_free_flow_key,ml_FFL_const);
+
                 if (ml_CNG_const == Problem.ConstraintState.active)
-                    CTM_behavior.put(ml_cong_flow_key, Problem.ConstraintState.active);
+                    CTM_behavior.put(ml_cong_flow_key, ml_CNG_const);
+
                 if (ml_cap_const == Problem.ConstraintState.active)
-                    CTM_behavior.put(ml_capacity_flow_key, Problem.ConstraintState.active);
+                    CTM_behavior.put(ml_capacity_flow_key, ml_cap_const);
 
                 if (ml_FFL_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_free_flow_key, Problem.ConstraintState.violated);
+                    cnst_violated.put(ml_free_flow_key, ml_FFL_const);
 
                 if (ml_CNG_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_cong_flow_key, Problem.ConstraintState.violated);
+                    cnst_violated.put(ml_cong_flow_key, ml_CNG_const);
 
                 if (ml_cap_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_capacity_flow_key, Problem.ConstraintState.violated);
+                    cnst_violated.put(ml_capacity_flow_key, ml_cap_const);
 
                 if (ml_cons_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_cons_key, Problem.ConstraintState.violated);
+                    cnst_violated.put(ml_cons_key, ml_cons_const);
 
                 if (or_positive_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(or_positive_key, Problem.ConstraintState.violated);
+                    cnst_violated.put(or_positive_key, or_positive_const);
 
 
                 boolean not_ctm = ml_FFL_const != Problem.ConstraintState.active && ml_CNG_const != Problem.ConstraintState.active &&
@@ -220,17 +223,21 @@ public final class RampMeteringSolution extends PointValue {
 
                 if (not_ctm)
                     {
-                       if (ml_FFL_const == Problem.ConstraintState.violated || ml_CNG_const == Problem.ConstraintState.violated ||
-                                ml_cap_const == Problem.ConstraintState.violated)
+                        boolean is_violated = (ml_FFL_const == Problem.ConstraintState.violated || ml_CNG_const == Problem.ConstraintState.violated ||
+                                ml_cap_const == Problem.ConstraintState.violated);
+                        boolean is_inactive = (ml_FFL_const == Problem.ConstraintState.inactive || ml_CNG_const == Problem.ConstraintState.inactive ||
+                                ml_cap_const == Problem.ConstraintState.inactive);
+
+                       if (is_violated)
                             not_CTM_behavior.put(ml_not_CTM_key, Problem.ConstraintState.violated);
-                       else
+                       if (is_inactive)
                             not_CTM_behavior.put(ml_not_CTM_key, Problem.ConstraintState.inactive);
                     }
 
             }
         }
 
-        return not_CTM_behavior.isEmpty();
+        return not_CTM_behavior.isEmpty() && cnst_violated.isEmpty();
     }
 
     ////////////////////////////////////////////////////////
