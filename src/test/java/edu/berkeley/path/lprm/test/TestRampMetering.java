@@ -23,7 +23,7 @@ public class TestRampMetering {
 //        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt);
 //        RampMeteringSolution result = solver.solve(SolverType.GUROBI);
 //        System.out.println(result.get_cost());
-////        System.out.println(result.evaluate_constraints(1e-4));
+////        System.out.println(result.evaluate_constraint_state(1e-4));
 ////        solver.print_solver_lp();
 ////        System.out.println(result);
 ////        solver.printLP();
@@ -36,7 +36,7 @@ public class TestRampMetering {
 //        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt);
 //        RampMeteringSolution result = solver.solve(SolverType.APACHE);
 //        System.out.println(result.get_cost());
-////        System.out.println(result.evaluate_constraints(1e-4));
+////        System.out.println(result.evaluate_constraint_state(1e-4));
 ////        solver.print_solver_lp();
 //        System.out.println(result);
 ////        result.print_to_file("apache", RampMeteringSolution.OutputFormat.matlab);
@@ -50,7 +50,7 @@ public class TestRampMetering {
         RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt);
         RampMeteringSolution result = solver.solve(SolverType.LPSOLVE);
         System.out.println(result.get_cost());
-//        System.out.println(result.evaluate_constraints(1e-4));
+//        System.out.println(result.evaluate_constraint_state(1e-4));
 //        solver.printLP();
 //        result.print_to_file("lpsolve", RampMeteringSolution.OutputFormat.matlab);
 //        System.out.println(result);

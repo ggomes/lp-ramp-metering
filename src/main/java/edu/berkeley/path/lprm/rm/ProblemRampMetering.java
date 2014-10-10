@@ -1,5 +1,6 @@
 package edu.berkeley.path.lprm.rm;
 
+import edu.berkeley.path.lprm.lp.problem.Constraint;
 import edu.berkeley.path.lprm.lp.problem.Linear;
 import edu.berkeley.path.lprm.lp.problem.OptType;
 import edu.berkeley.path.lprm.lp.problem.Relation;
@@ -74,7 +75,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
                 // MAINLINE CONSERVATION .............................................
 
-                Linear C1 = new Linear();
+                Constraint C1 = new Constraint();
 
                 // LHS
                 // {always}    {k>0}     {i>0}   {metered}       {betabar[i][k]>0}
@@ -102,7 +103,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                 add_constraint(C1,getCnstr(CnstType.MLCONS,i,k));
 
                 // MAINLINE FREEFLOW ...............................................
-                Linear C3 = new Linear();
+                Constraint C3 = new Constraint();
 
                 // LHS
                 // {always}           {k>0}                       {metered}
@@ -133,7 +134,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                     double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
                     double next_no = k==0? next_seg.get_no() : 0;
 
-                    Linear C4 = new Linear();
+                    Constraint C4 = new Constraint();
 
                     // LHS
                     // {always}       {k>0}                {metered}
@@ -164,7 +165,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                 if(seg.is_metered()){
 
                     // ONRAMP CONSERVATION ......................................
-                    Linear C2 = new Linear();
+                    Constraint C2 = new Constraint();
 
                     // LHS
                     //  {always}    {k>0}  {always}
@@ -185,7 +186,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                     add_constraint(C2,getCnstr(CnstType.ORCONS,i,k));
 
                     // OR DEMAND ..................................................
-                    Linear C5 = new Linear();
+                    Constraint C5 = new Constraint();
 
                     // LHS
                     // {always}   {k>0}

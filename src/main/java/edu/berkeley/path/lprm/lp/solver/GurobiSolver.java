@@ -26,8 +26,8 @@ public class GurobiSolver implements Solver {
 
         PointValue result = null;
 
-        HashMap<String,Double> upper_bounds = P.get_upper_bounds();
-        HashMap<String,Double> lower_bounds = P.get_lower_bounds();
+//        HashMap<String,Double> upper_bounds = P.get_upper_bounds();
+//        HashMap<String,Double> lower_bounds = P.get_lower_bounds();
 
         try {
 
@@ -39,10 +39,10 @@ public class GurobiSolver implements Solver {
 
             // Create variables, bounds, and cost
             for(String name : P.get_unique_unknowns() ){
-                Double lb = lower_bounds.get(name);
+                Double lb = P.get_lower_bound_for(name);
                 if(lb==null)
                     lb = 0d;
-                Double ub = upper_bounds.get(name);
+                Double ub = P.get_upper_bound_for(name);
                 if(ub==null)
                     ub = GRB.INFINITY;
                 GRBVar x = model.addVar(lb,ub,0d,GRB.CONTINUOUS, name);
@@ -57,18 +57,16 @@ public class GurobiSolver implements Solver {
             model.setObjective(cost,opt_map.get(P.get_opt_type()));
 
             // Add constraints
-            Iterator it = P.get_constraints().entrySet().iterator();
-            while(it.hasNext()){
-                Map.Entry pairs = (Map.Entry)it.next();
-                Linear L = (Linear) pairs.getValue();
-                String const_name = (String) pairs.getKey();
+            for(Map.Entry<String,Constraint> e: P.get_constraints().entrySet()){
+                String cnst_name = e.getKey();
+                Constraint cnst = e.getValue();
                 GRBLinExpr expr = new GRBLinExpr();
-                Iterator cit = L.get_coefficients().entrySet().iterator();
+                Iterator cit = cnst.get_coefficients().entrySet().iterator();
                 while(cit.hasNext()){
                     Map.Entry p = (Map.Entry)cit.next();
                     expr.addTerm((Double) p.getValue(),variables.get(p.getKey()));
                 }
-                model.addConstr(expr,relation_map.get(L.get_relation()),L.get_rhs(),const_name);
+                model.addConstr(expr,relation_map.get(cnst.get_relation()),cnst.get_rhs(),cnst_name);
             }
 
             // Optimize model

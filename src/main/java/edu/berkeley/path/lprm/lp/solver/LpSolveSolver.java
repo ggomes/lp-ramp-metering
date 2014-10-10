@@ -45,43 +45,44 @@ public class LpSolveSolver implements Solver {
             lp_solver.setAddRowmode(true);
 
             // add constraints
-            Iterator cit = P.get_constraints().entrySet().iterator();
-            while (cit.hasNext()) {
-                Map.Entry pairs = (Map.Entry)cit.next();
-                String name = (String) pairs.getKey();
-                Linear L = (Linear) pairs.getValue();
-                double value = L.get_rhs();
+
+            for(Map.Entry<String,Constraint> e : P.get_constraints().entrySet()){
+                String name = e.getKey();
+                Constraint cnst = e.getValue();
+                double value = cnst.get_rhs();
                 double[] coef = new double[num_unknowns+1];
                 for(int i=0;i<num_unknowns;i++)
-                    coef[i+1] = L.get_coefficient(unknowns.get(i));
-                Integer relation = LpSolveSolver.relation_map.get(L.get_relation());
+                    coef[i+1] = cnst.get_coefficient(unknowns.get(i));
+                Integer relation = LpSolveSolver.relation_map.get(cnst.get_relation());
                 lp_solver.addConstraint(coef, relation, value);
                 lp_solver.setRowName(lp_solver.getNrows(),name);
-            }
 
-            // add upper bounds
-            Iterator ubit = P.get_upper_bounds().entrySet().iterator();
-            while (ubit.hasNext()) {
-                Map.Entry pairs = (Map.Entry)ubit.next();
-                String name = (String) pairs.getKey();
-                int ind = unknowns.indexOf(name);
-                double[] coef = new double[num_unknowns+1];
-                coef[ind+1] = 1d;
-                lp_solver.addConstraint(coef, LpSolve.LE, (Double) pairs.getValue());
-                lp_solver.setRowName(lp_solver.getNrows(),"ub_"+name);
             }
-
-            // add lower bounds
-            Iterator lbit = P.get_lower_bounds().entrySet().iterator();
-            while (lbit.hasNext()) {
-                Map.Entry pairs = (Map.Entry)lbit.next();
-                String name = (String) pairs.getKey();
-                int ind = unknowns.indexOf(name);
-                double[] coef = new double[num_unknowns+1];
-                coef[ind+1] = 1d;
-                lp_solver.addConstraint(coef, LpSolve.GE, (Double) pairs.getValue());
-                lp_solver.setRowName(lp_solver.getNrows(),"lb_"+name);
-            }
+//
+//
+//            // add upper bounds
+//            Iterator ubit = P.get_upper_bounds().entrySet().iterator();
+//            while (ubit.hasNext()) {
+//                Map.Entry pairs = (Map.Entry)ubit.next();
+//                String name = (String) pairs.getKey();
+//                int ind = unknowns.indexOf(name);
+//                double[] coef = new double[num_unknowns+1];
+//                coef[ind+1] = 1d;
+//                lp_solver.addConstraint(coef, LpSolve.LE, (Double) pairs.getValue());
+//                lp_solver.setRowName(lp_solver.getNrows(),"ub_"+name);
+//            }
+//
+//            // add lower bounds
+//            Iterator lbit = P.get_lower_bounds().entrySet().iterator();
+//            while (lbit.hasNext()) {
+//                Map.Entry pairs = (Map.Entry)lbit.next();
+//                String name = (String) pairs.getKey();
+//                int ind = unknowns.indexOf(name);
+//                double[] coef = new double[num_unknowns+1];
+//                coef[ind+1] = 1d;
+//                lp_solver.addConstraint(coef, LpSolve.GE, (Double) pairs.getValue());
+//                lp_solver.setRowName(lp_solver.getNrows(),"lb_"+name);
+//            }
 
             // rowmode should be turned off again when done building the model
             lp_solver.setAddRowmode(false);
