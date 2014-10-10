@@ -1,10 +1,10 @@
 package edu.berkeley.path.lprm.fwy;
 
-import edu.berkeley.path.beats.jaxb.Parameters;
-import edu.berkeley.path.beats.jaxb.Parameter;
-import edu.berkeley.path.lprm.graph.LpLink;
 import edu.berkeley.path.beats.jaxb.Actuator;
 import edu.berkeley.path.beats.jaxb.FundamentalDiagram;
+import edu.berkeley.path.beats.jaxb.Parameter;
+import edu.berkeley.path.beats.jaxb.Parameters;
+import edu.berkeley.path.lprm.graph.LpLink;
 
 import java.util.ArrayList;
 
@@ -179,10 +179,11 @@ public final class FwySegment {
         demand_profile = demand;
     }
 
-    public void set_constant_demand_segment(Double segment_demand_input, double dt){
-        demand_profile_dt = dt;
-        demand_profile = new ArrayList<Double>();
-        demand_profile.add(segment_demand_input);
+    public void set_constant_demand_segment(ArrayList<Double> segment_demand_input, double dt){
+       this.demand_profile_dt = dt;
+//       ArrayList<Double> constant_demand_profile = new ArrayList<Double>();
+//        constant_demand_profile.add(segment_demand_input);
+       demand_profile = segment_demand_input;
     }
 
     // t in seconds

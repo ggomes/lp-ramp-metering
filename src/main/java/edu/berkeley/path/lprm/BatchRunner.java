@@ -1,6 +1,6 @@
 package edu.berkeley.path.lprm;
 
-import edu.berkeley.path.beats.jaxb.*;
+import edu.berkeley.path.beats.jaxb.Scenario;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.rm.RampMeteringSolution;
 import edu.berkeley.path.lprm.rm.RampMeteringSolver;
@@ -12,16 +12,6 @@ import java.util.ArrayList;
  */
 public class BatchRunner {
 
-//    private static Scenario scenario;
-//    private static double sim_dt_in_seconds = 3d;
-//    private static double K_dem_seconds = 9d;
-//    private static double K_cool_seconds = 15d;
-//    private static double eta = .1d;
-//    private static int num_links;
-//    private static int num_segments;
-//    //    private double[] initialDensityVector;
-//    private static ArrayList<Long> link_ids;
-//    private SolverType solver_type = SolverType.LPSOLVE;
 
     public static void main(String args[]) throws Exception {
 
@@ -41,44 +31,61 @@ public class BatchRunner {
 
         // get all state link ids
         ArrayList<Long> link_ids = new ArrayList<Long>();
+        ArrayList<Long> state_link_ids = new ArrayList<Long>();
         link_ids.addAll(solver.get_mainline_ids());
         link_ids.addAll(solver.get_metered_onramp_ids());
+        state_link_ids.addAll(solver.get_mainline_ids());
 
         int num_states = link_ids.size();
+        int nDivisions = 2;
 
         // create the list of initial densities to test
         ArrayList<ArrayList<Double>> all_ic = new ArrayList<ArrayList<Double>>();
 
         // insert an algorithm for generating permutations here...
-        ArrayList<Double> one_ic = new ArrayList<Double>();
-        for(int i=0;i<link_ids.size();i++) {
-            double jam_density = solver.getFwy().get_link_jam_density(link_ids.get(i));
-            double value = 0.5d;
-            one_ic.add(jam_density*value);
-        }
-        all_ic.add(one_ic);
+        // Some nice way of producing permutations should be added here
+
+        for (int i0=0;i0<=nDivisions;i0++) {
+           double jam_density0 = solver.getFwy().get_link_jam_density(state_link_ids.get(0));
+           for (int i1=0; i1<=nDivisions;i1++){
+               double jam_density1 = solver.getFwy().get_link_jam_density(state_link_ids.get(1));
+               for (int i2=0;i2<=nDivisions;i2++){
+                   double jam_density2 = solver.getFwy().get_link_jam_density(state_link_ids.get(2));
+                     ArrayList<Double> one_ic = new ArrayList<Double>();
+                     one_ic.add(0,(jam_density0/nDivisions)*i0);
+                     one_ic.add(1,(jam_density1/nDivisions)*i1);
+                     one_ic.add(2,(jam_density2/nDivisions)*i2);
+                     all_ic.add(one_ic);
+               }
+
+           }
+       }
 
         // iterate through ic
         String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_table";
         BatchWriter batch_data = new BatchWriter(file_address.concat(".txt"),true);
         ResultPrinterEachRun lp_results_printer = new ResultPrinterEachRun(file_address);
 
+        int index = 0;
         for( ArrayList<Double> ic : all_ic){
-            for(int i=0;i<link_ids.size();i++) {
-                long link_id = link_ids.get(i);
+            index += 1;
+            double demand_value = 2d;
+            for(int i=0;i<state_link_ids.size();i++) {
+                long link_id = state_link_ids.get(i);
                 solver.set_density(link_id, ic.get(i));
+
+                solver.set_demand(link_id, demand_value,sim_dt_in_seconds);
 //                lp_solver.set_demand_link_network(link_id, demandValue, sim_dt_in_seconds);
 //                lp_solver.set_rhs_link(link_ids.get(i), demandValue);
             }
+
             solver.read_rhs_from_fwy();
             RampMeteringSolution sol = solver.solve(solver_type);
 
-//            if (i==0 && j==1){
-//                lp_results_printer.print_config_data(sol);
-//            }
-//            batch_data.writeToFile(batch_data.getTableString(index,init_dens_row,demandValue,sol.is_ctm(),sol.getTVH(),sol.getTVM()));
-//            lp_results_printer.print_lp_results(sol,sol.K,index);
+            batch_data.writeToFile(batch_data.getTableString(index,ic,demand_value,sol.is_ctm(),sol.getTVH(),sol.getTVM()));
+            lp_results_printer.print_lp_results(sol,sol.K,index);
         }
+        lp_results_printer.print_config_data(solver.getFwy());
 
 
         /////////////////////////////////////////////////////////////////

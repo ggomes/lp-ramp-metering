@@ -3,6 +3,7 @@ package edu.berkeley.path.lprm;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * Created by gomes on 10/6/14.
@@ -29,13 +30,14 @@ public class BatchWriter {
 
     }
 
-    public String getTableString ( int index, double[] dens_row, Double demand,boolean is_CTM, double TVH,double TVM){
+    public String getTableString ( int index, ArrayList<Double> ic, Double demand,boolean is_CTM, double TVH,double TVM){
         String table_row = (Integer.toString(index) + "\t");
-        for (int i = 0; i < dens_row.length; i++) {
-            table_row = table_row.concat(Double.toString(dens_row[i]) + "\t");
+        for (Double density : ic) {
+            table_row = table_row.concat(Double.toString(density) + "\t");
         }
-        table_row = table_row + Double.toString(demand) + "\t" + (is_CTM ? Integer.toString(1) : Integer.toString(0)) + "\t" +
+        table_row = table_row + Double.toString(demand) + "\t" + (is_CTM? Integer.toString(1):Integer.toString(0)) + "\t" +
                 Double.toString(TVH) + "\t" + Double.toString(TVM) + "\n";
         return table_row;
+
     }
 }

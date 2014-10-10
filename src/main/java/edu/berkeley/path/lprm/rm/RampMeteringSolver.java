@@ -75,10 +75,10 @@ public class RampMeteringSolver {
 //        LP.set_rhs_for_link(fwy, link_id);
     }
 
-//    public void set_demand_link_network(Long link_id,Double demand,double demand_dt){
-//        fwy.set_demand(link_id, demand, LP.sim_dt_in_seconds);
-////        LP.set_rhs_for_link(fwy, link_id);
-//    }
+    public void set_demand(Long ml_link_id,Double demand,double demand_dt){
+        fwy.set_demand(ml_link_id, demand,LP.sim_dt_in_seconds);
+//        LP.b(fwy, link_id);
+    }
 
 //    public void set_rhs_link(Long link_id,Double demand){
 //        LP.set_rhs_for_link(fwy,link_id ,demand);

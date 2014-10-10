@@ -295,12 +295,19 @@ public final class FwyNetwork {
             segments.get(index).set_lo_in_vpm(density_value);
     }
 
-    public void set_demand(Long link_id, Double demand_value, double dt){
+    public void set_demand(Long link_id, Double demand_value, double demand_dt){
+//        FwySegment seg;
+//        if(index>=0){
+//            seg = segments.get(index);
+//            if (seg.has_on_ramp)
+//            seg.set_constant_demand_segment(demand_value,index,dt);}
         int index = ml_link_id.indexOf(link_id);
-        FwySegment seg;
-        if(index>=0){
-            seg = segments.get(index);
-            seg.set_constant_demand_segment(demand_value,dt);}
+        if (index>=0) {
+            FwySegment seg = segments.get(index);
+            ArrayList<Double> demand_profile = new ArrayList<Double>();
+            demand_profile.add(demand_value);
+            seg.set_constant_demand_segment(demand_profile,demand_dt);
+        }
     }
 
     public void set_demands(DemandSet demand_set){

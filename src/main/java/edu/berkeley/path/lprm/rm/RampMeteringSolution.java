@@ -1,13 +1,9 @@
 package edu.berkeley.path.lprm.rm;
 
-import edu.berkeley.path.lprm.lp.problem.PointValue;
-import edu.berkeley.path.lprm.lp.problem.Problem;
-import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
-import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
-import edu.berkeley.path.lprm.lp.solver.Solver;
-import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.fwy.FwySegment;
+import edu.berkeley.path.lprm.lp.problem.PointValue;
+import edu.berkeley.path.lprm.lp.problem.Problem;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -24,6 +20,7 @@ public final class RampMeteringSolution extends PointValue {
     protected boolean is_ctm;
     protected double TVH;
     protected double TVM;
+    public int K;
 
     ////////////////////////////////////////////////////////
     // CONSTRUCTION
@@ -36,7 +33,7 @@ public final class RampMeteringSolution extends PointValue {
         this.fwy = fwy;
         this.LP = LP;
         int I = fwy.get_num_segments();
-        int K = LP.K;
+        K = LP.K;
         double sim_dt = LP.sim_dt_in_seconds;
 
         // evaluate whether it is a valid ctm solution
@@ -86,7 +83,7 @@ public final class RampMeteringSolution extends PointValue {
                 else
                     TVM += result.get(getVar("f", i, k));
                 if (seg.has_onramp()){
-                    TVM += (seg.is_metered()? result.get(getVar("f", i, k)) : d);
+                    TVM += (seg.is_metered()? result.get(getVar("r", i, k)) : d);
                     TVH += (seg.is_metered()? result.get(getVar("l",i,k+1)) : 0);
                 }
             }
@@ -115,11 +112,11 @@ public final class RampMeteringSolution extends PointValue {
     // performance ....................
 
     public double getTVH(){
-        return  TVM;
+        return  TVH;
     }
 
     public double getTVM(){
-        return TVH;
+        return TVM;
     }
 
     // other ....................
@@ -178,6 +175,7 @@ public final class RampMeteringSolution extends PointValue {
                 String ml_capacity_flow_key = "f";
                 String ml_not_CTM_key = "not_CTM_";
                 String ml_cons_key = "MLCONS";
+                String or_positive_key = "r";
                 String index_string = "[" + Integer.toString(i)+ "]" + "[" + Integer.toString(k) + "]";
 
                 ml_free_flow_key = ml_free_flow_key.concat(index_string);
@@ -185,41 +183,50 @@ public final class RampMeteringSolution extends PointValue {
                 ml_capacity_flow_key = ml_capacity_flow_key.concat(index_string);
                 ml_cons_key = ml_cons_key.concat(index_string);
 
+                or_positive_key = or_positive_key.concat(index_string);
                 ml_not_CTM_key = ml_not_CTM_key.concat(index_string);
-
-//                ml_cnstr_violated = ml_cnstr_violated.concat(index_string);
 
                 Problem.ConstraintState ml_FFL_const = constraint_evaluation.get(ml_free_flow_key);
                 Problem.ConstraintState ml_CNG_const = constraint_evaluation.get(ml_cong_flow_key);
                 Problem.ConstraintState ml_cap_const = upper_bounds_evaluation.get(ml_capacity_flow_key);
                 Problem.ConstraintState ml_cons_const = constraint_evaluation.get(ml_cons_key);
+                Problem.ConstraintState or_positive_const = lower_bounds_evaluation.get(or_positive_key);
 
                 if (ml_FFL_const == Problem.ConstraintState.active)
                     CTM_behavior.put(ml_free_flow_key,ml_FFL_const);
-                else if (ml_CNG_const == Problem.ConstraintState.active)
+                if (ml_CNG_const == Problem.ConstraintState.active)
                     CTM_behavior.put(ml_cong_flow_key, Problem.ConstraintState.active);
-                else if (ml_cap_const == Problem.ConstraintState.active)
+                if (ml_cap_const == Problem.ConstraintState.active)
                     CTM_behavior.put(ml_capacity_flow_key, Problem.ConstraintState.active);
-                else if (ml_FFL_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_free_flow_key, Problem.ConstraintState.inactive);
-                else if (ml_CNG_const == Problem.ConstraintState.violated)
+
+                if (ml_FFL_const == Problem.ConstraintState.violated)
+                    cnst_violated.put(ml_free_flow_key, Problem.ConstraintState.violated);
+
+                if (ml_CNG_const == Problem.ConstraintState.violated)
                     cnst_violated.put(ml_cong_flow_key, Problem.ConstraintState.violated);
-                else if (ml_cap_const == Problem.ConstraintState.violated)
+
+                if (ml_cap_const == Problem.ConstraintState.violated)
                     cnst_violated.put(ml_capacity_flow_key, Problem.ConstraintState.violated);
-                else
-                    not_CTM_behavior.put(ml_not_CTM_key,Problem.ConstraintState.inactive);
 
                 if (ml_cons_const == Problem.ConstraintState.violated)
                     cnst_violated.put(ml_cons_key, Problem.ConstraintState.violated);
 
-//                if (ml_FFL_const == Problem.ConstraintState.active)
-//                    CTM_behavior.put(ml_free_flow_key,ml_FFL_const);
-//                else if (ml_CNG_const == Problem.ConstraintState.active)
-//                    CTM_behavior.put(ml_cong_flow_key, Problem.ConstraintState.active);
-//                else if (ml_cap_const == Problem.ConstraintState.active)
-//                    CTM_behavior.put(ml_capacity_flow_key, Problem.ConstraintState.active);
-//                else
-//                    not_CTM_behavior.put(ml_not_CTM_key, Problem.ConstraintState.inactive);
+                if (or_positive_const == Problem.ConstraintState.violated)
+                    cnst_violated.put(or_positive_key, Problem.ConstraintState.violated);
+
+
+                boolean not_ctm = ml_FFL_const != Problem.ConstraintState.active && ml_CNG_const != Problem.ConstraintState.active &&
+                            ml_cap_const != Problem.ConstraintState.active;
+
+                if (not_ctm)
+                    {
+                       if (ml_FFL_const == Problem.ConstraintState.violated || ml_CNG_const == Problem.ConstraintState.violated ||
+                                ml_cap_const == Problem.ConstraintState.violated)
+                            not_CTM_behavior.put(ml_not_CTM_key, Problem.ConstraintState.violated);
+                       else
+                            not_CTM_behavior.put(ml_not_CTM_key, Problem.ConstraintState.inactive);
+                    }
+
             }
         }
 

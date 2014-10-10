@@ -1,5 +1,6 @@
 package edu.berkeley.path.lprm;
 
+import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.rm.RampMeteringSolution;
 
 import java.io.IOException;
@@ -15,14 +16,14 @@ public class ResultPrinterEachRun {
         path = path_string;
     }
 
-    public void print_config_data(RampMeteringSolution rm) throws IOException {
-        ArrayList<Long> mainLineIds = rm.get_mainline_ids();
+    public void print_config_data(FwyNetwork fwy) throws IOException {
+        ArrayList<Long> mainLineIds = fwy.get_mainline_ids();
         String ml_ids_to_print = format_column(mainLineIds, "\n");
         String filename_ml_ids = path.concat("_ml_ids.txt");
         BatchWriter ml_ids_writer = new BatchWriter(filename_ml_ids,false);
         ml_ids_writer.writeToFile(ml_ids_to_print);
 
-        ArrayList<Long> actuatedOnRampIds = rm.get_metered_onramp_ids();
+        ArrayList<Long> actuatedOnRampIds = fwy.get_metered_onramp_ids();
         String act_or_ids_to_print = format_column(actuatedOnRampIds, "\n");
         String filename_act_or_ids = path.concat("_act_or_ids.txt");
         BatchWriter act_or_ids_writer = new BatchWriter(filename_act_or_ids,false);
