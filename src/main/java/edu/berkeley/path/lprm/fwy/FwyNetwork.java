@@ -13,7 +13,7 @@ public final class FwyNetwork {
 
     protected int num_segments;           // number of segments
     protected int num_frs;
-    protected int num_links;
+//    protected int num_links;
     protected double gamma = 1d;          // merge coefficient
 
     protected ArrayList<FwySegment> segments;
@@ -22,9 +22,7 @@ public final class FwyNetwork {
     protected ArrayList<Long> or_link_id;
     protected ArrayList<Long> or_source_id;
     protected ArrayList<Long> fr_node_id;
-//    private ArrayList<Long> actuated_or_link_id;
-//    private ArrayList<Double> jam_density_of_states;
-    protected ArrayList<Long> link_ids;
+//    protected ArrayList<Long> link_ids;
 
     ///////////////////////////////////////////////////////////////////
     // construction
@@ -36,9 +34,6 @@ public final class FwyNetwork {
         ml_link_id = new ArrayList<Long>();
         fr_link_id = new ArrayList<Long>();
         or_link_id = new ArrayList<Long>();
-        link_ids = new ArrayList<Long>();
-//        jam_density_of_states = new ArrayList<Double>();
-//        actuated_or_link_id = new ArrayList<Long>();
         or_source_id = new ArrayList<Long>();
         fr_node_id = new ArrayList<Long>();
 
@@ -49,36 +44,18 @@ public final class FwyNetwork {
             LpLink offramp = end_node_offramp(link);
             FundamentalDiagram fd = get_fd_for_link(link,fds);
             Actuator actuator = get_onramp_actuator(onramp,actuatorset);
-
-//            if (actuator!=null)
-//                actuated_or_link_id.add(actuator.getScenarioElement().getId());
-
+            LpLink onramp_source = get_onramp_source(onramp);
             segments.add(new FwySegment(link,onramp,offramp,fd,actuator));
             ml_link_id.add(link.getId());
-            link_ids.add(link.getId());
-//            jam_density_of_states.add((fd.getJamDensity()));
-
             or_link_id.add(onramp==null?null:onramp.getId());
-            link_ids.add(onramp==null?null:onramp.getId());
-//            jam_density_of_states.add((onramp==null?null:fd.getJamDensity()));
-
-            LpLink onramp_source = get_onramp_source(onramp);
             or_source_id.add(onramp_source==null?null:onramp_source.getId());
-
-            if (offramp!=null){
-                fr_link_id.add(offramp.getId());
-                link_ids.add(offramp.getId());}
-//                jam_density_of_states.add((onramp==null?null:fd.getJamDensity()));
-
+            fr_link_id.add(offramp==null?null:offramp.getId());
             fr_node_id.add(offramp == null ? null : offramp.getBegin().getId());
             link = next_freeway_link(link);
         }
 
         num_segments = segments.size();
-//        num_actuated_ors = actuated_or_link_id.size();
         num_frs = fr_link_id.size();
-        num_links = link_ids.size();
-
 
     }
 
@@ -138,9 +115,9 @@ public final class FwyNetwork {
         return x;
     }
 
-    public ArrayList<Long> get_link_ids(){
-        return link_ids;
-    }
+//    public ArrayList<Long> get_link_ids(){
+//        return link_ids;
+//    }
 
     public double get_link_jam_density(long link_id) {
         for(FwySegment seg : segments){
@@ -351,11 +328,12 @@ public final class FwyNetwork {
                 {
                     if(ml_link_id.get(index)==sr.getLinkIn())
                     {
-                        if(sr.getLinkOut()==fr_link_id.get(index))
-                            for(String str : sr.getContent().split(","))
+                        if(sr.getLinkOut()==fr_link_id.get(index)){
+                            for(String str : sr.getContent().split(",")) {
                                 fr_split.add(Double.parseDouble(str));
-                        else
-                        {
+                            }
+                        }
+                        else {
                             if(index<ml_link_id.size()-1 && sr.getLinkOut()==ml_link_id.get(index+1))
                                 for(String str : sr.getContent().split(","))
                                     ml_split.add(Double.parseDouble(str));
@@ -363,8 +341,9 @@ public final class FwyNetwork {
                                 throw new Exception("ERROR!");
                         }
                     }
-                    else
+                    else {
                         throw new Exception("Do not define splits for onramp inputs!");
+                    }
                 }
                 if(fr_split.isEmpty() && !ml_split.isEmpty())
                     for(Double d : ml_split)

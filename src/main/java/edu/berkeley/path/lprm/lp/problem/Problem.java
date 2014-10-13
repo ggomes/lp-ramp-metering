@@ -7,11 +7,7 @@ import java.util.*;
  */
 public class Problem {
 
-    public enum ConstraintState {violated,active,inactive};
-
-    private HashMap<String,Linear> constraints = new HashMap<String,Linear>();
-    private HashMap<String,Double> upper_bounds = new HashMap<String,Double>();
-    private HashMap<String,Double> lower_bounds = new HashMap<String,Double>();
+    private HashMap<String,Constraint> constraints = new HashMap<String,Constraint>();
     private Linear cost = new Linear();
     private OptType opt_type = OptType.MIN;
 
@@ -23,20 +19,30 @@ public class Problem {
         this.opt_type = opttype;
     }
 
-    public void add_constraint(Linear linear, String name){
-        this.constraints.put(name,linear);
+    public void add_constraint(Constraint cnst, String name){
+        this.constraints.put(name,cnst);
     }
 
     public void add_upper_bound(String varname, double x){
-        upper_bounds.put(varname,x);
+        Constraint cnst = new Constraint();
+        cnst.add_coefficient(1d,varname);
+        cnst.set_relation(Relation.LEQ);
+        cnst.set_rhs(x);
+        cnst.set_type(Constraint.Type.bound);
+        constraints.put("UB_"+varname,cnst);
     }
 
     public void add_lower_bound(String varname, double x){
-        lower_bounds.put(varname,x);
+        Constraint cnst = new Constraint();
+        cnst.add_coefficient(1d,varname);
+        cnst.set_relation(Relation.GEQ);
+        cnst.set_rhs(x);
+        cnst.set_type(Constraint.Type.bound);
+        constraints.put("LB_"+varname,cnst);
     }
 
     public void set_constraint_rhs(String name,double value){
-        Linear C = constraints.get(name);
+        Constraint C = constraints.get(name);
         if(C!=null)
             C.set_rhs(value);
     }
@@ -45,8 +51,6 @@ public class Problem {
     public ArrayList<String> get_unique_unknowns(){
         HashSet<String> unique_unknowns = new HashSet<String>();
         unique_unknowns.addAll(cost.get_unknowns());
-        unique_unknowns.addAll(upper_bounds.keySet());
-        unique_unknowns.addAll(lower_bounds.keySet());
         for(Linear L : constraints.values())
             unique_unknowns.addAll(L.get_unknowns());
         ArrayList a = new ArrayList(unique_unknowns);
@@ -54,16 +58,18 @@ public class Problem {
         return a;
     }
 
-    public HashMap<String,Linear> get_constraints(){
+    public HashMap<String,Constraint> get_constraints(){
         return constraints;
     }
 
-    public HashMap<String,Double> get_upper_bounds(){
-        return upper_bounds;
+    public Double get_lower_bound_for(String varname){
+        Constraint cnst = constraints.get("LB_"+varname);
+        return cnst==null ? Double.NEGATIVE_INFINITY : cnst.get_rhs();
     }
 
-    public HashMap<String,Double> get_lower_bounds(){
-        return lower_bounds;
+    public Double get_upper_bound_for(String varname){
+        Constraint cnst = constraints.get("UB_"+varname);
+        return cnst==null ? Double.POSITIVE_INFINITY : cnst.get_rhs();
     }
 
     public Linear get_cost(){
@@ -74,100 +80,31 @@ public class Problem {
         return opt_type;
     }
 
-    public HashMap<String,ConstraintState> evaluate_upper_bounds(PointValue P,double epsilon) {
-        HashMap<String,ConstraintState> result = new HashMap<String,ConstraintState>();
-
-        Iterator it = upper_bounds.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-            String var_name = (String) pairs.getKey();
-            Double rhs = (Double) pairs.getValue();
-            Double lhs = P.get(var_name);
-            ConstraintState r = null;
-
-            if(Math.abs(rhs-lhs)<epsilon)
-                r = ConstraintState.active;
-            else if(lhs>rhs+epsilon)
-                r = ConstraintState.violated;
-            else
-                r = ConstraintState.inactive;
-            result.put(var_name,r);
+    public Double evaluate_constraint_slack(String cnst_name,PointValue P){
+        Constraint cnst = constraints.get(cnst_name);
+        if(cnst==null){
+            System.out.println("Bad constraint name "+cnst_name);
+            return null;
         }
-        return result;
-    }
-
-    public HashMap<String,ConstraintState> evaluate_lower_bounds(PointValue P,double epsilon) {
-
-        HashMap<String,ConstraintState> result = new HashMap<String,ConstraintState>();
-
-        Iterator it = lower_bounds.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-            String var_name = (String) pairs.getKey();
-            Double rhs = (Double) pairs.getValue();
-            Double lhs = P.get(var_name);
-            ConstraintState r = null;
-
-            if(Math.abs(rhs-lhs)<epsilon)
-                r = ConstraintState.active;
-            else if(lhs<rhs-epsilon)
-                r = ConstraintState.violated;
-            else
-                r = ConstraintState.inactive;
-            result.put(var_name,r);
+        Double lhs_minus_rhs = cnst.evaluate_lhs_minus_rhs(P);
+        switch(cnst.get_relation()){
+            case EQ:
+                return Math.abs(lhs_minus_rhs);
+            case GEQ:
+                return lhs_minus_rhs;
+            case LEQ:
+                return -lhs_minus_rhs;
         }
-        return result;
-
-    }
-
-    public HashMap<String,ConstraintState> evaluate_constraints(PointValue P,double epsilon) {
-        HashMap<String,ConstraintState> result = new HashMap<String,ConstraintState>();
-        Iterator it = constraints.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-            String cnst_name = (String) pairs.getKey();
-            Linear cnst = (Linear) pairs.getValue();
-            ConstraintState lin_state = cnst.evaluate(P,epsilon);
-            result.put(cnst_name,lin_state);
-        }
-        return result;
+        return null;
     }
 
     @Override
     public String toString() {
-
-        TreeMap<String,Linear> sorted_constraints = new TreeMap<String,Linear>(constraints);
-        TreeMap<String,Double> sorted_upper_bounds = new TreeMap<String,Double>(upper_bounds);
-        TreeMap<String,Double> sorted_lower_bounds = new TreeMap<String,Double>(lower_bounds);
-
-        String str = "";
-        switch(opt_type){
-            case MAX:
-                str += "Maximize:\n";
-                break;
-            case MIN:
-                str += "Minimize:\n";
-                break;
-        }
-        str += "\t" + cost.toString() + "\n";
-        str += "Subject to:\n";
-        Iterator cit = sorted_constraints.entrySet().iterator();
-        while (cit.hasNext()) {
-            Map.Entry pairs = (Map.Entry)cit.next();
-            str += "\t" + pairs.getKey() + ": " + pairs.getValue() + "\n";
-        }
-        str += "Upper bounds:\n";
-        Iterator ubit = sorted_upper_bounds.entrySet().iterator();
-        while (ubit.hasNext()) {
-            Map.Entry pairs = (Map.Entry)ubit.next();
-            str += "\t" + pairs.getKey() + " <= " + pairs.getValue() + "\n";
-        }
-        str += "Lower bounds:\n";
-        Iterator lbit = sorted_lower_bounds.entrySet().iterator();
-        while (lbit.hasNext()) {
-            Map.Entry pairs = (Map.Entry)lbit.next();
-            str += "\t" + pairs.getKey() + " >= " + pairs.getValue() + "\n";
-        }
+        TreeMap<String,Constraint> sorted_constraints = new TreeMap<String,Constraint>(constraints);
+        String str = opt_type.toString() + ":\n\t" + cost.toString() + "\nSubject to:\n";
+        for( Map.Entry<String,Constraint> e : sorted_constraints.entrySet() )
+            str += "\t" + e.getKey() + ": " + e.getValue() + "\n";
         return str;
     }
+
 }

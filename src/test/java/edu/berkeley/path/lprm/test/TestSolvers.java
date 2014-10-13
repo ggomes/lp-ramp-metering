@@ -1,7 +1,5 @@
 package edu.berkeley.path.lprm.test;
 
-import edu.berkeley.path.beats.jaxb.Scenario;
-import edu.berkeley.path.lprm.ObjectFactory;
 import edu.berkeley.path.lprm.lp.problem.*;
 import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
 import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
@@ -76,26 +74,26 @@ public class TestSolvers {
         linear.add_coefficient(60, "y");
         P.setObjective(linear, OptType.MAX);
 
-        linear = new Linear();
-        linear.add_coefficient(120, "x");
-        linear.add_coefficient(210, "y");
-        linear.set_relation(Relation.LEQ);
-        linear.set_rhs(15000);
-        P.add_constraint(linear, "1");
+        Constraint cnst = new Constraint();
+        cnst.add_coefficient(120, "x");
+        cnst.add_coefficient(210, "y");
+        cnst.set_relation(Relation.LEQ);
+        cnst.set_rhs(15000);
+        P.add_constraint(cnst, "1");
 
-        linear = new Linear();
-        linear.add_coefficient(110, "x");
-        linear.add_coefficient(30, "y");
-        linear.set_relation(Relation.LEQ);
-        linear.set_rhs(4000);
-        P.add_constraint(linear, "2");
+        cnst = new Constraint();
+        cnst.add_coefficient(110, "x");
+        cnst.add_coefficient(30, "y");
+        cnst.set_relation(Relation.LEQ);
+        cnst.set_rhs(4000);
+        P.add_constraint(cnst, "2");
 
-        linear = new Linear();
-        linear.add_coefficient(1, "x");
-        linear.add_coefficient(1, "y");
-        linear.set_relation(Relation.LEQ);
-        linear.set_rhs(75);
-        P.add_constraint(linear, "3");
+        cnst = new Constraint();
+        cnst.add_coefficient(1, "x");
+        cnst.add_coefficient(1, "y");
+        cnst.set_relation(Relation.LEQ);
+        cnst.set_rhs(75);
+        P.add_constraint(cnst, "3");
 
         P.add_upper_bound("x", 16);
         return P;

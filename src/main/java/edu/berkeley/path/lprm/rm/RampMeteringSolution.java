@@ -1,5 +1,8 @@
 package edu.berkeley.path.lprm.rm;
 
+
+import edu.berkeley.path.lprm.lp.problem.Constraint;
+import edu.berkeley.path.lprm.lp.problem.PointValue;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.fwy.FwySegment;
 import edu.berkeley.path.lprm.lp.problem.PointValue;
@@ -17,7 +20,8 @@ public final class RampMeteringSolution extends PointValue {
     protected FwyNetwork fwy;
     protected SegmentSolution [] Xopt;      // unpacked result in a convenient format
 
-    protected boolean is_ctm;
+    protected CTMDistance ctm_distance;      // distance to mainline i,kth constraint
+
     protected double TVH;
     protected double TVM;
     public int K;
@@ -36,15 +40,13 @@ public final class RampMeteringSolution extends PointValue {
         K = LP.K;
         double sim_dt = LP.sim_dt_in_seconds;
 
-        // evaluate whether it is a valid ctm solution
-        is_ctm = evaluate_is_ctm(LP,result);
+        // evaluate_state whether it is a valid ctm solution
+        ctm_distance = evaluate_ctm_distance(LP,result);
 
         // cast the solution into segments
         Xopt = new SegmentSolution[I];
 
         int i,k;
-        int actuatedORCounter = 0;
-        int frCounter = 0;
         TVM = 0;
         TVH = 0;
 
@@ -52,13 +54,6 @@ public final class RampMeteringSolution extends PointValue {
 
             FwySegment seg = fwy.get_segment(i);
             Xopt[i] = new SegmentSolution(seg,K);
-
-//            // make local copy of link ids (is this necessary?)
-//            mainLineIDs[i] = seg.get_main_line_link_id();
-//            if (seg.is_metered())
-//                actuatedOnRampIDs[actuatedORCounter++] = seg.get_on_ramp_link_id(); // get_actuated_on_ramp_id();
-//            if (seg.has_offramp())
-//                offRampIDs[frCounter++] = seg.get_off_ramp_id();
 
             // store state in Xopt
             Xopt[i].n[0] = seg.get_no();
@@ -133,18 +128,28 @@ public final class RampMeteringSolution extends PointValue {
         return LP.sim_dt_in_seconds;
     }
 
-    public boolean is_ctm(){
-        return is_ctm;
+    public double get_max_ctm_distance(){
+        return ctm_distance.max_d;
     }
 
-    public HashMap<String,Problem.ConstraintState> evaluate_constraints(double epsilon){
-        HashMap<String,Problem.ConstraintState> x = new HashMap<String,Problem.ConstraintState>();
-        x.putAll(LP.evaluate_constraints(this,epsilon));
-        x.putAll(LP.evaluate_lower_bounds(this,epsilon));
-        x.putAll(LP.evaluate_upper_bounds(this,epsilon));
-        return x;
-    }
+//    public HashMap<String,Constraint.State> evaluate_constraints(double epsilon){
+//        HashMap<String,Constraint.State> x = new HashMap<String,Constraint.State>();
+//        x.putAll(LP.evaluate_constraint_state(this, epsilon));
+//        x.putAll(LP.evaluate_lower_bounds(this,epsilon));
+//        x.putAll(LP.evaluate_upper_bounds(this,epsilon));
+//        return x;
+//    }
 
+    // computes metering rates
+    public HashMap<Long,Double[]> get_metering_profiles_in_vps(){
+        HashMap<Long,Double[]> profiles = new HashMap<Long,Double[]>();
+        for(int i=0;i<fwy.get_num_segments();i++){
+            FwySegment seg = fwy.get_segment(i);
+            if(seg.is_metered())
+                profiles.put( seg.get_on_ramp_link_id() , times(Xopt[i].r,1d/getSim_dt()) );
+        }
+        return profiles;
+    }
 
     ////////////////////////////////////////////////////////
     // private statics
@@ -154,101 +159,64 @@ public final class RampMeteringSolution extends PointValue {
         return ProblemRampMetering.getVar(name,seg_index,timestep);
     }
 
-    private static boolean evaluate_is_ctm(ProblemRampMetering LP,PointValue result){
+    private static Double [] times(Double[] x, double a){
+        Double [] r = x.clone();
+        for(int i=0;i<r.length;i++)
+            r[i] *= a;
+        return r;
+    }
+
+    private static CTMDistance evaluate_ctm_distance(ProblemRampMetering LP,PointValue P){
 
         int I = LP.fwy.get_num_segments();
         int K = LP.K;
 
-        double epsilon = Math.pow(10,-6);
-        HashMap<String,Problem.ConstraintState> constraint_evaluation = LP.evaluate_constraints(result,epsilon);
-        HashMap<String,Problem.ConstraintState> lower_bounds_evaluation = LP.evaluate_lower_bounds(result,epsilon);
-        HashMap<String,Problem.ConstraintState> upper_bounds_evaluation = LP.evaluate_upper_bounds(result,epsilon);
-
-        HashMap<String,Problem.ConstraintState> CTM_behavior = new HashMap<String, Problem.ConstraintState>();
-        HashMap<String,Problem.ConstraintState> not_CTM_behavior = new HashMap<String, Problem.ConstraintState>();
-        HashMap<String,Problem.ConstraintState> cnst_violated = new HashMap<String, Problem.ConstraintState>();
+        String cnst_name;
+        double eps = 1e-2;
+        boolean feasible = true;
+        Double slack_ff,slack_cp,slack_cg;
+        CTMDistance ctm_distance = new CTMDistance(I,K);
 
         for (int i=0;i<I;i++){
             for (int k=0;k<K;k++){
-                String ml_free_flow_key = "MLFLW_FF";
-                String ml_cong_flow_key = "MLFLW_CNG";
-                String ml_capacity_flow_key = "f";
-                String ml_not_CTM_key = "not_CTM_";
-                String ml_cons_key = "MLCONS";
-                String or_positive_key = "r";
-                String index_string = "[" + Integer.toString(i)+ "]" + "[" + Integer.toString(k) + "]";
+                // ML freeflow
+                cnst_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_FF,i,k);
+                slack_ff = LP.evaluate_constraint_slack(cnst_name,P);
 
-                ml_free_flow_key = ml_free_flow_key.concat(index_string);
-                ml_cong_flow_key = ml_cong_flow_key.concat(index_string);
-                ml_capacity_flow_key = ml_capacity_flow_key.concat(index_string);
-                ml_cons_key = ml_cons_key.concat(index_string);
+                // ML capacity
+                cnst_name = "UB_"+ ProblemRampMetering.getVar("f",i,k);
+                slack_cp = LP.evaluate_constraint_slack(cnst_name,P);
 
-                or_positive_key = or_positive_key.concat(index_string);
-                ml_not_CTM_key = ml_not_CTM_key.concat(index_string);
+                // ML congestion
+                if(i<I-1){
+                    cnst_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_CNG,i,k);
+                    slack_cg = LP.evaluate_constraint_slack(cnst_name,P);
+                }
+                else
+                    slack_cg = Double.POSITIVE_INFINITY;
 
-                Problem.ConstraintState ml_FFL_const = constraint_evaluation.get(ml_free_flow_key);
-                Problem.ConstraintState ml_CNG_const = constraint_evaluation.get(ml_cong_flow_key);
-                Problem.ConstraintState ml_cap_const = upper_bounds_evaluation.get(ml_capacity_flow_key);
-                Problem.ConstraintState ml_cons_const = constraint_evaluation.get(ml_cons_key);
-                Problem.ConstraintState or_positive_const = lower_bounds_evaluation.get(or_positive_key);
+                if(slack_ff<-eps || slack_cp<-eps || slack_cg<-eps){
+                    feasible = false;
+                    break;
+                }
 
-
-                if (ml_FFL_const == Problem.ConstraintState.active)
-                    CTM_behavior.put(ml_free_flow_key,ml_FFL_const);
-
-                if (ml_CNG_const == Problem.ConstraintState.active)
-                    CTM_behavior.put(ml_cong_flow_key, ml_CNG_const);
-
-                if (ml_cap_const == Problem.ConstraintState.active)
-                    CTM_behavior.put(ml_capacity_flow_key, ml_cap_const);
-
-                if (ml_FFL_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_free_flow_key, ml_FFL_const);
-
-                if (ml_CNG_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_cong_flow_key, ml_CNG_const);
-
-                if (ml_cap_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_capacity_flow_key, ml_cap_const);
-
-                if (ml_cons_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(ml_cons_key, ml_cons_const);
-
-                if (or_positive_const == Problem.ConstraintState.violated)
-                    cnst_violated.put(or_positive_key, or_positive_const);
-
-
-                boolean not_ctm = ml_FFL_const != Problem.ConstraintState.active && ml_CNG_const != Problem.ConstraintState.active &&
-                            ml_cap_const != Problem.ConstraintState.active;
-
-                if (not_ctm)
-                    {
-                        boolean is_violated = (ml_FFL_const == Problem.ConstraintState.violated || ml_CNG_const == Problem.ConstraintState.violated ||
-                                ml_cap_const == Problem.ConstraintState.violated);
-                        boolean is_inactive = (ml_FFL_const == Problem.ConstraintState.inactive || ml_CNG_const == Problem.ConstraintState.inactive ||
-                                ml_cap_const == Problem.ConstraintState.inactive);
-
-                       if (is_violated)
-                            not_CTM_behavior.put(ml_not_CTM_key, Problem.ConstraintState.violated);
-                       if (is_inactive)
-                            not_CTM_behavior.put(ml_not_CTM_key, Problem.ConstraintState.inactive);
-                    }
+               ctm_distance.add_value(i,k,Math.min(Math.min(slack_ff,slack_cp),slack_cg));
 
             }
         }
-
-        return not_CTM_behavior.isEmpty() && cnst_violated.isEmpty();
+        return feasible ? ctm_distance : null;
     }
 
     ////////////////////////////////////////////////////////
     // internal class
     ////////////////////////////////////////////////////////
 
-    public class SegmentSolution {
-        protected Double [] n;
-        protected Double [] l;
-        protected Double [] f;
-        protected Double [] r;
+    // all units are normalized
+    private class SegmentSolution {
+        public Double [] n;
+        public Double [] l;
+        public Double [] f;
+        public Double [] r;
 
         public SegmentSolution(FwySegment fseg,int K){
             n = new Double[K+1];
@@ -268,6 +236,20 @@ public final class RampMeteringSolution extends PointValue {
             if(name.equalsIgnoreCase("r"))
                 return r;
             return null;
+        }
+    }
+
+    private static class CTMDistance {
+        public double [][] d;
+        public double max_d;
+        public CTMDistance(int I,int K){
+            d = new double [I][K];
+            max_d = Double.NEGATIVE_INFINITY;
+        }
+        public void add_value(int i,int k,double x){
+            d[i][k] = x;
+            if(x>max_d)
+                max_d = x;
         }
     }
 

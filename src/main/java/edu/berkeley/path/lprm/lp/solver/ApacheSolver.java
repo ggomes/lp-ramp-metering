@@ -69,37 +69,13 @@ public class ApacheSolver implements Solver {
 
             // constraints
             constraints = new ArrayList<LinearConstraint>();
-            for(Linear L : P.get_constraints().values()){
+            for(Constraint L : P.get_constraints().values()){
                 double value = L.get_rhs();
                 double[] coef = new double[num_unknowns];
                 for(int i=0;i<num_unknowns;i++)
                     coef[i] = L.get_coefficient(unknowns.get(i));
                 Relationship relationship = ApacheSolver.relation_map.get(L.get_relation());
                 constraints.add(new LinearConstraint(coef, relationship, value));
-            }
-
-            // add upper bounds
-            Iterator ubit = P.get_upper_bounds().entrySet().iterator();
-            while (ubit.hasNext()) {
-                Map.Entry pairs = (Map.Entry)ubit.next();
-                String name = (String) pairs.getKey();
-                int ind = unknowns.indexOf(name);
-                double[] coef = new double[num_unknowns];
-                coef[ind] = 1d;
-                Relationship relationship = Relationship.LEQ;
-                constraints.add(new LinearConstraint(coef, relationship, (Double) pairs.getValue()));
-            }
-
-            // add lower bounds
-            Iterator lbit = P.get_lower_bounds().entrySet().iterator();
-            while (lbit.hasNext()) {
-                Map.Entry pairs = (Map.Entry)lbit.next();
-                String name = (String) pairs.getKey();
-                int ind = unknowns.indexOf(name);
-                double[] coef = new double[num_unknowns];
-                coef[ind] = 1d;
-                Relationship relationship = Relationship.GEQ;
-                constraints.add(new LinearConstraint(coef, relationship, (Double) pairs.getValue()));
             }
 
             // goal type
