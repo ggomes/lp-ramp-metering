@@ -1,12 +1,9 @@
 package edu.berkeley.path.lprm.rm;
 
 
-import edu.berkeley.path.lprm.lp.problem.Constraint;
-import edu.berkeley.path.lprm.lp.problem.PointValue;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.fwy.FwySegment;
 import edu.berkeley.path.lprm.lp.problem.PointValue;
-import edu.berkeley.path.lprm.lp.problem.Problem;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -128,8 +125,9 @@ public final class RampMeteringSolution extends PointValue {
         return LP.sim_dt_in_seconds;
     }
 
-    public double get_max_ctm_distance(){
-        return ctm_distance.max_d;
+    public Double get_max_ctm_distance(){
+        return ctm_distance==null?null:ctm_distance.max_d;
+//        return ctm_distance.max_d;
     }
 
 //    public HashMap<String,Constraint.State> evaluate_constraints(double epsilon){
@@ -199,9 +197,7 @@ public final class RampMeteringSolution extends PointValue {
                     feasible = false;
                     break;
                 }
-
                ctm_distance.add_value(i,k,Math.min(Math.min(slack_ff,slack_cp),slack_cg));
-
             }
         }
         return feasible ? ctm_distance : null;
@@ -240,10 +236,10 @@ public final class RampMeteringSolution extends PointValue {
     }
 
     private static class CTMDistance {
-        public double [][] d;
-        public double max_d;
+        public Double [][] d;
+        public Double max_d;
         public CTMDistance(int I,int K){
-            d = new double [I][K];
+            d = new Double [I][K];
             max_d = Double.NEGATIVE_INFINITY;
         }
         public void add_value(int i,int k,double x){

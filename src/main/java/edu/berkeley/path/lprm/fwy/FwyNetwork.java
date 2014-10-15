@@ -119,7 +119,7 @@ public final class FwyNetwork {
 //        return link_ids;
 //    }
 
-    public double get_link_jam_density(long link_id) {
+    public double get_njam_veh_per_link(long link_id) {
         for(FwySegment seg : segments){
             if( seg.get_main_line_link_id()==link_id )
                 return seg.n_max;
@@ -263,7 +263,7 @@ public final class FwyNetwork {
         }
     }
 
-    public void set_density(Long link_id, double density_value){
+    public void set_density_in_vpm(Long link_id, double density_value){
         int index = ml_link_id.indexOf(link_id);
         if (index>=0)
             segments.get(index).set_no_in_vpm(density_value);
@@ -272,7 +272,17 @@ public final class FwyNetwork {
             segments.get(index).set_lo_in_vpm(density_value);
     }
 
-    public void set_demand(Long link_id, Double demand_value, double demand_dt){
+
+    public void set_density_in_veh(Long link_id, double density_value){
+        int index = ml_link_id.indexOf(link_id);
+        if (index>=0)
+            segments.get(index).set_no_in_veh(density_value);
+        index = or_link_id.indexOf(link_id);
+        if(index>=0)
+            segments.get(index).set_lo_in_veh(density_value);
+    }
+
+    public void set_demand_in_vps(Long link_id, Double demand_value, double demand_dt){
 //        FwySegment seg;
 //        if(index>=0){
 //            seg = segments.get(index);
@@ -283,7 +293,7 @@ public final class FwyNetwork {
             FwySegment seg = segments.get(index);
             ArrayList<Double> demand_profile = new ArrayList<Double>();
             demand_profile.add(demand_value);
-            seg.set_constant_demand_segment(demand_profile,demand_dt);
+            seg.set_demands_in_vps(demand_profile,demand_dt);
         }
     }
 
@@ -311,7 +321,7 @@ public final class FwyNetwork {
                         }
                     }
                 }
-                seg.set_demands(demand,dp.getDt());
+                seg.set_demands_in_vps(demand, dp.getDt());
             }
         }
     }

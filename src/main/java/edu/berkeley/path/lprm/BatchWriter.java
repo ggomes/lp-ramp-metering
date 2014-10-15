@@ -30,12 +30,12 @@ public class BatchWriter {
 
     }
 
-    public String getTableString ( int index, ArrayList<Double> ic, Double demand,boolean is_CTM, double TVH,double TVM){
+    public String getTableString ( int index, ArrayList<Double> ic, Double demand,Double ctm, double TVH,double TVM){
         String table_row = (Integer.toString(index) + "\t");
         for (Double density : ic) {
             table_row = table_row.concat(Double.toString(density) + "\t");
         }
-        table_row = table_row + Double.toString(demand) + "\t" + (is_CTM? Integer.toString(1):Integer.toString(0)) + "\t" +
+        table_row = table_row + Double.toString(demand) + "\t" + Double.toString(ctm) + "\t" +
                 Double.toString(TVH) + "\t" + Double.toString(TVM) + "\n";
         return table_row;
 

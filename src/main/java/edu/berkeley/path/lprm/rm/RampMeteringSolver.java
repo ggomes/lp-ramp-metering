@@ -70,13 +70,16 @@ public class RampMeteringSolver {
         LP.set_rhs_from_fwy(fwy);
     }
 
-    public void set_density(Long link_id, double density_value){
-        fwy.set_density(link_id, density_value);
-//        LP.set_rhs_for_link(fwy, link_id);
+    public void set_density_in_vpm(Long link_id, double density_value){
+        fwy.set_density_in_vpm(link_id, density_value);
     }
 
-    public void set_demand(Long ml_link_id,Double demand,double demand_dt){
-        fwy.set_demand(ml_link_id, demand,LP.sim_dt_in_seconds);
+    public void set_density_in_veh(Long link_id, double density_value){
+        fwy.set_density_in_veh(link_id, density_value);
+    }
+
+    public void set_demand_in_vps(Long ml_link_id, Double demand, double demand_dt){
+        fwy.set_demand_in_vps(ml_link_id, demand, LP.sim_dt_in_seconds);
 //        LP.b(fwy, link_id);
     }
 

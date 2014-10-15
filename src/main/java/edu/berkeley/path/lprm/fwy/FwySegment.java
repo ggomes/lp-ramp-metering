@@ -63,8 +63,9 @@ public final class FwySegment {
         f_max = fd.getCapacity()*ml_lanes;
         vf = fd.getFreeFlowSpeed()/ml_link_length;
         w = fd.getCongestionSpeed()/ml_link_length;
-        n_max = fd.getJamDensity()!=null ? fd.getJamDensity() : f_max*(1/vf+1/w);
-        n_max *= ml_lanes;
+        n_max = fd.getJamDensity()!=null ? fd.getJamDensity() : fd.getCapacity()*(1d/fd.getFreeFlowSpeed()+1d/fd.getCongestionSpeed());     // veh/meter/lane
+        n_max *= ml_lanes;  // veh/meter
+        n_max *= ml_link_length; // veh/link
 
         // metering
         is_metered = actuator!=null;
@@ -174,16 +175,9 @@ public final class FwySegment {
         demand_profile_dt = Double.NaN;
     }
 
-    public void set_demands(ArrayList<Double> demand,double dt){
+    public void set_demands_in_vps(ArrayList<Double> demand, double dt){
         demand_profile_dt = dt;
         demand_profile = demand;
-    }
-
-    public void set_constant_demand_segment(ArrayList<Double> segment_demand_input, double dt){
-       this.demand_profile_dt = dt;
-//       ArrayList<Double> constant_demand_profile = new ArrayList<Double>();
-//        constant_demand_profile.add(segment_demand_input);
-       demand_profile = segment_demand_input;
     }
 
     // t in seconds
@@ -217,6 +211,10 @@ public final class FwySegment {
         no = x*ml_link_length;
     }
 
+    public void set_no_in_veh(double x){
+        no = x;
+    }
+
     public void add_to_no_in_vpm(double x){
         no += x*ml_link_length;
     }
@@ -227,6 +225,10 @@ public final class FwySegment {
 
     public void set_lo_in_vpm(double x){
         lo = x*or_link_length;
+    }
+
+    public void set_lo_in_veh(double x){
+        lo = x;
     }
 
     ///////////////////////////////////////////////////////////////////
