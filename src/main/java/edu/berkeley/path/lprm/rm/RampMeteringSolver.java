@@ -37,6 +37,10 @@ public class RampMeteringSolver {
              scenario.getActuatorSet(),
              K_dem,K_cool,eta,sim_dt_in_seconds);
 
+        // check units
+        if(scenario.getSettings().getUnits().compareToIgnoreCase("si")!=0)
+            throw new Exception("Scenario units must be SI");
+
         // set rhs data
         InitialDensitySet id_set = scenario.getInitialDensitySet();
         DemandSet demand_set = scenario.getDemandSet();
@@ -44,6 +48,8 @@ public class RampMeteringSolver {
     }
 
     public RampMeteringSolver(Network network,FundamentalDiagramSet fd_set,SplitRatioSet split_ratios,ActuatorSet actuator_set, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
+
+        System.out.println(String.format("Kdem=%d, K_cool=%d, eta=%f, sim_dt=%f",K_dem,K_cool,eta,sim_dt_in_seconds));
 
         // create the freeway object
         fwy = new FwyNetwork(new LpNetwork(network),fd_set,actuator_set);
