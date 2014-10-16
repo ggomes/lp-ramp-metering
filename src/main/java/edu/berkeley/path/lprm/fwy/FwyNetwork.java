@@ -305,6 +305,7 @@ public final class FwyNetwork {
 
         for(DemandProfile dp : demand_set.getDemandProfile()){
             int index = or_source_id.indexOf(dp.getLinkIdOrg());
+            double knob = dp.getKnob();
             if(index>=0){
                 FwySegment seg = segments.get(index);
                 ArrayList<Double> demand = new ArrayList<Double>();
@@ -316,7 +317,7 @@ public final class FwyNetwork {
                                 demand.add(0d);
                         for(int i=0;i<strlist.size();i++){
                             double val = demand.get(i);
-                            val += Double.parseDouble(strlist.get(i))*seg.get_or_lanes();
+                            val += knob*Double.parseDouble(strlist.get(i))*seg.get_or_lanes();
                             demand.set(i,val);
                         }
                     }
@@ -326,7 +327,7 @@ public final class FwyNetwork {
         }
     }
 
-    public void set_split_ratios(SplitRatioSet srs) throws Exception{
+    public void set_split_ratios(SplitRatioSet srs,boolean enforce_constant_splits) throws Exception{
         int index;
 
         for(SplitRatioProfile srp : srs.getSplitRatioProfile()){
@@ -338,15 +339,28 @@ public final class FwyNetwork {
                 {
                     if(ml_link_id.get(index)==sr.getLinkIn())
                     {
+                        String [] string_array;
                         if(sr.getLinkOut()==fr_link_id.get(index)){
-                            for(String str : sr.getContent().split(",")) {
-                                fr_split.add(Double.parseDouble(str));
+                            string_array = sr.getContent().split(",");
+                            if(enforce_constant_splits){
+                                fr_split.add(Double.parseDouble(string_array[0]));
+                            }
+                            else{
+                                for(String str : string_array ) {
+                                    fr_split.add(Double.parseDouble(str));
+                                }
                             }
                         }
                         else {
-                            if(index<ml_link_id.size()-1 && sr.getLinkOut()==ml_link_id.get(index+1))
-                                for(String str : sr.getContent().split(","))
-                                    ml_split.add(Double.parseDouble(str));
+                            if(index<ml_link_id.size()-1 && sr.getLinkOut()==ml_link_id.get(index+1)) {
+                                string_array = sr.getContent().split(",");
+                                if (enforce_constant_splits) {
+                                    ml_split.add(Double.parseDouble(string_array[0]));
+                                } else {
+                                    for (String str : string_array)
+                                        ml_split.add(Double.parseDouble(str));
+                                }
+                            }
                             else
                                 throw new Exception("ERROR!");
                         }

@@ -27,7 +27,8 @@ public class BatchRunner {
         String config = "data/config/smallNetwork.xml";
 
         // create the lp_solver
-        RampMeteringSolver solver = new RampMeteringSolver(config,K_dem_seconds,K_cool_seconds,eta,sim_dt_in_seconds);
+        boolean enforce_constant_splits = false;
+        RampMeteringSolver solver = new RampMeteringSolver(config,K_dem_seconds,K_cool_seconds,eta,sim_dt_in_seconds,enforce_constant_splits);
 
         // get all state link ids
         ArrayList<Long> link_ids = new ArrayList<Long>();

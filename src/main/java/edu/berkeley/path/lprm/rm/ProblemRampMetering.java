@@ -7,8 +7,6 @@ import edu.berkeley.path.lprm.lp.problem.Relation;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.fwy.FwySegment;
 
-import java.util.ArrayList;
-
 /**
  * Created by gomes on 6/6/14.
  */
@@ -27,7 +25,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
     }
     protected FwyNetwork fwy;
     protected int K;                // number of time steps (demand+cooldown)
-    protected int Kcool;            // number of cooldown time steps
+    protected double t_start_cool;    // [sec]
     protected double eta;           // objective = TVH - eta*TVM
     protected double sim_dt_in_seconds;
 
@@ -35,7 +33,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
         this.fwy = fwy;
         this.K = K_dem+K_cool;
-        this.Kcool = K_cool;
+        this.t_start_cool = K_dem*sim_dt_in_seconds;
         this.eta = eta;
         this.sim_dt_in_seconds = sim_dt_in_seconds;
 
@@ -69,7 +67,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
                 double time = k*sim_dt_in_seconds;
                 double betabar = 1-seg.get_split_ratio(time);
-                double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                double d = get_demand_for_seg_in_veh(seg,time);
                 double no = k==0? seg.get_no() : 0;
                 double lo = k==0? seg.get_lo() : 0;
 
@@ -131,7 +129,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                     FwySegment next_seg = fwy.get_segment(i+1);;
 
                     double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
-                    double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                    double next_d = get_demand_for_seg_in_veh(next_seg,time);
                     double next_no = k==0? next_seg.get_no() : 0;
 
                     Constraint C4 = new Constraint();
@@ -297,7 +295,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
 
                 double time = k*sim_dt_in_seconds;
                 double betabar = 1-seg.get_split_ratio(time);
-                double d = seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                double d = get_demand_for_seg_in_veh(seg, time);
                 double no = k==0? seg.get_no() : 0;
                 double lo = k==0? seg.get_lo() : 0;
 
@@ -316,7 +314,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
                     FwySegment next_seg = fwy.get_segment(i+1);
 
                     double next_w = next_seg.get_w_link_per_sec()*sim_dt_in_seconds;
-                    double next_d = next_seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+                    double next_d = get_demand_for_seg_in_veh(next_seg,time);
                     double next_no = k==0? next_seg.get_no() : 0;
 
                     rhs = next_w*next_seg.get_nmax();
@@ -344,4 +342,7 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
         return cnst.toString() + "[" + i + "][" + k +"]";
     }
 
+    private double get_demand_for_seg_in_veh(FwySegment seg,double time){
+        return time>= t_start_cool ? 0d : seg.get_demand_in_vps(time)*sim_dt_in_seconds;
+    }
 }

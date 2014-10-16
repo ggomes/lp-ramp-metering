@@ -22,20 +22,22 @@ public class RampMeteringSolver {
     // construction
     ///////////////////////////////////////
 
-    public RampMeteringSolver(String configfile,double K_dem_seconds,double K_cool_seconds, double eta, double sim_dt_in_seconds) throws Exception{
+    public RampMeteringSolver(String configfile,double K_dem_seconds,double K_cool_seconds, double eta, double sim_dt_in_seconds,boolean enforce_constant_splits) throws Exception{
         this(ObjectFactory.getScenario(configfile),
                 (int) Math.round(K_dem_seconds / sim_dt_in_seconds),
                 (int) Math.round(K_cool_seconds / sim_dt_in_seconds),
-                eta, sim_dt_in_seconds);
+                eta, sim_dt_in_seconds,
+                enforce_constant_splits);
     }
 
-    public RampMeteringSolver(Scenario scenario, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
+    public RampMeteringSolver(Scenario scenario, int K_dem, int K_cool, double eta, double sim_dt_in_seconds,boolean enforce_constant_splits) throws Exception{
 
         this(scenario.getNetworkSet().getNetwork().get(0) ,
              scenario.getFundamentalDiagramSet() ,
              scenario.getSplitRatioSet() ,
              scenario.getActuatorSet(),
-             K_dem,K_cool,eta,sim_dt_in_seconds);
+             K_dem,K_cool,eta,sim_dt_in_seconds,
+             enforce_constant_splits);
 
         // check units
         if(scenario.getSettings().getUnits().compareToIgnoreCase("si")!=0)
@@ -47,13 +49,13 @@ public class RampMeteringSolver {
         set_data(id_set,demand_set);
     }
 
-    public RampMeteringSolver(Network network,FundamentalDiagramSet fd_set,SplitRatioSet split_ratios,ActuatorSet actuator_set, int K_dem, int K_cool, double eta, double sim_dt_in_seconds) throws Exception{
+    public RampMeteringSolver(Network network,FundamentalDiagramSet fd_set,SplitRatioSet split_ratios,ActuatorSet actuator_set, int K_dem, int K_cool, double eta, double sim_dt_in_seconds,boolean enforce_constant_splits) throws Exception{
 
         System.out.println(String.format("Kdem=%d, K_cool=%d, eta=%f, sim_dt=%f",K_dem,K_cool,eta,sim_dt_in_seconds));
 
         // create the freeway object
         fwy = new FwyNetwork(new LpNetwork(network),fd_set,actuator_set);
-        fwy.set_split_ratios(split_ratios);
+        fwy.set_split_ratios(split_ratios,enforce_constant_splits);
 
         // check CFL
         String errors = fwy.check_cfl_condition(sim_dt_in_seconds);
@@ -64,7 +66,6 @@ public class RampMeteringSolver {
         LP = new ProblemRampMetering(fwy,K_dem,K_cool,eta,sim_dt_in_seconds);
 
     }
-
 
     ///////////////////////////////////////
     // setters / getters

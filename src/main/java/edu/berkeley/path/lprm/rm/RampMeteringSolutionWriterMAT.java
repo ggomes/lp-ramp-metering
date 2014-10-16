@@ -40,7 +40,7 @@ public class RampMeteringSolutionWriterMAT extends RampMeteringSolutionWriter {
     private PrintStream open_file(String filename){
         PrintStream ps = null;
         try {
-            ps = new PrintStream(new File("out\\" + filename + ".m"));
+            ps = new PrintStream(new File(filename + ".m"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

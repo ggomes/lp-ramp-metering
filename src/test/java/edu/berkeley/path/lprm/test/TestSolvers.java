@@ -101,7 +101,7 @@ public class TestSolvers {
 
     private Problem load_problem_B(){
         try {
-            RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",12d,12d,.1d,3d);
+            RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",12d,12d,.1d,3d,false);
             return solver.getLP();
         } catch (Exception e) {
             e.printStackTrace();

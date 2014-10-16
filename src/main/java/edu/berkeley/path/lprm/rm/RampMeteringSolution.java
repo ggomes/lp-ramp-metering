@@ -16,7 +16,6 @@ public final class RampMeteringSolution extends PointValue {
     protected ProblemRampMetering LP;
     protected FwyNetwork fwy;
     protected SegmentSolution [] Xopt;      // unpacked result in a convenient format
-
     protected CTMDistance ctm_distance;      // distance to mainline i,kth constraint
 
     protected double TVH;
@@ -130,6 +129,13 @@ public final class RampMeteringSolution extends PointValue {
 //        return ctm_distance.max_d;
     }
 
+    public Double get_leftover_vehicles(){
+        Double tv = 0d;
+        for(SegmentSolution x : Xopt)
+            tv += x.n[K] + (x.l!=null?x.l[K]:0d);
+        return tv;
+    }
+
 //    public HashMap<String,Constraint.State> evaluate_constraints(double epsilon){
 //        HashMap<String,Constraint.State> x = new HashMap<String,Constraint.State>();
 //        x.putAll(LP.evaluate_constraint_state(this, epsilon));
@@ -209,10 +215,10 @@ public final class RampMeteringSolution extends PointValue {
 
     // all units are normalized
     private class SegmentSolution {
-        public Double [] n;
-        public Double [] l;
-        public Double [] f;
-        public Double [] r;
+        public Double [] n;     // [veh]
+        public Double [] l;     // [veh]
+        public Double [] f;     // [veh]
+        public Double [] r;     // [veh]
 
         public SegmentSolution(FwySegment fseg,int K){
             n = new Double[K+1];

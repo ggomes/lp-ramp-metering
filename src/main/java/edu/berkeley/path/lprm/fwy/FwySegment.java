@@ -133,6 +133,7 @@ public final class FwySegment {
     public boolean has_offramp(){
         return has_off_ramp;
     }
+
     public boolean has_onramp(){
         return has_on_ramp;
     }
@@ -200,6 +201,8 @@ public final class FwySegment {
     public double get_split_ratio(double t){
         if(split_ratio_profile==null)
             return 0d;
+        if(split_ratio_profile.size()==1)
+            return split_ratio_profile.get(0);
         double epsilon = 1e-4;
         int k = (int) Math.floor((t+epsilon)/split_ratio_profile_dt);
         return k>=0 && k<split_ratio_profile.size() ?
@@ -215,13 +218,13 @@ public final class FwySegment {
         no = x;
     }
 
-    public void add_to_no_in_vpm(double x){
-        no += x*ml_link_length;
-    }
-
-    public void add_to_lo_in_vpm(double x){
-        lo += x*or_link_length;
-    }
+//    public void add_to_no_in_vpm(double x){
+//        no += x*ml_link_length;
+//    }
+//
+//    public void add_to_lo_in_vpm(double x){
+//        lo += x*or_link_length;
+//    }
 
     public void set_lo_in_vpm(double x){
         lo = x*or_link_length;
