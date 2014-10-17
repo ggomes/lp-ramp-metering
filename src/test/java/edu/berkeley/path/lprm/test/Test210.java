@@ -27,8 +27,8 @@ public class Test210 {
 
         long time = System.currentTimeMillis();
 
-        double K_dem_seconds = 3600;
-        double K_cool_seconds = 900;
+        double K_dem_seconds = 6;
+        double K_cool_seconds = 600;
         double sim_dt_in_seconds = 5;
         double eta = 0.1;
         int K_dem = (int) Math.round(K_dem_seconds / sim_dt_in_seconds);
@@ -38,20 +38,17 @@ public class Test210 {
         Scenario scenario = ObjectFactory.getScenario(config);
 
         // set initial condition
-//        InitialDensitySet ids = new InitialDensitySet();
-//        for(Link L : scenario.getNetworkSet().getNetwork().get(0).getLinkList().getLink()){
-//            Density d = new Density();
-//            d.setLinkId(L.getId());
-//            if(L.getId()==58)
-//                d.setContent("0.0");
-//            else
-//                d.setContent("0.0");
-//            ids.getDensity().add(d);
-//        }
-//        scenario.setInitialDensitySet(ids);
+        InitialDensitySet ids = new InitialDensitySet();
+        for(Link L : scenario.getNetworkSet().getNetwork().get(0).getLinkList().getLink()){
+            Density d = new Density();
+            d.setLinkId(L.getId());
+            d.setContent("0.05");
+            ids.getDensity().add(d);
+        }
+        scenario.setInitialDensitySet(ids);
 
         // create solver and solve
-        RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds,false);
+        RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds,true);
         RampMeteringSolution sol = solver.solve(solver_type);
 
         sol.print_to_file("C:\\Users\\gomes\\code\\L0\\L0-mpc-demo\\out\\210test", RampMeteringSolution.OutputFormat.matlab);
