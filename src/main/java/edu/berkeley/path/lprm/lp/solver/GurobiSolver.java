@@ -26,9 +26,6 @@ public class GurobiSolver implements Solver {
 
         PointValue result = null;
 
-//        HashMap<String,Double> upper_bounds = P.get_upper_bounds();
-//        HashMap<String,Double> lower_bounds = P.get_lower_bounds();
-
         try {
 
             GRBEnv env = new GRBEnv(); //GRBEnv("out\\gurobi.log");
@@ -72,6 +69,36 @@ public class GurobiSolver implements Solver {
             // Optimize model
             model.optimize();
 
+
+
+            /////////////////////////////////////
+
+//            int optimstatus = model.get(GRB.IntAttr.Status);
+//
+//            if (optimstatus == GRB.Status.INF_OR_UNBD) {
+//                model.getEnv().set(GRB.IntParam.Presolve, 0);
+//                model.optimize();
+//                optimstatus = model.get(GRB.IntAttr.Status);
+//            }
+//
+//            if (optimstatus == GRB.Status.OPTIMAL) {
+//                double objval = model.get(GRB.DoubleAttr.ObjVal);
+//                System.out.println("Optimal objective: " + objval);
+//            } else if (optimstatus == GRB.Status.INFEASIBLE) {
+//                System.out.println("Model is infeasible");
+//
+//                // Compute and write out IIS
+//                model.computeIIS();
+//                model.write("model.ilp");
+//            } else if (optimstatus == GRB.Status.UNBOUNDED) {
+//                System.out.println("Model is unbounded");
+//            } else {
+//                System.out.println("Optimization was stopped with status = "
+//                        + optimstatus);
+//            }
+
+
+            //////////////////////////////////////////////////
             // read result
 
             ArrayList<String> names = new ArrayList<String>();

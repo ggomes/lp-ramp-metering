@@ -98,6 +98,27 @@ public class Problem {
         return null;
     }
 
+    public HashMap<String,Constraint.State> evaluate_constraints(PointValue P,double epsilon){
+        HashMap<String,Constraint.State> r = new HashMap<String,Constraint.State>();
+        for(Map.Entry<String,Constraint> e : constraints.entrySet())
+            r.put( e.getKey() , e.getValue().evaluate_state(P,epsilon) );
+        return r;
+    }
+
+    public boolean is_feasible(PointValue P,double epsilon,boolean printout){
+        boolean feasible = true;
+        for(Map.Entry<String,Constraint.State> e : evaluate_constraints(P,epsilon).entrySet()){
+            if(e.getValue().compareTo(Constraint.State.violated)==0){
+                feasible = false;
+                if(printout)
+                    System.out.println("Violated: " + e.getKey());
+                else
+                    break;
+            }
+        }
+        return feasible;
+    }
+
     @Override
     public String toString() {
         TreeMap<String,Constraint> sorted_constraints = new TreeMap<String,Constraint>(constraints);

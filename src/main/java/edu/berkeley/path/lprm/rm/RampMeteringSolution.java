@@ -126,7 +126,6 @@ public final class RampMeteringSolution extends PointValue {
 
     public Double get_max_ctm_distance(){
         return ctm_distance==null?null:ctm_distance.max_d;
-//        return ctm_distance.max_d;
     }
 
     public Double get_leftover_vehicles(){
@@ -253,11 +252,23 @@ public final class RampMeteringSolution extends PointValue {
             if(x>max_d)
                 max_d = x;
         }
+        public void print(){
+            int i,k;
+            double eps = 1e-2;
+            for(i=0;i<d.length;i++)
+                for(k=0;k<d[i].length;k++)
+                    if(d[i][k]>eps)
+                        System.out.println(String.format("CTM_distance(%d,%d)=%f",i,k,d[i][k]));
+        }
     }
 
     ////////////////////////////////////////////////////////
     // printing
     ////////////////////////////////////////////////////////
+
+    public void print_ctm_distances(){
+        this.ctm_distance.print();
+    }
 
     public void print_to_file_lp_results(String filename){
         RampMeteringSolutionWriter writer = null;

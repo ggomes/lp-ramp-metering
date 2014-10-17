@@ -5,6 +5,9 @@ import edu.berkeley.path.beats.jaxb.InitialDensitySet;
 import edu.berkeley.path.beats.jaxb.Link;
 import edu.berkeley.path.beats.jaxb.Scenario;
 import edu.berkeley.path.lprm.ObjectFactory;
+import edu.berkeley.path.lprm.fwy.FwySegment;
+import edu.berkeley.path.lprm.lp.problem.Constraint;
+import edu.berkeley.path.lprm.lp.problem.PointValue;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.rm.RampMeteringSolution;
 import edu.berkeley.path.lprm.rm.RampMeteringSolver;
@@ -27,10 +30,10 @@ public class Test210 {
 
         long time = System.currentTimeMillis();
 
-        double K_dem_seconds = 6;
+        double K_dem_seconds = 60;
         double K_cool_seconds = 600;
         double sim_dt_in_seconds = 5;
-        double eta = 0.1;
+        double eta = .1;
         int K_dem = (int) Math.round(K_dem_seconds / sim_dt_in_seconds);
         int K_cool = (int) Math.round(K_cool_seconds / sim_dt_in_seconds);
         String config = "C:\\Users\\gomes\\code\\L0\\L0-mpc-demo\\data\\210W_pm_cropped_L0_lp.xml";
@@ -52,8 +55,18 @@ public class Test210 {
         RampMeteringSolution sol = solver.solve(solver_type);
 
         sol.print_to_file("C:\\Users\\gomes\\code\\L0\\L0-mpc-demo\\out\\210test", RampMeteringSolution.OutputFormat.matlab);
-        System.out.println("Distance to CTM: " + sol.get_max_ctm_distance() + "\t" + sol.get_leftover_vehicles());
+        System.out.println("Distance to CTM: " + sol.get_max_ctm_distance());
+        System.out.println("Leftover vehicles: " + sol.get_leftover_vehicles());
+        System.out.println("Cost: " +  sol.get_cost());
 
+        sol.print_ctm_distances();
+
+        FwySegment seg = sol.get_fwy().get_segment(35);
+
+
+        boolean is_feasible = solver.getLP().is_feasible(sol,1e-2,true);
+
+        System.out.println(is_feasible);
 //        HashMap<Long,Double[]> profiles= sol.get_metering_profiles_in_vps();
 //        for (Map.Entry<Long,Double[]> entry : profiles.entrySet()) {
 //            Double [] c= entry.getValue();
