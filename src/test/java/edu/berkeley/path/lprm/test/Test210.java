@@ -30,8 +30,8 @@ public class Test210 {
 
         long time = System.currentTimeMillis();
 
-        double K_dem_seconds = 60;
-        double K_cool_seconds = 600;
+        double K_dem_seconds = 95;
+        double K_cool_seconds = 0;
         double sim_dt_in_seconds = 5;
         double eta = .1;
         int K_dem = (int) Math.round(K_dem_seconds / sim_dt_in_seconds);
@@ -55,18 +55,15 @@ public class Test210 {
         RampMeteringSolution sol = solver.solve(solver_type);
 
         sol.print_to_file("C:\\Users\\gomes\\code\\L0\\L0-mpc-demo\\out\\210test", RampMeteringSolution.OutputFormat.matlab);
+
+        System.out.println("Feasible: " + solver.getLP().is_feasible(sol,1e-2,true));
         System.out.println("Distance to CTM: " + sol.get_max_ctm_distance());
         System.out.println("Leftover vehicles: " + sol.get_leftover_vehicles());
         System.out.println("Cost: " +  sol.get_cost());
 
+        System.out.println("J: "+sol.get_lp().get_cost());
         sol.print_ctm_distances();
 
-        FwySegment seg = sol.get_fwy().get_segment(35);
-
-
-        boolean is_feasible = solver.getLP().is_feasible(sol,1e-2,true);
-
-        System.out.println(is_feasible);
 //        HashMap<Long,Double[]> profiles= sol.get_metering_profiles_in_vps();
 //        for (Map.Entry<Long,Double[]> entry : profiles.entrySet()) {
 //            Double [] c= entry.getValue();

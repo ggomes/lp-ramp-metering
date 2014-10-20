@@ -243,7 +243,7 @@ public final class FwyNetwork {
     // set
     ///////////////////////////////////////////////////////////////////
 
-    public void set_ic(InitialDensitySet ic){
+    public void set_ic(InitialDensitySet ic) throws Exception {
 
         // reset everything to zero
         for(FwySegment seg : segments)
@@ -263,7 +263,7 @@ public final class FwyNetwork {
         }
     }
 
-    public void set_density_in_vpm(Long link_id, double density_value){
+    public void set_density_in_vpm(Long link_id, double density_value)  throws Exception {
         int index = ml_link_id.indexOf(link_id);
         if (index>=0)
             segments.get(index).set_no_in_vpm(density_value);
@@ -273,7 +273,7 @@ public final class FwyNetwork {
     }
 
 
-    public void set_density_in_veh(Long link_id, double density_value){
+    public void set_density_in_veh(Long link_id, double density_value)  throws Exception {
         int index = ml_link_id.indexOf(link_id);
         if (index>=0)
             segments.get(index).set_no_in_veh(density_value);
@@ -282,7 +282,7 @@ public final class FwyNetwork {
             segments.get(index).set_lo_in_veh(density_value);
     }
 
-    public void set_demand_in_vps(Long link_id, Double demand_value, double demand_dt){
+    public void set_demand_in_vps(Long link_id, Double demand_value, double demand_dt)  throws Exception {
 //        FwySegment seg;
 //        if(index>=0){
 //            seg = segments.get(index);
@@ -297,7 +297,7 @@ public final class FwyNetwork {
         }
     }
 
-    public void set_demands(DemandSet demand_set){
+    public void set_demands(DemandSet demand_set) throws Exception {
 
         // reset everything to zero
         for(FwySegment seg : segments)

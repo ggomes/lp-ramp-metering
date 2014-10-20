@@ -20,7 +20,7 @@ public final class FwySegment {
     protected Double vf;        // [link/sec] free flow speed
     protected Double w;         // [link/sec] congestion wave speed
     protected Double f_max;     // [veh/sec] mainline capacity
-    protected Double n_max;     // [veh/link] mainline jam density
+    protected Double n_max;     // [veh] mainline jam density
     protected Double ml_link_length; // [m] length of the mainline link
     protected Double or_link_length; // [m] length of the onramp link
     protected Double or_lanes;  // [-] onramp lanes
@@ -162,6 +162,17 @@ public final class FwySegment {
         return this.lo;
     }
 
+    // t in seconds
+    public double get_demand_in_vps(double t){
+        if(demand_profile==null)
+            return 0d;
+        double epsilon = 1e-4;
+        int k = (int) Math.floor((t+epsilon)/demand_profile_dt);
+        return k>=0 && k<demand_profile.size() ?
+                demand_profile.get(k) :
+                0d;
+    }
+
     ///////////////////////////////////////////////////////////////////
     // set
     ///////////////////////////////////////////////////////////////////
@@ -176,20 +187,13 @@ public final class FwySegment {
         demand_profile_dt = Double.NaN;
     }
 
-    public void set_demands_in_vps(ArrayList<Double> demand, double dt){
+    public void set_demands_in_vps(ArrayList<Double> demand, double dt) throws Exception{
+        if(dt<0)
+            throw new Exception("Attempted to set negative demand dt.");
+        if(!all_nonnegative(demand))
+            throw new Exception("Attempted to set negative demand values.");
         demand_profile_dt = dt;
         demand_profile = demand;
-    }
-
-    // t in seconds
-    public double get_demand_in_vps(double t){
-        if(demand_profile==null)
-            return 0d;
-        double epsilon = 1e-4;
-        int k = (int) Math.floor((t+epsilon)/demand_profile_dt);
-        return k>=0 && k<demand_profile.size() ?
-                demand_profile.get(k) :
-                0d;
     }
 
     public void set_split_ratios(ArrayList<Double> fr_split,double dt){
@@ -210,32 +214,32 @@ public final class FwySegment {
                 split_ratio_profile.get(split_ratio_profile.size()-1);
     }
 
-    public void set_no_in_vpm(double x){
-        no = x*ml_link_length;
+    public void set_no_in_vpm(double x) throws Exception {
+        set_no_in_veh(x*ml_link_length);
     }
 
-    public void set_no_in_veh(double x){
+    public void set_no_in_veh(double x) throws Exception {
+        if(x<0)
+            throw new Exception("Attempted to set negative initial density");
+        if(x>n_max)
+            throw new Exception("Attempted to set large initial density");
         no = x;
     }
 
-//    public void add_to_no_in_vpm(double x){
-//        no += x*ml_link_length;
-//    }
-//
-//    public void add_to_lo_in_vpm(double x){
-//        lo += x*or_link_length;
-//    }
-
-    public void set_lo_in_vpm(double x){
-        lo = x*or_link_length;
+    public void set_lo_in_vpm(double x) throws Exception {
+        set_lo_in_veh(x*or_link_length);
     }
 
-    public void set_lo_in_veh(double x){
+    public void set_lo_in_veh(double x) throws Exception {
+        if(x<0)
+            throw new Exception("Attempted to set negative initial queue length");
+        if(x>n_max)
+            throw new Exception("Attempted to set large initial queue length");
         lo = x;
     }
 
     ///////////////////////////////////////////////////////////////////
-    // parameters
+    // private
     ///////////////////////////////////////////////////////////////////
 
     private Double get_parameter(Parameters P,String name,Double def){
@@ -251,6 +255,13 @@ public final class FwySegment {
             }
         }
         return value.isEmpty() ? Double.NaN : Double.parseDouble(value);
+    }
+
+    private static boolean all_nonnegative(ArrayList<Double> x){
+        for(Double d : x)
+            if(d<0)
+                return false;
+        return true;
     }
 
     ///////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@ package edu.berkeley.path.lprm.rm;
 
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.fwy.FwySegment;
+import edu.berkeley.path.lprm.lp.problem.Constraint;
 import edu.berkeley.path.lprm.lp.problem.PointValue;
 
 import java.io.ByteArrayOutputStream;
@@ -35,9 +36,6 @@ public final class RampMeteringSolution extends PointValue {
         int I = fwy.get_num_segments();
         K = LP.K;
         double sim_dt = LP.sim_dt_in_seconds;
-
-        // evaluate_state whether it is a valid ctm solution
-        ctm_distance = evaluate_ctm_distance(LP,result);
 
         // cast the solution into segments
         Xopt = new SegmentSolution[I];
@@ -80,6 +78,9 @@ public final class RampMeteringSolution extends PointValue {
             }
 
         }
+
+        // evaluate_state whether it is a valid ctm solution
+        ctm_distance = evaluate_ctm_distance(LP);
     }
 
     ////////////////////////////////////////////////////////
@@ -169,40 +170,69 @@ public final class RampMeteringSolution extends PointValue {
         return r;
     }
 
-    private static CTMDistance evaluate_ctm_distance(ProblemRampMetering LP,PointValue P){
+    private CTMDistance evaluate_ctm_distance(ProblemRampMetering LP){
 
         int I = LP.fwy.get_num_segments();
         int K = LP.K;
 
-        String cnst_name;
+        String cnstFF_name,cnstCP_name,cnstCG_name;
         double eps = 1e-2;
         boolean feasible = true;
         Double slack_ff,slack_cp,slack_cg;
+        Double lhs_minus_rhs;
+        Constraint cnstFF,cnstCP,cnstCG;
         CTMDistance ctm_distance = new CTMDistance(I,K);
 
         for (int i=0;i<I;i++){
             for (int k=0;k<K;k++){
+
+                double f = Xopt[i].f[k];
+
                 // ML freeflow
-                cnst_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_FF,i,k);
-                slack_ff = LP.evaluate_constraint_slack(cnst_name,P);
+                cnstFF_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_FF,i,k);
+                cnstFF = LP.get_constraint(cnstFF_name);
+                lhs_minus_rhs = cnstFF.evaluate_lhs_minus_rhs(this);
+                slack_ff = LP.evaluate_constraint_slack_veh(cnstFF_name,this); //lhs_minus_rhs/(lhs_minus_rhs-f); //
 
                 // ML capacity
-                cnst_name = "UB_"+ ProblemRampMetering.getVar("f",i,k);
-                slack_cp = LP.evaluate_constraint_slack(cnst_name,P);
+                cnstCP_name = "UB_"+ ProblemRampMetering.getVar("f",i,k);
+                cnstCP = LP.get_constraint(cnstCP_name);
+                lhs_minus_rhs = cnstCP.evaluate_lhs_minus_rhs(this);
+                slack_cp = LP.evaluate_constraint_slack_veh(cnstCP_name,this); //lhs_minus_rhs/(lhs_minus_rhs-f);
 
                 // ML congestion
                 if(i<I-1){
-                    cnst_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_CNG,i,k);
-                    slack_cg = LP.evaluate_constraint_slack(cnst_name,P);
+                    cnstCG_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_CNG,i,k);
+                    cnstCG = LP.get_constraint(cnstCG_name);
+                    lhs_minus_rhs = cnstCG.evaluate_lhs_minus_rhs(this);
+                    slack_cg = LP.evaluate_constraint_slack_veh(cnstCG_name,this); //= lhs_minus_rhs/(lhs_minus_rhs-f); //
                 }
-                else
+                else {
+                    cnstCG_name="";
+                    cnstCG = null;
                     slack_cg = Double.POSITIVE_INFINITY;
+                }
 
                 if(slack_ff<-eps || slack_cp<-eps || slack_cg<-eps){
                     feasible = false;
                     break;
                 }
-               ctm_distance.add_value(i,k,Math.min(Math.min(slack_ff,slack_cp),slack_cg));
+
+
+                double d = Math.min(Math.min(slack_ff, slack_cp), slack_cg);
+
+                if(d>0.01){
+                    System.out.println(String.format("[%d,%d] : ",i,k));
+                    System.out.println(String.format("\tf[%d,%d]=%f\n\tn[%d,%d]=%f\n" +
+                            "\tn[%d,%d]=%f : ",i,k,Xopt[i].f[k],i,k,Xopt[i].n[k],i+1,k,Xopt[i+1].n[k]));
+                    System.out.println("\t"+cnstFF_name+" "+cnstFF);
+                    System.out.println("\t"+cnstCP_name+" "+cnstCP);
+                    System.out.println("\t"+cnstCG_name+" "+cnstCG);
+
+                }
+
+                ctm_distance.add_value(i,k,d);
+
             }
         }
         return feasible ? ctm_distance : null;

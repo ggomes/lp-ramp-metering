@@ -35,7 +35,7 @@ public class Linear {
         return coefficients.keySet();
     }
 
-    public Double evaluate_linear(PointValue P){
+    public Double evaluate_lhs(PointValue P){
         double lhs = 0d;
         Iterator it = coefficients.entrySet().iterator();
         while (it.hasNext()) {

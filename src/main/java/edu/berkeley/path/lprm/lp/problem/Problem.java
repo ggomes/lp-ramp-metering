@@ -62,6 +62,10 @@ public class Problem {
         return constraints;
     }
 
+    public Constraint get_constraint(String cnst_name){
+        return constraints.get(cnst_name);
+    }
+
     public Double get_lower_bound_for(String varname){
         Constraint cnst = constraints.get("LB_"+varname);
         return cnst==null ? Double.NEGATIVE_INFINITY : cnst.get_rhs();
@@ -80,7 +84,7 @@ public class Problem {
         return opt_type;
     }
 
-    public Double evaluate_constraint_slack(String cnst_name,PointValue P){
+    public Double evaluate_constraint_slack_veh(String cnst_name, PointValue P){
         Constraint cnst = constraints.get(cnst_name);
         if(cnst==null){
             System.out.println("Bad constraint name "+cnst_name);
@@ -89,8 +93,10 @@ public class Problem {
         Double lhs_minus_rhs = cnst.evaluate_lhs_minus_rhs(P);
         switch(cnst.get_relation()){
             case EQ:
+                System.out.println("Why am I here?");
                 return Math.abs(lhs_minus_rhs);
             case GEQ:
+                System.out.println("Why am I here?");
                 return lhs_minus_rhs;
             case LEQ:
                 return -lhs_minus_rhs;

@@ -40,7 +40,7 @@ public class Constraint extends Linear {
     }
 
     public Double evaluate_lhs_minus_rhs(PointValue P){
-        return evaluate_linear(P)-rhs;
+        return evaluate_lhs(P)-rhs;
     }
 
     public Constraint.State evaluate_state(PointValue P, double epsilon){

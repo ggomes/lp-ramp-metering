@@ -28,9 +28,9 @@ public class GurobiSolver implements Solver {
 
         try {
 
-            GRBEnv env = new GRBEnv(); //GRBEnv("out\\gurobi.log");
+            GRBEnv env = new GRBEnv("out\\gurobi.log");
 
-            env.set(GRB.IntParam.OutputFlag,0);    // suppress output
+//            env.set(GRB.IntParam.OutputFlag,0);    // suppress output
             GRBModel  model = new GRBModel(env);
             GRBLinExpr cost = new GRBLinExpr();
 
@@ -58,44 +58,39 @@ public class GurobiSolver implements Solver {
                 String cnst_name = e.getKey();
                 Constraint cnst = e.getValue();
                 GRBLinExpr expr = new GRBLinExpr();
-                Iterator cit = cnst.get_coefficients().entrySet().iterator();
-                while(cit.hasNext()){
-                    Map.Entry p = (Map.Entry)cit.next();
-                    expr.addTerm((Double) p.getValue(),variables.get(p.getKey()));
-                }
+                for(Map.Entry<String,Double> p : cnst.get_coefficients().entrySet())
+                    expr.addTerm(p.getValue(),variables.get(p.getKey()));
                 model.addConstr(expr,relation_map.get(cnst.get_relation()),cnst.get_rhs(),cnst_name);
             }
 
             // Optimize model
             model.optimize();
 
-
-
             /////////////////////////////////////
 
-//            int optimstatus = model.get(GRB.IntAttr.Status);
-//
-//            if (optimstatus == GRB.Status.INF_OR_UNBD) {
-//                model.getEnv().set(GRB.IntParam.Presolve, 0);
-//                model.optimize();
-//                optimstatus = model.get(GRB.IntAttr.Status);
-//            }
-//
-//            if (optimstatus == GRB.Status.OPTIMAL) {
-//                double objval = model.get(GRB.DoubleAttr.ObjVal);
-//                System.out.println("Optimal objective: " + objval);
-//            } else if (optimstatus == GRB.Status.INFEASIBLE) {
-//                System.out.println("Model is infeasible");
-//
-//                // Compute and write out IIS
-//                model.computeIIS();
-//                model.write("model.ilp");
-//            } else if (optimstatus == GRB.Status.UNBOUNDED) {
-//                System.out.println("Model is unbounded");
-//            } else {
-//                System.out.println("Optimization was stopped with status = "
-//                        + optimstatus);
-//            }
+            int optimstatus = model.get(GRB.IntAttr.Status);
+
+            if (optimstatus == GRB.Status.INF_OR_UNBD) {
+                model.getEnv().set(GRB.IntParam.Presolve, 0);
+                model.optimize();
+                optimstatus = model.get(GRB.IntAttr.Status);
+            }
+
+            if (optimstatus == GRB.Status.OPTIMAL) {
+                double objval = model.get(GRB.DoubleAttr.ObjVal);
+                System.out.println("Optimal objective: " + objval);
+            } else if (optimstatus == GRB.Status.INFEASIBLE) {
+                System.out.println("Model is infeasible");
+
+                // Compute and write out IIS
+                model.computeIIS();
+                model.write("model.ilp");
+            } else if (optimstatus == GRB.Status.UNBOUNDED) {
+                System.out.println("Model is unbounded");
+            } else {
+                System.out.println("Optimization was stopped with status = "
+                        + optimstatus);
+            }
 
 
             //////////////////////////////////////////////////
