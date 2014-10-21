@@ -7,13 +7,13 @@ import edu.berkeley.path.lprm.graph.LpNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public final class FwyNetwork {
 
     protected int num_segments;           // number of segments
     protected int num_frs;
-//    protected int num_links;
     protected double gamma = 1d;          // merge coefficient
 
     protected ArrayList<FwySegment> segments;
@@ -22,7 +22,6 @@ public final class FwyNetwork {
     protected ArrayList<Long> or_link_id;
     protected ArrayList<Long> or_source_id;
     protected ArrayList<Long> fr_node_id;
-//    protected ArrayList<Long> link_ids;
 
     ///////////////////////////////////////////////////////////////////
     // construction
@@ -95,10 +94,6 @@ public final class FwyNetwork {
         return gamma;
     }
 
-//    public int get_num_states(){
-//        return (num_segments+num_actuated_ors);
-//    }
-
     public ArrayList<Long> get_mainline_ids(){
         return ml_link_id;
     }
@@ -115,10 +110,6 @@ public final class FwyNetwork {
         return x;
     }
 
-//    public ArrayList<Long> get_link_ids(){
-//        return link_ids;
-//    }
-
     public double get_njam_veh_per_link(long link_id) {
         for(FwySegment seg : segments){
             if( seg.get_main_line_link_id()==link_id )
@@ -128,6 +119,125 @@ public final class FwyNetwork {
             }
         }
         return Double.NaN;
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    // simulate_no_control
+    ///////////////////////////////////////////////////////////////////
+
+//    public FwyStateTrajectory simulate_no_control(double dt, int Kdem, int Kcool){
+//
+//        int i,k;
+//        double t,betabar,demand;
+//        int num_steps = Kdem+Kcool;
+//
+//        FwyStateTrajectory X = new FwyStateTrajectory(this,dt,num_steps);
+//
+//        for(k=0;k<num_steps;k++){
+//            t = k*dt;
+//
+//            // update onramps
+//            for(i=0;i<num_segments;i++){
+//
+//                FwySegment seg = segments.get(i);
+//                demand = k<Kdem ? seg.get_demand_in_vps(t)*dt : 0d;
+//
+//                X.r[i][k] = !seg.is_metered ? demand :
+//                                minmin(
+//                                X.l[i][k] + demand ,
+//                                seg.r_max*dt ,
+//                                seg.n_max - X.n[i][k] );
+//
+//                X.l[i][k+1] = !seg.is_metered ? 0d : X.l[i][k] + demand - X.r[i][k];
+//            }
+//
+//            // update mainline
+//            for(i=0;i<num_segments;i++){
+//
+//                FwySegment seg = segments.get(i);
+//                FwySegment nextseg = i<num_segments-1 ? segments.get(i+1) : null;
+//                betabar = 1-seg.get_split_ratio(t);
+//
+//                X.f[i][k] = minmin(
+//                        seg.vf*dt * betabar * (X.n[i][k] + gamma*X.r[i][k])  ,
+//                        seg.f_max*dt ,
+//                        i<num_segments-1 ? nextseg.w*dt *(nextseg.n_max-X.n[i+1][k] -gamma*X.r[i+1][k]) : Double.POSITIVE_INFINITY );
+//
+//                X.n[i][k+1] = X.n[i][k]
+//                        + (i==0 ? 0d : X.f[i-1][k])
+//                        + X.r[i][k]
+//                        - X.f[i][k] / betabar ;
+//            }
+//
+//        }
+//        return X;
+//    }
+
+
+    /** Simulate the freeway network. Onramp flows can be directly provided in rmap. In this case there
+     * is no guarantee of well-behaved CTM evolution. Runs an uncontrolled CTM if rmap==null.
+     *
+     * @param dt Simulation time step in seconds
+     * @param Kdem Number of time steps with positive demand
+     * @param Kcool Number of cool-down time steps
+     * @param rmap Map of onramp ids to ramp flows
+     * @return
+     */
+    public FwyStateTrajectory simulate(double dt,int Kdem,int Kcool, HashMap<Long,double[]> rmap){
+
+        int i,k;
+        double t,betabar,demand;
+
+        // determine number of steps
+        int num_steps_rmap = rmap==null ? Integer.MAX_VALUE : rmap.values().iterator().next().length;
+        int num_steps = Math.min( Kdem+Kcool , num_steps_rmap );
+
+        // initialize the state
+        FwyStateTrajectory X = new FwyStateTrajectory(this,dt,num_steps);
+
+        for(k=0;k<num_steps;k++){
+            t = k*dt;
+
+            // update onramps
+            for(i=0;i<num_segments;i++){
+
+                FwySegment seg = segments.get(i);
+                demand = k<Kdem ? seg.get_demand_in_vps(t)*dt : 0d;
+
+                if(rmap!=null && seg.or_link_id!=null) {      // given ramp flows
+                    double [] r = rmap.get(seg.or_link_id);
+                    X.r[i][k] = r[k];
+                }
+                else                // otherwise apply the model
+                    X.r[i][k] = !seg.is_metered ? demand :
+                            minmin(
+                                    X.l[i][k] + demand ,
+                                    seg.r_max*dt ,
+                                    seg.n_max - X.n[i][k] );
+
+                X.l[i][k+1] = !seg.is_metered ? 0d : X.l[i][k] + demand - X.r[i][k];
+            }
+
+            // update mainline
+            for(i=0;i<num_segments;i++){
+
+                FwySegment seg = segments.get(i);
+                FwySegment nextseg = i<num_segments-1 ? segments.get(i+1) : null;
+                betabar = 1-seg.get_split_ratio(t);
+
+                X.f[i][k] = minmin(
+                        seg.vf*dt * betabar * (X.n[i][k] + gamma*X.r[i][k])  ,
+                        seg.f_max*dt ,
+                        i<num_segments-1 ? nextseg.w*dt *(nextseg.n_max-X.n[i+1][k] -gamma*X.r[i+1][k]) : Double.POSITIVE_INFINITY );
+
+                X.n[i][k+1] = X.n[i][k]
+                        + (i==0 ? 0d : X.f[i-1][k])
+                        + X.r[i][k]
+                        - X.f[i][k] / betabar ;
+            }
+
+        }
+        return X;
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -239,6 +349,10 @@ public final class FwyNetwork {
         return rlink;
     }
 
+    private static double minmin(double a,double b,double c){
+        return Math.min(Math.min(a,b),c);
+    }
+
     ///////////////////////////////////////////////////////////////////
     // set
     ///////////////////////////////////////////////////////////////////
@@ -271,7 +385,6 @@ public final class FwyNetwork {
         if(index>=0)
             segments.get(index).set_lo_in_vpm(density_value);
     }
-
 
     public void set_density_in_veh(Long link_id, double density_value)  throws Exception {
         int index = ml_link_id.indexOf(link_id);
@@ -385,7 +498,8 @@ public final class FwyNetwork {
     public String toString() {
         String str = "";
         for(int i=0;i<segments.size();i++)
-            str = str.concat(String.format("%d) ----------------------------\n%s",i,segments.get(i).toString()));
+            str += segments.get(i).toString()+"\n";
+//            str = str.concat(String.format("%d) ----------------------------\n%s",i,segments.get(i).toString()));
         return str;
     }
 }

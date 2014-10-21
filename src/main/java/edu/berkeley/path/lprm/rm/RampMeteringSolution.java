@@ -136,21 +136,12 @@ public final class RampMeteringSolution extends PointValue {
         return tv;
     }
 
-//    public HashMap<String,Constraint.State> evaluate_constraints(double epsilon){
-//        HashMap<String,Constraint.State> x = new HashMap<String,Constraint.State>();
-//        x.putAll(LP.evaluate_constraint_state(this, epsilon));
-//        x.putAll(LP.evaluate_lower_bounds(this,epsilon));
-//        x.putAll(LP.evaluate_upper_bounds(this,epsilon));
-//        return x;
-//    }
-
-    // computes metering rates
-    public HashMap<Long,Double[]> get_metering_profiles_in_vps(){
-        HashMap<Long,Double[]> profiles = new HashMap<Long,Double[]>();
+    public HashMap<Long,double[]> get_ramp_flow_in_veh(){
+        HashMap<Long,double[]> profiles = new HashMap<Long,double[]>();
         for(int i=0;i<fwy.get_num_segments();i++){
             FwySegment seg = fwy.get_segment(i);
             if(seg.is_metered())
-                profiles.put( seg.get_on_ramp_link_id() , times(Xopt[i].r,1d/getSim_dt()) );
+                profiles.put( seg.get_on_ramp_link_id() , Xopt[i].r );
         }
         return profiles;
     }
@@ -163,8 +154,8 @@ public final class RampMeteringSolution extends PointValue {
         return ProblemRampMetering.getVar(name,seg_index,timestep);
     }
 
-    private static Double [] times(Double[] x, double a){
-        Double [] r = x.clone();
+    private static double [] times(double[] x, double a){
+        double [] r = x.clone();
         for(int i=0;i<r.length;i++)
             r[i] *= a;
         return r;
@@ -244,20 +235,18 @@ public final class RampMeteringSolution extends PointValue {
 
     // all units are normalized
     private class SegmentSolution {
-        public Double [] n;     // [veh]
-        public Double [] l;     // [veh]
-        public Double [] f;     // [veh]
-        public Double [] r;     // [veh]
+        public double [] n;     // [veh]
+        public double [] l;     // [veh]
+        public double [] f;     // [veh]
+        public double [] r;     // [veh]
 
         public SegmentSolution(FwySegment fseg,int K){
-            n = new Double[K+1];
-            f = new Double[K];
-            if(fseg.is_metered()){
-                l = new Double[K+1];
-                r = new Double[K];
-            }
+            n = new double[K+1];
+            f = new double[K];
+            l = new double[K+1];
+            r = new double[K];
         }
-        public Double [] get(String name){
+        public double [] get(String name){
             if(name.equalsIgnoreCase("n"))
                 return n;
             if(name.equalsIgnoreCase("l"))
@@ -300,13 +289,6 @@ public final class RampMeteringSolution extends PointValue {
         this.ctm_distance.print();
     }
 
-    public void print_to_file_lp_results(String filename){
-        RampMeteringSolutionWriter writer = null;
-        writer = new RampMeteringSolutionWriterTXT();
-
-
-    }
-
     public void print_to_file(String filename,OutputFormat format){
         RampMeteringSolutionWriter writer = null;
         switch(format) {
@@ -320,8 +302,8 @@ public final class RampMeteringSolution extends PointValue {
         writer.write_to_file(filename, this);
     }
 
-    public ArrayList<Double[]> get_matrix(String name){
-        ArrayList<Double[]> X = new ArrayList<Double[]>();
+    public ArrayList<double[]> get_matrix(String name){
+        ArrayList<double[]> X = new ArrayList<double[]>();
         for(SegmentSolution segsol : Xopt)
             X.add(segsol.get(name));
         return X;

@@ -94,7 +94,7 @@ public class RampMeteringSolutionWriterTXT extends RampMeteringSolutionWriter {
     @Override
     public void write_to_stream(OutputStream ps,RampMeteringSolution rm,String varname,int numK){
         try {
-            ArrayList<Double[]> matrix = rm.get_matrix(varname);
+            ArrayList<double[]> matrix = rm.get_matrix(varname);
             for(int i=0;i<matrix.size();i++)
                 if(matrix.get(i)!=null)
                     ps.write(toBytes(format_row(matrix.get(i), numK, "\t") + "\n"));
