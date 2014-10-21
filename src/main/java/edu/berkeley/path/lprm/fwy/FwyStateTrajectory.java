@@ -29,6 +29,22 @@ public class FwyStateTrajectory {
         }
     }
 
+    public double get_ml_tvh(){
+        return sumsum(n)*dt/3600d;
+    }
+
+    public double get_or_tvh(){
+        return sumsum(l)*dt/3600d;
+    }
+
+    public double get_tvh(){
+        return (sumsum(n)+sumsum(l))*dt/3600d;
+    }
+
+    public double get_tvm(){
+        return (sumsum(f)+sumsum(r))*dt/3600d;
+    }
+
     public void print_to_file(String filename){
         PrintStream ps=open_file(filename);
         ps.print("function [n,f,l,r]=" + filename + "()\n");
@@ -87,4 +103,14 @@ public class FwyStateTrajectory {
         return ps;
     }
 
+    private static double sumsum(double [][]x){
+        if(x==null)
+            return 0d;
+        int i,j;
+        double sum = 0d;
+        for(i=0;i<x.length;i++)
+            for(j=0;j<x[i].length;j++)
+                sum += x[i][j];
+        return sum;
+    }
 }

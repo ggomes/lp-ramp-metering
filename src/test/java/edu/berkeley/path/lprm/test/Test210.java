@@ -46,9 +46,10 @@ public class Test210 {
         // create solver and solve
         RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds,true);
         RampMeteringSolution sol = solver.solve(solver_type);
-//        FwyStateTrajectory simtraj = solver.getFwy().simulate(sim_dt_in_seconds, K_dem, K_cool,null);
-
         FwyStateTrajectory simtraj = solver.getFwy().simulate(sim_dt_in_seconds, K_dem, K_cool,sol.get_ramp_flow_in_veh());
+
+        System.out.println("lp: tvm = "+sol.get_tvm() + " tvh = "+ sol.get_tvh());
+        System.out.println("sm: tvm = "+simtraj.get_tvm() + " tvh = "+ simtraj.get_tvh());
 
         sol.print_to_file("out\\x210lpsol", RampMeteringSolution.OutputFormat.matlab);
         simtraj.print_to_file("out\\x210sim");

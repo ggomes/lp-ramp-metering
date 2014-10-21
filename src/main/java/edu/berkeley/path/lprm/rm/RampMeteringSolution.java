@@ -63,20 +63,6 @@ public final class RampMeteringSolution extends PointValue {
                 }
             }
 
-            // add terms to TVH and TVM
-            for (k=0;k<K;k++) {
-                double d = seg.get_demand_in_vps(k)*sim_dt;
-                TVH += result.get(getVar("n",i,k+1));
-                if (seg.has_offramp())
-                    TVM += result.get(getVar("f", i, k)) / (1 - seg.get_split_ratio(k));
-                else
-                    TVM += result.get(getVar("f", i, k));
-                if (seg.has_onramp()){
-                    TVM += (seg.is_metered()? result.get(getVar("r", i, k)) : d);
-                    TVH += (seg.is_metered()? result.get(getVar("l",i,k+1)) : 0);
-                }
-            }
-
         }
 
         // evaluate_state whether it is a valid ctm solution
@@ -103,12 +89,39 @@ public final class RampMeteringSolution extends PointValue {
 
     // performance ....................
 
-    public double getTVH(){
-        return  TVH;
+    public double get_ml_tvh() {
+        double x = 0d;
+        for (SegmentSolution ss : Xopt)
+            x += sum(ss.n);
+        return x * getSim_dt() / 3600d;
     }
 
-    public double getTVM(){
-        return TVM;
+    public double get_or_tvh() {
+        double x = 0d;
+        for (SegmentSolution ss : Xopt)
+            x += sum(ss.l);
+        return x * getSim_dt() / 3600d;
+    }
+
+    public double get_tvh() {
+        double x = 0d;
+        for (SegmentSolution ss : Xopt)
+            x += sum(ss.n) + sum(ss.l);
+        return x * getSim_dt() / 3600d;
+    }
+
+    public double get_tvm() {
+        double x = 0d;
+        for (SegmentSolution ss : Xopt)
+            x += sum(ss.f) + sum(ss.r);
+        return x * getSim_dt() / 3600d;
+    }
+
+    private static double sum(double [] x){
+        double s = 0d;
+        for(int i=0;i<x.length;i++)
+            s += x[i];
+        return s;
     }
 
     // other ....................
