@@ -18,13 +18,14 @@ public class LpSolveSolver implements Solver {
         relation_map.put(Relation.GEQ,LpSolve.GE);
     }
     private LpSolve lp_solver;
+    private ArrayList<String> unknowns;
+
 
     @Override
-    public PointValue solve(Problem P){
+    public void initialize(Problem P) {
 
         double [] opt_values = null;
         double opt_cost = Double.NaN;
-        ArrayList<String> unknowns = null;
 
         try {
 
@@ -103,17 +104,20 @@ public class LpSolveSolver implements Solver {
                     break;
             }
 
-            // print problem to file
-            lp_solver.writeLp("out\\model.lp");
-            lp_solver.writeFreeMps("out\\model.mps");
-
             // I only want to see important messages on screen while solving
             lp_solver.setVerbose(LpSolve.IMPORTANT);
+        }
+        catch (LpSolveException e) {
+            e.printStackTrace();
+        }
 
-//            lp_solver.printConstraints(0);
-//            System.out.println("LpSolve unknowns: " + lp_solver.getNcolumns());
-//            System.out.println("LpSolve constraints: " + lp_solver.getNrows());
+    }
 
+    @Override
+    public PointValue solve(){
+        double [] opt_values = null;
+        double opt_cost = Double.NaN;
+        try {
             // solve the problem
             lp_solver.solve();
 
@@ -128,13 +132,11 @@ public class LpSolveSolver implements Solver {
         catch (LpSolveException e) {
             e.printStackTrace();
         }
-
         return new PointValue(unknowns,opt_values,opt_cost);
-
     }
 
     @Override
-    public String toString() {
-        return super.toString();
+    public void set_constraint_rhs(Problem P) {
+        System.err.println("NOT IMPLEMENTED!");
     }
 }

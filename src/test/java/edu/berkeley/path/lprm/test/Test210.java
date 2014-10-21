@@ -44,8 +44,8 @@ public class Test210 {
         scenario.setInitialDensitySet(ids);
 
         // create solver and solve
-        RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds,true);
-        RampMeteringSolution sol = solver.solve(solver_type);
+        RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds,solver_type,true);
+        RampMeteringSolution sol = solver.solve();
         FwyStateTrajectory simtraj = solver.getFwy().simulate(sim_dt_in_seconds, K_dem, K_cool,sol.get_ramp_flow_in_veh());
 
         System.out.println("lp: tvm = "+sol.get_tvm() + " tvh = "+ sol.get_tvh());

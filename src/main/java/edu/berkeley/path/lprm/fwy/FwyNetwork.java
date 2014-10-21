@@ -98,6 +98,10 @@ public final class FwyNetwork {
         return ml_link_id;
     }
 
+    public ArrayList<Long> get_onramp_ids(){
+        return or_link_id;
+    }
+
     public ArrayList<Long> get_offramp_ids(){
         return fr_link_id;
     }
@@ -395,18 +399,13 @@ public final class FwyNetwork {
             segments.get(index).set_lo_in_veh(density_value);
     }
 
-    public void set_demand_in_vps(Long link_id, Double demand_value, double demand_dt)  throws Exception {
-//        FwySegment seg;
-//        if(index>=0){
-//            seg = segments.get(index);
-//            if (seg.has_on_ramp)
-//            seg.set_constant_demand_segment(demand_value,index,dt);}
-        int index = ml_link_id.indexOf(link_id);
+    public void set_demand_in_vps(Long link_id, Double demand_value)  throws Exception {
+        int index = or_link_id.indexOf(link_id);
         if (index>=0) {
             FwySegment seg = segments.get(index);
             ArrayList<Double> demand_profile = new ArrayList<Double>();
             demand_profile.add(demand_value);
-            seg.set_demands_in_vps(demand_profile,demand_dt);
+            seg.set_demands_in_vps(demand_profile,Double.NaN);
         }
     }
 
@@ -415,6 +414,9 @@ public final class FwyNetwork {
         // reset everything to zero
         for(FwySegment seg : segments)
             seg.reset_demands();
+
+        if(demand_set==null)
+            return;
 
         for(DemandProfile dp : demand_set.getDemandProfile()){
             int index = or_source_id.indexOf(dp.getLinkIdOrg());

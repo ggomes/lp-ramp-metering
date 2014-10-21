@@ -29,8 +29,8 @@ public class TestSmallNetwork {
         int K_dem = (int) Math.round(K_dem_seconds / sim_dt_in_seconds);
         int K_cool = (int) Math.round(K_cool_seconds / sim_dt_in_seconds);
 
-        RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds,false);
-        RampMeteringSolution sol = solver.solve(solver_type);
+        RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem, K_cool, eta, sim_dt_in_seconds,solver_type,false);
+        RampMeteringSolution sol = solver.solve();
 
 //        sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.matlab);
 //        sol.print_to_file("SmallNetwork", RampMeteringSolution.OutputFormat.text);

@@ -11,8 +11,6 @@ import org.apache.commons.math3.optimization.linear.SimplexSolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created by gomes on 6/4/14.
@@ -30,11 +28,16 @@ public class ApacheSolver implements Solver {
         opt_map.put(OptType.MIN,GoalType.MINIMIZE);
     }
     private ApacheProblem problem;
+    private SimplexSolver solver;
 
     @Override
-    public PointValue solve(Problem P) {
+    public void initialize(Problem P) {
         problem = new ApacheProblem(P);
-        SimplexSolver solver = new SimplexSolver();
+        solver = new SimplexSolver();
+    }
+
+    @Override
+    public PointValue solve() {
         PointValuePair pair = solver.optimize(
                 problem.get_obj(),
                 problem.get_constraints(),
@@ -46,6 +49,11 @@ public class ApacheSolver implements Solver {
     @Override
     public String toString() {
         return problem.toString();
+    }
+
+    @Override
+    public void set_constraint_rhs(Problem P) {
+        System.err.println("NOT IMPLEMENTED!");
     }
 
     private class ApacheProblem {

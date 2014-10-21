@@ -47,8 +47,8 @@ public class TestRampMetering {
     @Test
     public void testLpSolveProblem() throws Exception {
         System.out.println("LPSOLVE -----------------------------------");
-        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt,false);
-        RampMeteringSolution result = solver.solve(SolverType.LPSOLVE);
+        RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",kdem,kcool,eta,dt,SolverType.LPSOLVE,false);
+        RampMeteringSolution result = solver.solve();
         System.out.println(result.get_cost());
 //        System.out.println(result.evaluate_constraint_state(1e-4));
 //        solver.printLP();

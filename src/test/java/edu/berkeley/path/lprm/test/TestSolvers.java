@@ -3,6 +3,7 @@ package edu.berkeley.path.lprm.test;
 import edu.berkeley.path.lprm.lp.problem.*;
 import edu.berkeley.path.lprm.lp.solver.ApacheSolver;
 import edu.berkeley.path.lprm.lp.solver.LpSolveSolver;
+import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.rm.RampMeteringSolver;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,9 @@ public class TestSolvers {
 
     @Test
     public void testApacheProblemA() throws Exception {
-        PointValue result = (new ApacheSolver()).solve(problem_A);
+        ApacheSolver solver = new ApacheSolver();
+        solver.initialize(problem_A);
+        PointValue result = solver.solve();
         assertNotNull(result);
         assertEquals(result.get("x"),16,1e-4);
         assertEquals(result.get("y"),59,1e-4);
@@ -41,7 +44,9 @@ public class TestSolvers {
 
     @Test
     public void testApacheProblemB() throws Exception {
-        PointValue result = (new ApacheSolver()).solve(problem_B);
+        ApacheSolver solver = new ApacheSolver();
+        solver.initialize(problem_B);
+        PointValue result = solver.solve();
         System.out.println("APACHE -----------------------------------");
         System.out.println(result.get_cost());
         System.out.println(result);
@@ -50,15 +55,18 @@ public class TestSolvers {
 
     @Test
     public void testLpSolveProblemA() throws Exception {
-        PointValue result = (new LpSolveSolver()).solve(problem_A);
-        assertNotNull(result);
+        LpSolveSolver solver = new LpSolveSolver();
+        solver.initialize(problem_A);
+        PointValue result = solver.solve();
         assertEquals(result.get("x"),16,1e-4);
         assertEquals(result.get("y"),59,1e-4);
     }
 
     @Test
     public void testLpSolveProblemB() throws Exception {
-        PointValue result = (new LpSolveSolver()).solve(problem_B);
+        LpSolveSolver solver = new LpSolveSolver();
+        solver.initialize(problem_B);
+        PointValue result = solver.solve();
         System.out.println("LPSOLVE -----------------------------------");
         assertNotNull(result);
         System.out.println(result.get_cost());
@@ -101,7 +109,9 @@ public class TestSolvers {
 
     private Problem load_problem_B(){
         try {
-            RampMeteringSolver solver = new RampMeteringSolver("data/config/smallNetwork.xml",12d,12d,.1d,3d,false);
+            RampMeteringSolver solver = new RampMeteringSolver(
+                    "data/config/smallNetwork.xml",
+                    12d,12d,.1d,3d,SolverType.LPSOLVE,false);
             return solver.getLP();
         } catch (Exception e) {
             e.printStackTrace();

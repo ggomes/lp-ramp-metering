@@ -166,6 +166,8 @@ public final class FwySegment {
     public double get_demand_in_vps(double t){
         if(demand_profile==null)
             return 0d;
+        if(demand_profile.size()==1)
+            return demand_profile.get(0);
         double epsilon = 1e-4;
         int k = (int) Math.floor((t+epsilon)/demand_profile_dt);
         return k>=0 && k<demand_profile.size() ?
