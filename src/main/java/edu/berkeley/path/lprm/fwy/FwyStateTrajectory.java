@@ -1,6 +1,7 @@
 package edu.berkeley.path.lprm.fwy;
 
 import java.io.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by gomes on 10/20/2014.
@@ -47,7 +48,9 @@ public class FwyStateTrajectory {
 
     public void print_to_file(String filename){
         PrintStream ps=open_file(filename);
-        ps.print("function [n,f,l,r]=" + filename + "()\n");
+        String pattern = Pattern.quote(System.getProperty("file.separator"));
+        String [] x = filename.split(pattern);
+        ps.print("function [n,f,l,r]=" + x[x.length-1] + "()\n");
         write_to_stream(ps,n,"n");
         write_to_stream(ps,f,"f");
         write_to_stream(ps,l,"l");

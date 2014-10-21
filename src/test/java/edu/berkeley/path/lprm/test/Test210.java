@@ -64,7 +64,7 @@ public class Test210 {
 //        System.out.println("J: " + sol.get_lp().get_cost());
         sol.print_ctm_distances();
 
-        //System.out.println(sol.get_fwy());
+        System.out.println(sol.get_fwy().as_table(sim_dt_in_seconds));
 
         assertNotNull(sol);
         //assertTrue(sol.is_ctm());

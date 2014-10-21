@@ -2,6 +2,7 @@ package edu.berkeley.path.lprm.rm;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * Created by gomes on 9/10/2014.
@@ -11,7 +12,9 @@ public class RampMeteringSolutionWriterMAT extends RampMeteringSolutionWriter {
     @Override
     public void write_to_file(String filename, RampMeteringSolution rm){
         PrintStream ps=open_file(filename);
-        ps.print("function [n,f,l,r]=" + filename + "()\n");
+        String pattern = Pattern.quote(System.getProperty("file.separator"));
+        String [] x = filename.split(pattern);
+        ps.print("function [n,f,l,r]=" + x[x.length-1] + "()\n");
         write_all_to_stream(ps,rm);
         ps.close();
     }

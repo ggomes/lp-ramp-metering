@@ -494,6 +494,13 @@ public final class FwyNetwork {
     // print
     ///////////////////////////////////////////////////////////////////
 
+    public String as_table(double dt) {
+        String str = "i\tml_link_id\tor_link_id\tfr_link_id\tfr_node_id\tml_link_length\tvf*dt\tw*dt\tf_max*dt\tn_max\tno\tlo\tis_metered\tl_max\tr_max\n";
+        for(int i=0;i<segments.size();i++)
+            str += i+"\t"+segments.get(i).as_row(dt)+"\n";
+        return str;
+    }
+
     @Override
     public String toString() {
         String str = "";

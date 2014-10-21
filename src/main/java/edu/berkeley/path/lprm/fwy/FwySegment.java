@@ -268,38 +268,39 @@ public final class FwySegment {
     // print
     ///////////////////////////////////////////////////////////////////
 
+    public String as_row(double dt) {
+        return String.format("%s\t%s\t%s\t%s\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%s\t%.2f\t%.2f\t",
+                ml_link_id,or_link_id,fr_link_id,fr_node_id,ml_link_length,vf*dt,w*dt,f_max*dt,n_max,no,lo,is_metered,l_max,r_max );
+    }
+
     @Override
     public String toString() {
-
-        return String.format("%s\t%s\t%s\t%s\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%s\t%f\t%f\t",
-              ml_link_id,or_link_id,fr_link_id,fr_node_id,ml_link_length,vf,w,f_max,n_max,no,lo,is_metered,l_max,r_max );
-
-//        return String.format(  "ml_link_id=%s\n" +
-//                        "or_link_id=%s\n" +
-//                        "fr_link_id=%s\n" +
-//                        "fr_node_id=%s\n" +
-//                        "ml_link_length=%.1f\n" +
-//                        "vf=%.1f\n" +
-//                        "w=%.1f\n" +
-//                        "f_max=%.1f\n" +
-//                        "n_max=%.1f\n" +
-//                        "no=%.1f\n" +
-//                        "lo=%.1f\n" +
-//                        "is_metered=%s\n"+
-//                        "l_max=%.1f\n"+
-//                        "r_max=%.1f\n"+
-//                        "dem=%s\n"+
-//                        "beta=%s\n",
-//                ml_link_id,
-//                or_link_id,
-//                fr_link_id,
-//                fr_node_id,
-//                ml_link_length,
-//                vf,w,f_max,n_max,no,lo,
-//                is_metered,l_max,r_max,
-//                demand_profile==null?"[]":demand_profile.toString(),
-//                split_ratio_profile==null?"[]":split_ratio_profile.toString()
-//        );
+        return String.format(  "ml_link_id=%s\n" +
+                        "or_link_id=%s\n" +
+                        "fr_link_id=%s\n" +
+                        "fr_node_id=%s\n" +
+                        "ml_link_length=%.1f\n" +
+                        "vf=%.1f\n" +
+                        "w=%.1f\n" +
+                        "f_max=%.1f\n" +
+                        "n_max=%.1f\n" +
+                        "no=%.1f\n" +
+                        "lo=%.1f\n" +
+                        "is_metered=%s\n"+
+                        "l_max=%.1f\n"+
+                        "r_max=%.1f\n"+
+                        "dem=%s\n"+
+                        "beta=%s\n",
+                ml_link_id,
+                or_link_id,
+                fr_link_id,
+                fr_node_id,
+                ml_link_length,
+                vf,w,f_max,n_max,no,lo,
+                is_metered,l_max,r_max,
+                demand_profile==null?"[]":demand_profile.toString(),
+                split_ratio_profile==null?"[]":split_ratio_profile.toString()
+        );
     }
 
 }
