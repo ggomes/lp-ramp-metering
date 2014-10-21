@@ -24,6 +24,8 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
         ORFLW_POS
     }
     protected FwyNetwork fwy;
+    protected int K_dem;
+    protected int K_cool;
     protected int K;                // number of time steps (demand+cooldown)
     protected double t_start_cool;    // [sec]
     protected double eta;           // objective = TVH - eta*TVM
@@ -32,6 +34,8 @@ public class ProblemRampMetering extends edu.berkeley.path.lprm.lp.problem.Probl
     public ProblemRampMetering(FwyNetwork fwy,int K_dem,int K_cool,double eta,double sim_dt_in_seconds){
 
         this.fwy = fwy;
+        this.K_dem = K_dem;
+        this.K_cool = K_cool;
         this.K = K_dem+K_cool;
         this.t_start_cool = K_dem*sim_dt_in_seconds;
         this.eta = eta;

@@ -1,12 +1,15 @@
 package edu.berkeley.path.lprm.rm;
 
 import edu.berkeley.path.beats.jaxb.*;
+import edu.berkeley.path.lprm.fwy.FwyStateTrajectory;
 import edu.berkeley.path.lprm.graph.LpNetwork;
+import edu.berkeley.path.lprm.lp.problem.PointValue;
 import edu.berkeley.path.lprm.lp.solver.*;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.ObjectFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by gomes on 6/5/14.
@@ -152,8 +155,42 @@ public class RampMeteringSolver {
     ///////////////////////////////////////
 
     public RampMeteringSolution solve() throws Exception {
+        RampMeteringSolution sol;
+        double ctm_distance = Double.POSITIVE_INFINITY;
+        double ctm_threshold = 1d;
+        FwyStateTrajectory warm_start = null;
+        int count = 0;
+        int max_count = 10;
+
+        // make sure everything is in sync
         sync_rhs();
-        return new RampMeteringSolution(LP,fwy,lp_solver.solve());
+
+        // solution loop
+        while(count<max_count){
+
+            // call the solver using a warm_start
+            PointValue pv = lp_solver.solve(warm_start);
+
+            // cast as a RampMeteringSolution
+            sol = new RampMeteringSolution(LP,fwy,pv);
+
+            // update ctm distance
+            ctm_distance = sol.get_max_ctm_distance();
+
+            // break condition
+            if(ctm_distance<ctm_threshold)
+                break;
+
+            // extract optimal ramp flows
+            HashMap<Long,double[]> opt_r = sol.get_ramp_flow_in_veh();
+
+            // simulate, obtain warm start for next iteration
+            warm_start = fwy.simulate(LP.sim_dt_in_seconds, LP.K_dem, LP.K_cool, opt_r);
+
+            count++;
+        }
+
+        return sol;
     }
 
     ///////////////////////////////////////
