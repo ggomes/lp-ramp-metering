@@ -1,6 +1,7 @@
 package edu.berkeley.path.lprm.lp.solver;
 
 import edu.berkeley.path.lprm.lp.problem.*;
+import edu.berkeley.path.lprm.rm.ProblemRampMetering;
 import gurobi.*;
 
 import java.util.ArrayList;
@@ -94,44 +95,12 @@ public class GurobiSolver implements Solver {
 
     @Override
     public PointValue solve() {
-
-        PointValue result = null;
-
         try {
 
             // Optimize model
             model.optimize();
 
-            /////////////////////////////////////
-//
-//            int optimstatus = model.get(GRB.IntAttr.Status);
-//
-//            if (optimstatus == GRB.Status.INF_OR_UNBD) {
-//                model.getEnv().set(GRB.IntParam.Presolve, 0);
-//                model.optimize();
-//                optimstatus = model.get(GRB.IntAttr.Status);
-//            }
-//
-//            if (optimstatus == GRB.Status.OPTIMAL) {
-//                double objval = model.get(GRB.DoubleAttr.ObjVal);
-//                System.out.println("Optimal objective: " + objval);
-//            } else if (optimstatus == GRB.Status.INFEASIBLE) {
-//                System.out.println("Model is infeasible");
-//
-//                // Compute and write out IIS
-//                model.computeIIS();
-//                model.write("model.ilp");
-//            } else if (optimstatus == GRB.Status.UNBOUNDED) {
-//                System.out.println("Model is unbounded");
-//            } else {
-//                System.out.println("Optimization was stopped with status = "
-//                        + optimstatus);
-//            }
-
-
-            //////////////////////////////////////////////////
             // read result
-
             ArrayList<String> names = new ArrayList<String>();
             double [] values = new double [variables.size()];
             int i=0;
@@ -139,17 +108,26 @@ public class GurobiSolver implements Solver {
                 names.add(v.get(GRB.StringAttr.VarName));
                 values[i++] = v.get(GRB.DoubleAttr.X);
             }
-            result = new PointValue(names,values,model.get(GRB.DoubleAttr.ObjVal));
 
-            // Dispose of model and environment
-            model.dispose();
-            env.dispose();
+            // cast as PointValue
+            PointValue pv_sol = new PointValue(names,values,model.get(GRB.DoubleAttr.ObjVal));
+
+            return pv_sol;
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            return null;
         }
-
-        return result;
     }
 
+
+    @Override
+    public void discard(){
+        try {
+            model.dispose();
+            env.dispose();
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
+    }
 }

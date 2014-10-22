@@ -139,4 +139,7 @@ public class LpSolveSolver implements Solver {
     public void set_constraint_rhs(Problem P) {
         System.err.println("NOT IMPLEMENTED!");
     }
+
+    @Override
+    public void discard(){}
 }

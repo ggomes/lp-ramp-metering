@@ -48,7 +48,7 @@ public class TestSolvers {
         solver.initialize(problem_B);
         PointValue result = solver.solve();
         System.out.println("APACHE -----------------------------------");
-        System.out.println(result.get_cost());
+        System.out.println(problem_B.evaluate_cost(result));
         System.out.println(result);
         assertNotNull(result);
     }
@@ -69,7 +69,7 @@ public class TestSolvers {
         PointValue result = solver.solve();
         System.out.println("LPSOLVE -----------------------------------");
         assertNotNull(result);
-        System.out.println(result.get_cost());
+        System.out.println(problem_B.evaluate_cost(result));
 //        assertEquals(4.112537005198651,result.get_cost(),1e-6);
     }
 

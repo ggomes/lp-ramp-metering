@@ -10,4 +10,5 @@ public interface Solver {
     public PointValue solve();
     public void initialize(Problem P);
     public void set_constraint_rhs(Problem P);
+    public void discard();
 }

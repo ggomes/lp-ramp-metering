@@ -155,42 +155,29 @@ public class RampMeteringSolver {
     ///////////////////////////////////////
 
     public RampMeteringSolution solve() throws Exception {
-        RampMeteringSolution sol;
-        double ctm_distance = Double.POSITIVE_INFINITY;
+
         double ctm_threshold = 1d;
-        FwyStateTrajectory warm_start = null;
-        int count = 0;
-        int max_count = 10;
 
         // make sure everything is in sync
         sync_rhs();
 
-        // solution loop
-        while(count<max_count){
+        // cast as a RampMeteringSolution
+        RampMeteringSolution sol = new RampMeteringSolution(LP,fwy,lp_solver.solve());
 
-            // call the solver using a warm_start
-            PointValue pv = lp_solver.solve(warm_start);
+        // break condition
+        double lp_ctm_distance = sol.get_max_ctm_distance();
 
-            // cast as a RampMeteringSolution
-            sol = new RampMeteringSolution(LP,fwy,pv);
+        // done if the result is ctm
+        if(lp_ctm_distance<ctm_threshold)
+            return sol;
 
-            // update ctm distance
-            ctm_distance = sol.get_max_ctm_distance();
+        // otherwise, simulate the optimal r's and return that
+        FwyStateTrajectory sim = fwy.simulate(LP.sim_dt_in_seconds, LP.K_dem, LP.K_cool, sol.get_ramp_flow_in_veh());
 
-            // break condition
-            if(ctm_distance<ctm_threshold)
-                break;
+        double d = Math.abs(sol.get_tvh()-sim.get_tvh())+Math.abs(sol.get_tvm()-sim.get_tvm());
+        System.out.println("Simulated solution, |LP-SIM|="+d);
 
-            // extract optimal ramp flows
-            HashMap<Long,double[]> opt_r = sol.get_ramp_flow_in_veh();
-
-            // simulate, obtain warm start for next iteration
-            warm_start = fwy.simulate(LP.sim_dt_in_seconds, LP.K_dem, LP.K_cool, opt_r);
-
-            count++;
-        }
-
-        return sol;
+        return new RampMeteringSolution(LP,fwy,sim);
     }
 
     ///////////////////////////////////////

@@ -3,6 +3,7 @@ package edu.berkeley.path.lprm.rm;
 
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.fwy.FwySegment;
+import edu.berkeley.path.lprm.fwy.FwyStateTrajectory;
 import edu.berkeley.path.lprm.lp.problem.Constraint;
 import edu.berkeley.path.lprm.lp.problem.PointValue;
 
@@ -19,13 +20,15 @@ public final class RampMeteringSolution extends PointValue {
     protected SegmentSolution [] Xopt;      // unpacked result in a convenient format
     protected CTMDistance ctm_distance;      // distance to mainline i,kth constraint
 
-    protected double TVH;
-    protected double TVM;
     public int K;
 
     ////////////////////////////////////////////////////////
     // CONSTRUCTION
     ////////////////////////////////////////////////////////
+
+    public RampMeteringSolution(ProblemRampMetering LP, FwyNetwork fwy, FwyStateTrajectory trj){
+        this(LP,fwy,new PointValue(trj));
+    }
 
     public RampMeteringSolution(ProblemRampMetering LP, FwyNetwork fwy, PointValue result){
 
@@ -35,14 +38,11 @@ public final class RampMeteringSolution extends PointValue {
         this.LP = LP;
         int I = fwy.get_num_segments();
         K = LP.K;
-        double sim_dt = LP.sim_dt_in_seconds;
 
         // cast the solution into segments
         Xopt = new SegmentSolution[I];
 
         int i,k;
-        TVM = 0;
-        TVH = 0;
 
         for(i=0;i<I;i++){
 
@@ -117,6 +117,10 @@ public final class RampMeteringSolution extends PointValue {
         return x * getSim_dt() / 3600d;
     }
 
+    public double get_cost(){
+        return LP.evaluate_cost(this);
+    }
+
     private static double sum(double [] x){
         double s = 0d;
         for(int i=0;i<x.length;i++)
@@ -183,8 +187,6 @@ public final class RampMeteringSolution extends PointValue {
         double eps = 1e-2;
         boolean feasible = true;
         Double slack_ff,slack_cp,slack_cg;
-        Double lhs_minus_rhs;
-        Constraint cnstFF,cnstCP,cnstCG;
         CTMDistance ctm_distance = new CTMDistance(I,K);
 
         for (int i=0;i<I;i++){
@@ -193,27 +195,19 @@ public final class RampMeteringSolution extends PointValue {
                 double f = Xopt[i].f[k];
 
                 // ML freeflow
-                cnstFF_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_FF,i,k);
-                cnstFF = LP.get_constraint(cnstFF_name);
-                lhs_minus_rhs = cnstFF.evaluate_lhs_minus_rhs(this);
-                slack_ff = LP.evaluate_constraint_slack_veh(cnstFF_name,this); //lhs_minus_rhs/(lhs_minus_rhs-f); //
+                cnstFF_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_FF, i, k);
+                slack_ff = LP.evaluate_constraint_slack_veh(cnstFF_name,this);
 
                 // ML capacity
                 cnstCP_name = "UB_"+ ProblemRampMetering.getVar("f",i,k);
-                cnstCP = LP.get_constraint(cnstCP_name);
-                lhs_minus_rhs = cnstCP.evaluate_lhs_minus_rhs(this);
-                slack_cp = LP.evaluate_constraint_slack_veh(cnstCP_name,this); //lhs_minus_rhs/(lhs_minus_rhs-f);
+                slack_cp = LP.evaluate_constraint_slack_veh(cnstCP_name,this);
 
                 // ML congestion
                 if(i<I-1){
-                    cnstCG_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_CNG,i,k);
-                    cnstCG = LP.get_constraint(cnstCG_name);
-                    lhs_minus_rhs = cnstCG.evaluate_lhs_minus_rhs(this);
-                    slack_cg = LP.evaluate_constraint_slack_veh(cnstCG_name,this); //= lhs_minus_rhs/(lhs_minus_rhs-f); //
+                    cnstCG_name = ProblemRampMetering.getCnstr(ProblemRampMetering.CnstType.MLFLW_CNG, i, k);
+                    slack_cg = LP.evaluate_constraint_slack_veh(cnstCG_name,this);
                 }
                 else {
-                    cnstCG_name="";
-                    cnstCG = null;
                     slack_cg = Double.POSITIVE_INFINITY;
                 }
 
@@ -224,16 +218,14 @@ public final class RampMeteringSolution extends PointValue {
 
 
                 double d = Math.min(Math.min(slack_ff, slack_cp), slack_cg);
-
-                if(d>0.01){
-                    System.out.println(String.format("[%d,%d] : ",i,k));
-                    System.out.println(String.format("\tf[%d,%d]=%f\n\tn[%d,%d]=%f\n" +
-                            "\tn[%d,%d]=%f : ",i,k,Xopt[i].f[k],i,k,Xopt[i].n[k],i+1,k,Xopt[i+1].n[k]));
-                    System.out.println("\t"+cnstFF_name+" "+cnstFF);
-                    System.out.println("\t"+cnstCP_name+" "+cnstCP);
-                    System.out.println("\t"+cnstCG_name+" "+cnstCG);
-
-                }
+//                if(d>0.01){
+//                    System.out.println(String.format("[%d,%d] : ",i,k));
+//                    System.out.println(String.format("\tf[%d,%d]=%f\n\tn[%d,%d]=%f\n" +
+//                            "\tn[%d,%d]=%f : ",i,k,Xopt[i].f[k],i,k,Xopt[i].n[k],i+1,k,Xopt[i+1].n[k]));
+//                    System.out.println("\t"+cnstFF_name+" "+cnstFF);
+//                    System.out.println("\t"+cnstCP_name+" "+cnstCP);
+//                    System.out.println("\t"+cnstCG_name+" "+cnstCG);
+//                }
 
                 ctm_distance.add_value(i,k,d);
 

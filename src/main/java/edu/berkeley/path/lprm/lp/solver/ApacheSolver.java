@@ -56,6 +56,9 @@ public class ApacheSolver implements Solver {
         System.err.println("NOT IMPLEMENTED!");
     }
 
+    @Override
+    public void discard(){}
+
     private class ApacheProblem {
 
         private ArrayList<String> unknowns;

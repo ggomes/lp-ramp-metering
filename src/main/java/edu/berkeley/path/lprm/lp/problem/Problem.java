@@ -104,6 +104,10 @@ public class Problem {
         return null;
     }
 
+    public double evaluate_cost(PointValue P){
+        return cost.evaluate_lhs(P);
+    }
+
     public HashMap<String,Constraint.State> evaluate_constraints(PointValue P,double epsilon){
         HashMap<String,Constraint.State> r = new HashMap<String,Constraint.State>();
         for(Map.Entry<String,Constraint> e : constraints.entrySet())
