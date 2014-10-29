@@ -61,10 +61,11 @@ final public class ObjectFactory {
             throw new Exception("Configuration file not found. " + configfilename, e);
         }
 
-//        ((Network)S.getNetworkSet().getNetwork().get(0)).populate();
-
         if(S==null)
             throw new Exception("Unknown load error");
+
+        if(S.getSettings().getUnits().compareToIgnoreCase("si")!=0)
+            throw new Exception("Scenario units must be SI");
 
         return S;
     }

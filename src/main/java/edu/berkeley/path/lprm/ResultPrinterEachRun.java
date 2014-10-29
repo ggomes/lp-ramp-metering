@@ -33,25 +33,25 @@ public class ResultPrinterEachRun {
 
     public void print_lp_results(RampMeteringSolution rm,int numK,int index) throws IOException {
         BatchWriter n_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_n.txt"),true);
-        ArrayList<double[]> n_matrix = rm.get_matrix("n");
+        ArrayList<Double[]> n_matrix = rm.get_matrix("n");
         for(int i=0;i<n_matrix.size();i++){
             if(n_matrix.get(i)!=null)
                 n_writer.writeToFile(format_row(n_matrix.get(i), numK+1, "\t") + "\n");}
 
         BatchWriter f_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_f.txt"),true);
-        ArrayList<double[]> f_matrix = rm.get_matrix("f");
+        ArrayList<Double[]> f_matrix = rm.get_matrix("f");
         for(int i=0;i<f_matrix.size();i++){
             if(f_matrix.get(i)!=null)
                 f_writer.writeToFile(format_row(f_matrix.get(i), numK, "\t") + "\n");}
 
         BatchWriter l_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_l.txt"),true);
-        ArrayList<double[]> l_matrix = rm.get_matrix("l");
+        ArrayList<Double[]> l_matrix = rm.get_matrix("l");
         for(int i=0;i<l_matrix.size();i++){
             if(l_matrix.get(i)!=null)
                 l_writer.writeToFile(format_row(l_matrix.get(i), numK+1, "\t") + "\n");}
 
         BatchWriter r_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_r.txt"),true);
-        ArrayList<double[]> r_matrix = rm.get_matrix("r");
+        ArrayList<Double[]> r_matrix = rm.get_matrix("r");
         for(int i=0;i<r_matrix.size();i++){
             if(r_matrix.get(i)!=null)
                 r_writer.writeToFile(format_row(r_matrix.get(i), numK, "\t") + "\n");}
@@ -75,7 +75,7 @@ public class ResultPrinterEachRun {
         return str;
     }
 
-    public static String format_row(double[] x, int n,String delim){
+    public static String format_row(Double[] x, int n,String delim){
         String str = "";
         if(x!=null) {
             for (int i = 0; i < x.length - 1; i++)

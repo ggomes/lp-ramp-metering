@@ -17,18 +17,17 @@ public class BatchRunner {
 
         Scenario scenario;
         double sim_dt_in_seconds = 3d;
-        double K_dem_seconds = 3d;
-        double K_cool_seconds = 6d;
+        double K_dem_seconds = 36d;
+        double K_cool_seconds = 12d;
         double eta = .1d;
         int num_links;
         int num_segments;
-        SolverType solver_type = SolverType.GUROBI;
+        SolverType solver_type = SolverType.LPSOLVE;
 
         String config = "data/config/smallNetwork.xml";
 
         // create the lp_solver
-        boolean enforce_constant_splits = false;
-        RampMeteringSolver solver = new RampMeteringSolver(config,K_dem_seconds,K_cool_seconds,eta,sim_dt_in_seconds,solver_type,enforce_constant_splits);
+        RampMeteringSolver solver = new RampMeteringSolver(config, K_dem_seconds, K_cool_seconds, eta, sim_dt_in_seconds);
 
         // get all state link ids
         ArrayList<Long> link_ids = new ArrayList<Long>();
@@ -40,12 +39,25 @@ public class BatchRunner {
         int num_states = link_ids.size();
         double CTM_distance;
         double epsilon = 1e-2;
-        int nDivisions = 1;
+        int nDivisions = 2;
 
         // create the list of initial densities to test
         ArrayList<ArrayList<Double>> all_ic = new ArrayList<ArrayList<Double>>();
 
-        // insert an algorithm for generating permutations here...
+
+        String grid_file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/GridPoints.txt";
+        ReadFile file = new ReadFile(grid_file_address);
+        ArrayList<ArrayList<Double>> gridValues = file.getTextContents();
+
+        for (ArrayList<Double> grid : gridValues){
+            for (Double densityFraction :grid){
+                if (densityFraction > 1)
+                    throw new Exception("Density fraction greater than 1\n");
+            }
+        }
+
+
+            // insert an algorithm for generating permutations here...
         // Some nice way of producing permutations should be added here
 
 //        for (int i0=0;i0<=nDivisions;i0++) {
@@ -64,58 +76,101 @@ public class BatchRunner {
 //           }
 //       }
 
+
+
+//        for (int i0=0; i0<gridValues.get(0).size(); i0++) {
+//            double jam_density0 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(0));
+//            for (int i1=0; i1<gridValues.get(1).size(); i1++){
+//                double jam_density1 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(1));
+//                for (int i2=0; i2<gridValues.get(2).size(); i2++){
+//                    double jam_density2 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(2));
+//                    ArrayList<Double> one_ic = new ArrayList<Double>();
+//                    one_ic.add(0,jam_density0*gridValues.get(0).get(i0));
+//                    one_ic.add(1,jam_density1*gridValues.get(1).get(i1));
+//                    one_ic.add(2,jam_density2*gridValues.get(2).get(i2));
+//                    all_ic.add(one_ic);
+//                }
+//            }
+//        }
+
+        for (int i0=0; i0<gridValues.get(0).size(); i0++) {
+            double jam_density0 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(0));
+            for (int i1=0; i1<gridValues.get(1).size(); i1++){
+                double jam_density1 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(1));
+                for (int i2=0; i2<gridValues.get(2).size(); i2++){
+                    double jam_density2 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(2));
+                    ArrayList<Double> one_ic = new ArrayList<Double>();
+                    one_ic.add(0,gridValues.get(0).get(i0));
+                    one_ic.add(1,gridValues.get(1).get(i1));
+                    one_ic.add(2,gridValues.get(2).get(i2));
+                    all_ic.add(one_ic);
+                }
+            }
+        }
+
+
+
         // iterate through ic
-        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_table";
-        BatchWriter batch_data = new BatchWriter(file_address.concat(".txt"),true);
+//        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_table";
+        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_data";
+        BatchWriter batch_data = new BatchWriter(file_address.concat(".txt"), true);
         ResultPrinterEachRun lp_results_printer = new ResultPrinterEachRun(file_address);
 
 
-        ArrayList<Double> one_ic = new ArrayList<Double>();
-        one_ic.add(0,0d);
-        double njam2 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(2));
-        one_ic.add(1,0d);
-        one_ic.add(2,(njam2/2));
-
-
-        double demand_value = 0d;
-            for(int i=0;i<state_link_ids.size();i++) {
-                long link_id = state_link_ids.get(i);
-                solver.set_density_in_veh(link_id, one_ic.get(i));
-                solver.set_demand_in_vps(link_id, demand_value);
-            }
-
-//            solver.read_rhs_from_fwy();
-            RampMeteringSolution sol = solver.solve();
-            System.out.println("CTM distance = " + sol.get_max_ctm_distance()  +"\tCost = " + sol.get_cost() + "\t" + one_ic);
-            System.out.println(sol);
-
-
-
-
-//        int index = 0;
-//        for( ArrayList<Double> ic : all_ic){
-//            index += 1;
-//            double demand_value = 0d;
+//        ArrayList<Double> one_ic = new ArrayList<Double>();
+//        one_ic.add(0,0d);
+//        double njam2 = solver.getFwy().get_njam_veh_per_link(state_link_ids.get(2));
+//        one_ic.add(1,0d);
+//        one_ic.add(2,njam2/2);
+//
+//
+//        double demand_value = 2d;
 //            for(int i=0;i<state_link_ids.size();i++) {
 //                long link_id = state_link_ids.get(i);
-//                solver.set_density_in_vpm(link_id, ic.get(i));
-
+//                solver.set_density_in_veh(link_id, one_ic.get(i));
+//
 //                solver.set_demand_in_vps(link_id, demand_value, sim_dt_in_seconds);
-//                lp_solver.set_demand_link_network(link_id, demandValue, sim_dt_in_seconds);
-//                lp_solver.set_rhs_link(link_ids.get(i), demandValue);
+//
 //            }
-
+//
 //            solver.read_rhs_from_fwy();
 //            RampMeteringSolution sol = solver.solve(solver_type);
-//            System.out.println("CTM distance = " + sol.get_max_ctm_distance()  +"\tCost = " + sol.get_cost() + "\t" + ic);
+//            System.out.println("CTM distance = " + sol.get_max_ctm_distance()  +"\tCost = " + sol.get_cost() + "\t" + one_ic);
 //            System.out.println(sol);
-//            Double CTMcheck;
-//            CTMcheck = sol.get_max_ctm_distance()==null? -1d:sol.get_max_ctm_distance();
-//            batch_data.writeToFile(batch_data.getTableString(index,ic,demand_value,CTMcheck,sol.getTVH(),sol.getTVM()));
-//            lp_results_printer.print_lp_results(sol,sol.K,index);
 
-//        }
-//        lp_results_printer.print_config_data(solver.getFwy());
+
+//        ArrayList<ArrayList<Double>> bandwidth_array = new ArrayList<ArrayList<Double>>();
+
+
+        int index = 0;
+        for (ArrayList<Double> ic : all_ic) {
+            index += 1;
+            double demand_value = 0.5d;
+            for (int i = 0; i < state_link_ids.size(); i++) {
+                long link_id = state_link_ids.get(i);
+                solver.set_density_in_veh(link_id, ic.get(i));
+                solver.set_demand_in_vps(link_id, demand_value, sim_dt_in_seconds);
+            }
+
+            solver.read_rhs_from_fwy();
+            RampMeteringSolution sol = solver.solve(solver_type);
+//            System.out.println("CTM distance = " + sol.get_max_ctm_distance() + "\tCost = " + sol.get_cost() + "\t" + ic);
+//            System.out.println("CTM distance = " + sol.get_max_ctm_distance() + "\tCost = " + sol.get_cost() + "\t" + sol.getTVH() + "\t" + sol.getTVM());
+//            System.out.println(sol.get_cost() + "\t");
+//            System.out.println(sol);
+            Double CTMcheck;
+            CTMcheck = sol.get_max_ctm_distance() == null ? -1d : sol.get_max_ctm_distance();
+            batch_data.writeToFile(batch_data.getTableString(index, ic, demand_value, CTMcheck, sol.getTVH(), sol.getTVM(),sol.get_cost()));
+//            lp_results_printer.print_lp_results(sol, sol.K, index);
+//            ArrayList<Double> each_run_cost = new ArrayList<Double>();
+//            each_run_cost.add((double) index);
+//            each_run_cost.addAll(ic);
+//            each_run_cost.add(sol.get_cost());
+//            bandwidth_array.add(each_run_cost);
+        }
+        lp_results_printer.print_config_data(solver.getFwy());
+
+
 
 
         /////////////////////////////////////////////////////////////////
