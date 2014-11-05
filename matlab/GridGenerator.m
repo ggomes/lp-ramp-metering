@@ -1,6 +1,6 @@
-x1= [0 0.5 1];
-x2= 0:0.01:1;
-x3= 0:0.01:1;
+x1= [0 0.4 0.8 1];
+x2= [0 0.4 0.8 1];
+x3= [0 0.4 0.8 1];
 
 dlmwrite('GridPoints.txt',x1);
 dlmwrite('GridPoints.txt',x2,'-append');
