@@ -1,12 +1,10 @@
 package edu.berkeley.path.lprm.lp.solver;
 
 import edu.berkeley.path.lprm.lp.problem.*;
-import edu.berkeley.path.lprm.rm.ProblemRampMetering;
 import gurobi.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class GurobiSolver implements Solver {

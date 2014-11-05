@@ -22,12 +22,12 @@ public class BatchRunner {
         double eta = .1d;
         int num_links;
         int num_segments;
-        SolverType solver_type = SolverType.LPSOLVE;
+        SolverType solver_type = SolverType.GUROBI;
 
         String config = "data/config/smallNetwork.xml";
 
         // create the lp_solver
-        RampMeteringSolver solver = new RampMeteringSolver(config, K_dem_seconds, K_cool_seconds, eta, sim_dt_in_seconds);
+        RampMeteringSolver solver = new RampMeteringSolver(config, K_dem_seconds, K_cool_seconds, eta, sim_dt_in_seconds,solver_type,true);
 
         // get all state link ids
         ArrayList<Long> link_ids = new ArrayList<Long>();
@@ -148,25 +148,18 @@ public class BatchRunner {
             double demand_value = 0.5d;
             for (int i = 0; i < state_link_ids.size(); i++) {
                 long link_id = state_link_ids.get(i);
+                System.out.println(ic+"\t"+i);
                 solver.set_density_in_veh(link_id, ic.get(i));
-                solver.set_demand_in_vps(link_id, demand_value, sim_dt_in_seconds);
+                solver.set_demand_in_vps(link_id, demand_value);
             }
 
-            solver.read_rhs_from_fwy();
-            RampMeteringSolution sol = solver.solve(solver_type);
-//            System.out.println("CTM distance = " + sol.get_max_ctm_distance() + "\tCost = " + sol.get_cost() + "\t" + ic);
-//            System.out.println("CTM distance = " + sol.get_max_ctm_distance() + "\tCost = " + sol.get_cost() + "\t" + sol.getTVH() + "\t" + sol.getTVM());
-//            System.out.println(sol.get_cost() + "\t");
+            RampMeteringSolution sol = solver.solve();
+
 //            System.out.println(sol);
             Double CTMcheck;
             CTMcheck = sol.get_max_ctm_distance() == null ? -1d : sol.get_max_ctm_distance();
-            batch_data.writeToFile(batch_data.getTableString(index, ic, demand_value, CTMcheck, sol.getTVH(), sol.getTVM(),sol.get_cost()));
-//            lp_results_printer.print_lp_results(sol, sol.K, index);
-//            ArrayList<Double> each_run_cost = new ArrayList<Double>();
-//            each_run_cost.add((double) index);
-//            each_run_cost.addAll(ic);
-//            each_run_cost.add(sol.get_cost());
-//            bandwidth_array.add(each_run_cost);
+            batch_data.writeToFile(batch_data.getTableString(index, ic, demand_value, CTMcheck, sol.get_tvh(), sol.get_tvm(),sol.get_cost()));
+            lp_results_printer.print_lp_results(sol, sol.K, index);
         }
         lp_results_printer.print_config_data(solver.getFwy());
 
