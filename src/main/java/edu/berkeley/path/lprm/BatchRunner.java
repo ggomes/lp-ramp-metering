@@ -44,8 +44,7 @@ public class BatchRunner {
         // create the list of initial densities to test
         ArrayList<ArrayList<Double>> all_ic = new ArrayList<ArrayList<Double>>();
 
-
-        String grid_file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/GridPoints.txt";
+        String grid_file_address = "data/GridPoints.txt";
         ReadFile file = new ReadFile(grid_file_address);
         ArrayList<ArrayList<Double>> gridValues = file.getTextContents();
 
@@ -55,7 +54,6 @@ public class BatchRunner {
                     throw new Exception("Density fraction greater than 1\n");
             }
         }
-
 
             // insert an algorithm for generating permutations here...
         // Some nice way of producing permutations should be added here
@@ -75,7 +73,6 @@ public class BatchRunner {
 //
 //           }
 //       }
-
 
 
 //        for (int i0=0; i0<gridValues.get(0).size(); i0++) {
@@ -112,7 +109,7 @@ public class BatchRunner {
 
         // iterate through ic
 //        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_table";
-        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_data";
+        String file_address = "out/batch_data";
         BatchWriter batch_data = new BatchWriter(file_address.concat(".txt"), true);
         ResultPrinterEachRun lp_results_printer = new ResultPrinterEachRun(file_address);
 
@@ -142,13 +139,15 @@ public class BatchRunner {
 //        ArrayList<ArrayList<Double>> bandwidth_array = new ArrayList<ArrayList<Double>>();
 
 
+        // gurobi needs it solved initially for rhs override to work.
+        RampMeteringSolution x = solver.solve();
+
         int index = 0;
         for (ArrayList<Double> ic : all_ic) {
             index += 1;
             double demand_value = 0.5d;
             for (int i = 0; i < state_link_ids.size(); i++) {
                 long link_id = state_link_ids.get(i);
-                System.out.println(ic+"\t"+i);
                 solver.set_density_in_veh(link_id, ic.get(i));
                 solver.set_demand_in_vps(link_id, demand_value);
             }
