@@ -82,7 +82,7 @@
 		<!-- BASE CLASSES -->
 		<dependency>
 			<groupId>edu.berkeley.path</groupId>
-			<artifactId>beats_base_classes</artifactId>
+			<artifactId>beats-base-classes</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
