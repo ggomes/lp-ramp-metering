@@ -24,7 +24,7 @@ public class BatchRunner {
         int num_segments;
         SolverType solver_type = SolverType.GUROBI;
 
-        String config = "data/config/smallNetwork.xml";
+        String config = "data/config/smallNetworkModified.xml";
 
         // create the lp_solver
         RampMeteringSolver solver = new RampMeteringSolver(config, K_dem_seconds, K_cool_seconds, eta, sim_dt_in_seconds,solver_type,true);
@@ -45,7 +45,7 @@ public class BatchRunner {
         ArrayList<ArrayList<Double>> all_ic = new ArrayList<ArrayList<Double>>();
 
 
-        String grid_file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/GridPoints.txt";
+        String grid_file_address = "data/GridPoints.txt";
         ReadFile file = new ReadFile(grid_file_address);
         ArrayList<ArrayList<Double>> gridValues = file.getTextContents();
 
@@ -112,7 +112,8 @@ public class BatchRunner {
 
         // iterate through ic
 //        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_table";
-        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_data";
+        //String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_data";
+        String file_address = "out/batch_data_modified";
         BatchWriter batch_data = new BatchWriter(file_address.concat(".txt"), true);
         ResultPrinterEachRun lp_results_printer = new ResultPrinterEachRun(file_address);
 
@@ -141,7 +142,7 @@ public class BatchRunner {
 
 //        ArrayList<ArrayList<Double>> bandwidth_array = new ArrayList<ArrayList<Double>>();
 
-
+        RampMeteringSolution x = solver.solve();
         int index = 0;
         for (ArrayList<Double> ic : all_ic) {
             index += 1;

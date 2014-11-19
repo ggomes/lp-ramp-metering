@@ -46,10 +46,14 @@ public final class FwyNetwork {
             LpLink onramp_source = get_onramp_source(onramp);
             segments.add(new FwySegment(link,onramp,offramp,fd,actuator));
             ml_link_id.add(link.getId());
-            or_link_id.add(onramp==null?null:onramp.getId());
-            or_source_id.add(onramp_source==null?null:onramp_source.getId());
-            fr_link_id.add(offramp==null?null:offramp.getId());
-            fr_node_id.add(offramp == null ? null : offramp.getBegin().getId());
+            if (onramp != null)
+            or_link_id.add(onramp.getId());
+            if (onramp_source!=null)
+            or_source_id.add(onramp_source.getId());
+            if (offramp!=null)
+            fr_link_id.add(offramp.getId());
+            if (offramp!=null)
+            fr_node_id.add(offramp.getBegin().getId());
             link = next_freeway_link(link);
         }
 
@@ -452,6 +456,7 @@ public final class FwyNetwork {
                 ArrayList<Double> fr_split = new ArrayList<Double>();
                 for(Splitratio sr : srp.getSplitratio())
                 {
+
                     if(ml_link_id.get(index)==sr.getLinkIn())
                     {
                         String [] string_array;
