@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario id="-110" name="smallNetwork.xml" schemaVersion="1.0.0">
+	<settings>
+		<units>SI</units>
+	</settings>
+	<VehicleTypeSet id="-1" project_id="-1">
+		<vehicleType id="1" name="SOV" size_factor="1"/>
+	</VehicleTypeSet>
+	<NetworkSet id="0" project_id="0">
+		<network id="-1" name="New Network">
+			<description>Created by Network Editor version xsd-1.0.21-3-gf7fb687</description>
+			<position>
+				<point elevation="0" lat="0.00000" lng="0.00000"/>
+			</position>
+			<NodeList>
+				<node id="-1">
+					<node_type id="4" name="simple"/>
+					<outputs>
+						<output link_id="-1"/>
+					</outputs>
+					<inputs>
+						<input link_id="-4"/>
+					</inputs>						
+					<position>
+						<point elevation="0" lat="0.00000" lng="0.00000"/>
+					</position>
+				</node>
+				<node id="-2">
+					<node_type id="4" name="simple"/>
+					<outputs>
+						<output link_id="-2"/>
+					</outputs>
+					<inputs>
+						<input link_id="-1"/>
+					</inputs>
+					<position>
+						<point elevation="0" lat="0.00000" lng="0.00100"/>
+					</position>
+				</node>
+				<node id="-3">
+					<node_type id="4" name="simple"/>
+					<outputs>
+						<output link_id="-3"/>
+						<output link_id="-6"/>
+					</outputs>
+					<inputs>
+						<input link_id="-2"/>
+						<input link_id="-5"/>
+					</inputs>
+					<position>
+						<point elevation="0" lat="0.00000" lng="0.00200"/>
+					</position>
+				</node>				
+				<node id="-9">
+					<node_type id="4" name="Terminal"/>
+					<outputs/>
+					<inputs>
+						<input link_id="-6"/>
+					</inputs>
+					<position>
+						<point elevation="0" lat="-0.0005" lng="0.0022"/>
+					</position>
+				</node>
+				<node id="-7">
+					<node_type id="4" name="Terminal"/>
+					<outputs>
+						<output link_id="-5"/>
+					</outputs>
+					<inputs/>
+					<position>
+						<point elevation="0" lat="-0.0005" lng="0.0018"/>
+					</position>
+				</node>
+				<node id="-8">
+					<node_type id="4" name="Terminal"/>
+					<outputs>
+						<output link_id="-4"/>
+					</outputs>
+					<inputs/>
+					<position>
+						<point elevation="0" lat="-0.0005" lng="-0.0002"/>
+					</position>
+				</node>											
+				<node id="-4">
+					<node_type id="4" name="Terminal"/>
+					<outputs/>
+					<inputs>
+						<input link_id="-3"/>
+					</inputs>
+					<position>
+						<point elevation="0" lat="0.00000" lng="0.00300"/>
+					</position>
+				</node>	
+			</NodeList>
+			<LinkList>
+				<link id="-1" lanes="1" length="111.1775">
+					<begin node_id="-1"/>
+					<end node_id="-2"/>
+					<link_type id="1" name="Freeway"/>
+				</link>
+				<link id="-2" lanes="1" length="111.1775">
+					<begin node_id="-2"/>
+					<end node_id="-3"/>
+					<link_type id="1" name="Freeway"/>
+				</link>
+				<link id="-3" lanes="1" length="111.1775">
+					<begin node_id="-3"/>
+					<end node_id="-4"/>
+					<link_type id="1" name="Freeway"/>
+				</link>
+				<link id="-4" lanes="1" length="59.8709">
+					<begin node_id="-8"/>
+					<end node_id="-1"/>
+					<link_type id="3" name="On-Ramp"/>
+				</link>
+				<link id="-5" lanes="1" length="59.8709">
+					<begin node_id="-7"/>
+					<end node_id="-3"/>
+					<link_type id="4" name="On-Ramp"/>
+				</link>
+				<link id="-6" lanes="1" length="59.8709">
+					<begin node_id="-3"/>
+					<end node_id="-9"/>
+					<link_type id="3" name="Off-Ramp"/>
+				</link>								
+			</LinkList>
+		</network>
+	</NetworkSet>
+	<FundamentalDiagramSet id="0" project_id="0">
+		<fundamentalDiagramProfile id="1" link_id="-1">
+			<fundamentalDiagram id="-1" capacity="0.5556" congestion_speed="6.7083" free_flow_speed="26.8333"/>
+		</fundamentalDiagramProfile>
+		<fundamentalDiagramProfile id="2" link_id="-2">
+			<fundamentalDiagram id="-1" capacity="0.5556" congestion_speed="6.7083" free_flow_speed="26.8333"/>
+		</fundamentalDiagramProfile>
+		<fundamentalDiagramProfile id="3" link_id="-3">
+			<fundamentalDiagram id="-1" capacity="0.5556" congestion_speed="6.7083" free_flow_speed="26.8333"/>
+		</fundamentalDiagramProfile>
+		<fundamentalDiagramProfile id="4" link_id="-4">
+			<fundamentalDiagram id="-1" capacity="0.5556" congestion_speed="6.7083" free_flow_speed="26.8333"/>
+		</fundamentalDiagramProfile>
+		<fundamentalDiagramProfile id="5" link_id="-5">
+			<fundamentalDiagram id="-1" capacity="0.5556" congestion_speed="6.7083" free_flow_speed="26.8333"/>
+		</fundamentalDiagramProfile>
+		<fundamentalDiagramProfile id="6" link_id="-6">
+			<fundamentalDiagram id="-1" capacity="0.5556" congestion_speed="6.7083" free_flow_speed="26.8333"/>
+		</fundamentalDiagramProfile>	
+	</FundamentalDiagramSet>
+	<SplitRatioSet project_id="-1" id="-1">
+		<splitRatioProfile id="-1" node_id="-3" dt="300">
+			<splitratio vehicle_type_id="1" link_in="-2" link_out="-3">0.900000</splitratio>
+		</splitRatioProfile> 
+	</SplitRatioSet>
+	
+	<DemandSet id="-1" project_id="-1">
+		<demandProfile dt="300" id="-1" knob="1" link_id_org="-4">
+			<demand vehicle_type_id="1">0.0278</demand>
+		</demandProfile>
+		<demandProfile dt="300" id="-2" knob="1" link_id_org="-5">
+			<demand vehicle_type_id="1">0.0278</demand>
+		</demandProfile>
+	</DemandSet>
+	<ActuatorSet id="0" project_id="0">
+	<actuator id="-1">
+		<scenarioElement id="-4" type="link"/>
+		<actuator_type id="0" name="ramp_meter"/>
+	</actuator>	
+	<actuator id="-2">
+		<scenarioElement id="-5" type="link"/>
+		<actuator_type id="0" name="ramp_meter"/>
+	</actuator>
+   </ActuatorSet>
+	</scenario>
