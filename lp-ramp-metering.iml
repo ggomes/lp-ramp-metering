@@ -10,8 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: edu.berkeley.path:gurobi:5.6.3" level="project" />
-    <orderEntry type="library" name="Maven: edu.berkeley.path:beats_base_classes:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: edu.berkeley.path:beats-base-classes:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.4" level="project" />
     <orderEntry type="library" name="Maven: edu.berkeley.path:lpsolve:5.5.2.0" level="project" />
     <orderEntry type="library" name="Maven: edu.berkeley.path:gurobi:5.6.3" level="project" />
