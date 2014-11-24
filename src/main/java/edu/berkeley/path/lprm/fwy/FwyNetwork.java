@@ -13,15 +13,13 @@ import java.util.List;
 public final class FwyNetwork {
 
     protected int num_segments;           // number of segments
-    protected int num_frs;
     protected double gamma = 1d;          // merge coefficient
 
     protected ArrayList<FwySegment> segments;
-    protected ArrayList<Long> ml_link_id;
-    protected ArrayList<Long> fr_link_id;
-    protected ArrayList<Long> or_link_id;
-    protected ArrayList<Long> or_source_id;
-    protected ArrayList<Long> fr_node_id;
+    protected HashMap<Long,FwySegment> ml_link_segment;
+    protected HashMap<Long,FwySegment> or_link_segment;
+    protected HashMap<Long,FwySegment> end_node_segment;
+//    protected ArrayList<Long> or_source_id;
 
     ///////////////////////////////////////////////////////////////////
     // construction
@@ -30,11 +28,9 @@ public final class FwyNetwork {
     public FwyNetwork(LpNetwork network,FundamentalDiagramSet fds,ActuatorSet actuatorset) throws Exception{
 
         segments = new ArrayList<FwySegment>();
-        ml_link_id = new ArrayList<Long>();
-        fr_link_id = new ArrayList<Long>();
-        or_link_id = new ArrayList<Long>();
-        or_source_id = new ArrayList<Long>();
-        fr_node_id = new ArrayList<Long>();
+        ml_link_segment = new HashMap<Long,FwySegment>();
+        or_link_segment = new HashMap<Long,FwySegment>();
+        end_node_segment = new HashMap<Long,FwySegment>();
 
         // find first mainline link, then iterate downstream until you reach the end
         LpLink link = find_first_fwy_link(network);
@@ -43,23 +39,20 @@ public final class FwyNetwork {
             LpLink offramp = end_node_offramp(link);
             FundamentalDiagram fd = get_fd_for_link(link,fds);
             Actuator actuator = get_onramp_actuator(onramp,actuatorset);
-            LpLink onramp_source = get_onramp_source(onramp);
-            segments.add(new FwySegment(link,onramp,offramp,fd,actuator));
-            ml_link_id.add(link.getId());
+//            LpLink onramp_source = get_onramp_source(onramp);
+            FwySegment segment = new FwySegment(link,onramp,offramp,fd,actuator);
+            segments.add(segment);
+            ml_link_segment.put(link.getId(),segment);
+            end_node_segment.put(link.getEnd().getId(),segment);
+
             if (onramp != null)
-            or_link_id.add(onramp.getId());
-            if (onramp_source!=null)
-            or_source_id.add(onramp_source.getId());
-            if (offramp!=null)
-            fr_link_id.add(offramp.getId());
-            if (offramp!=null)
-            fr_node_id.add(offramp.getBegin().getId());
+                or_link_segment.put(onramp.getId(),segment);
+//            if (onramp_source!=null)
+//                or_source_id.add(onramp_source.getId());
             link = next_freeway_link(link);
         }
 
         num_segments = segments.size();
-        num_frs = fr_link_id.size();
-
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -99,15 +92,18 @@ public final class FwyNetwork {
     }
 
     public ArrayList<Long> get_mainline_ids(){
-        return ml_link_id;
-    }
-
-    public ArrayList<Long> get_onramp_ids(){
-        return or_link_id;
+        ArrayList<Long> mlids = new ArrayList<Long>();
+        for(FwySegment seg : segments)
+            mlids.add(seg.ml_link_id);
+        return mlids;
     }
 
     public ArrayList<Long> get_offramp_ids(){
-        return fr_link_id;
+        ArrayList<Long> frids = new ArrayList<Long>();
+        for(FwySegment seg : segments)
+            if(seg.has_off_ramp)
+                frids.add(seg.get_off_ramp_id());
+        return frids;
     }
 
     public ArrayList<Long> get_metered_onramp_ids(){
@@ -348,14 +344,14 @@ public final class FwyNetwork {
         return null;
     }
 
-    private LpLink get_onramp_source(LpLink link){
-        LpLink rlink = link;
-        while(rlink!=null && !rlink.isSource()){
-            LpNode node = rlink.getBegin();
-            rlink = node.getnIn()==1 ? node.getInput(0) : null;
-        }
-        return rlink;
-    }
+//    private LpLink get_onramp_source(LpLink link){
+//        LpLink rlink = link;
+//        while(rlink!=null && !rlink.isSource()){
+//            LpNode node = rlink.getBegin();
+//            rlink = node.getnIn()==1 ? node.getInput(0) : null;
+//        }
+//        return rlink;
+//    }
 
     private static double minmin(double a,double b,double c){
         return Math.min(Math.min(a,b),c);
@@ -376,40 +372,39 @@ public final class FwyNetwork {
 
         // distribute initial condition to segments
         for(Density D : ic.getDensity()){
-            int index = ml_link_id.indexOf(D.getLinkId());
-            if(index>=0)
-                segments.get(index).set_no_in_vpm(Double.parseDouble(D.getContent()));
-            index = or_link_id.indexOf(D.getLinkId());
-            if(index>=0)
-                segments.get(index).set_lo_in_vpm(Double.parseDouble(D.getContent()));
+            FwySegment ml_segment = ml_link_segment.get(D.getLinkId());
+            if(ml_segment!=null)
+                ml_segment.set_no_in_vpm(Double.parseDouble(D.getContent()));
+            FwySegment or_segment = or_link_segment.get(D.getLinkId());
+            if(or_segment!=null)
+                or_segment.set_lo_in_vpm(Double.parseDouble(D.getContent()));
         }
     }
 
     public void set_density_in_vpm(Long link_id, double density_value)  throws Exception {
-        int index = ml_link_id.indexOf(link_id);
-        if (index>=0)
-            segments.get(index).set_no_in_vpm(density_value);
-        index = or_link_id.indexOf(link_id);
-        if(index>=0)
-            segments.get(index).set_lo_in_vpm(density_value);
+        FwySegment ml_segment = ml_link_segment.get(link_id);
+        if (ml_segment!=null)
+            ml_segment.set_no_in_vpm(density_value);
+        FwySegment or_segment = or_link_segment.get(link_id);
+        if(or_segment!=null)
+            or_segment.set_lo_in_vpm(density_value);
     }
 
     public void set_density_in_veh(Long link_id, double density_value)  throws Exception {
-        int index = ml_link_id.indexOf(link_id);
-        if (index>=0)
-            segments.get(index).set_no_in_veh(density_value);
-        index = or_link_id.indexOf(link_id);
-        if(index>=0)
-            segments.get(index).set_lo_in_veh(density_value);
+        FwySegment ml_segment = ml_link_segment.get(link_id);
+        if (ml_segment!=null)
+            ml_segment.set_no_in_veh(density_value);
+        FwySegment or_segment = or_link_segment.get(link_id);
+        if(or_segment!=null)
+            or_segment.set_lo_in_veh(density_value);
     }
 
     public void set_demand_in_vps(Long link_id, Double demand_value)  throws Exception {
-        int index = or_link_id.indexOf(link_id);
-        if (index>=0) {
-            FwySegment seg = segments.get(index);
+        FwySegment or_segment = or_link_segment.get(link_id);
+        if(or_segment!=null){
             ArrayList<Double> demand_profile = new ArrayList<Double>();
             demand_profile.add(demand_value);
-            seg.set_demands_in_vps(demand_profile,Double.NaN);
+            or_segment.set_demands_in_vps(demand_profile,Double.NaN);
         }
     }
 
@@ -423,10 +418,9 @@ public final class FwyNetwork {
             return;
 
         for(DemandProfile dp : demand_set.getDemandProfile()){
-            int index = or_source_id.indexOf(dp.getLinkIdOrg());
-            double knob = dp.getKnob();
-            if(index>=0){
-                FwySegment seg = segments.get(index);
+            FwySegment segment = or_link_segment.get(dp.getLinkIdOrg());
+            if(segment!=null){
+                double knob = dp.getKnob();
                 ArrayList<Double> demand = new ArrayList<Double>();
                 if(dp.getDemand()!=null){
                     for(Demand d:dp.getDemand()){
@@ -436,31 +430,40 @@ public final class FwyNetwork {
                                 demand.add(0d);
                         for(int i=0;i<strlist.size();i++){
                             double val = demand.get(i);
-                            val += knob*Double.parseDouble(strlist.get(i))*seg.get_or_lanes();
+                            val += knob*Double.parseDouble(strlist.get(i))*segment.get_or_lanes();
                             demand.set(i,val);
                         }
                     }
                 }
-                seg.set_demands_in_vps(demand, dp.getDt());
+                segment.set_demands_in_vps(demand, dp.getDt());
             }
         }
     }
 
     public void set_split_ratios(SplitRatioSet srs,boolean enforce_constant_splits) throws Exception{
-        int index;
 
+        // loop through split ratio profiles
         for(SplitRatioProfile srp : srs.getSplitRatioProfile()){
-            index = fr_node_id.indexOf(srp.getNodeId());
-            if(index>=0){
+
+            // get the segment
+            FwySegment segment = end_node_segment.get(srp.getNodeId());
+            if(segment!=null){
+
+                // initialize ml and fr split profiles
                 ArrayList<Double> ml_split = new ArrayList<Double>();
                 ArrayList<Double> fr_split = new ArrayList<Double>();
+
+                // search through split ratios
                 for(Splitratio sr : srp.getSplitratio())
                 {
 
-                    if(ml_link_id.get(index)==sr.getLinkIn())
+                    // coming from the mainline,
+                    if(segment.ml_link_id==sr.getLinkIn())
                     {
                         String [] string_array;
-                        if(sr.getLinkOut()==fr_link_id.get(index)){
+
+                        // and going to the offramp
+                        if(sr.getLinkOut()==segment.fr_link_id){
                             string_array = sr.getContent().split(",");
                             if(enforce_constant_splits){
                                 fr_split.add(Double.parseDouble(string_array[0]));
@@ -471,8 +474,11 @@ public final class FwyNetwork {
                                 }
                             }
                         }
+
+                        // or going to the downstream mainline
                         else {
-                            if(index<ml_link_id.size()-1 && sr.getLinkOut()==ml_link_id.get(index+1)) {
+                            int index = segments.indexOf(segment);
+                            if(index<segments.size()-1 && sr.getLinkOut()==segments.get(index+1).ml_link_id ) {
                                 string_array = sr.getContent().split(",");
                                 if (enforce_constant_splits) {
                                     ml_split.add(Double.parseDouble(string_array[0]));
@@ -492,7 +498,7 @@ public final class FwyNetwork {
                 if(fr_split.isEmpty() && !ml_split.isEmpty())
                     for(Double d : ml_split)
                         fr_split.add(1-d);
-                segments.get(index).set_split_ratios(fr_split,srp.getDt());
+                segment.set_split_ratios(fr_split,srp.getDt());
             }
         }
     }
