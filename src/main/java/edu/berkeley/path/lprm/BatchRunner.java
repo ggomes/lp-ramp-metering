@@ -24,7 +24,7 @@ public class BatchRunner {
         int num_segments;
         SolverType solver_type = SolverType.GUROBI;
 
-        String config = "data/config/smallNetwork.xml";
+        String config = "data/config/smallNetworkModified.xml";
 
         // create the lp_solver
         RampMeteringSolver solver = new RampMeteringSolver(config, K_dem_seconds, K_cool_seconds, eta, sim_dt_in_seconds,solver_type,true);
@@ -110,6 +110,7 @@ public class BatchRunner {
         // iterate through ic
 //        String file_address = "C:/Documents and Settings/negar/code/L0/lp-ramp-metering/out/batch_table";
         String file_address = "out/batch_data";
+        String file_address = "out/batch_data_modified";
         BatchWriter batch_data = new BatchWriter(file_address.concat(".txt"), true);
         ResultPrinterEachRun lp_results_printer = new ResultPrinterEachRun(file_address);
 
@@ -138,7 +139,7 @@ public class BatchRunner {
 
 //        ArrayList<ArrayList<Double>> bandwidth_array = new ArrayList<ArrayList<Double>>();
 
-
+        RampMeteringSolution x = solver.solve();
         // gurobi needs it solved initially for rhs override to work.
         RampMeteringSolution x = solver.solve();
 

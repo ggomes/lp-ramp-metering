@@ -23,7 +23,7 @@ public class TestSmallNetwork {
     @Test
     public void testSmallNetwork() throws Exception {
 
-        Scenario scenario = ObjectFactory.getScenario("data/config/smallNetwork.xml");
+        Scenario scenario = ObjectFactory.getScenario("data/config/smallNetworkModified.xml");
 
         int K_dem = (int) Math.round(K_dem_seconds / sim_dt_in_seconds);
         int K_cool = (int) Math.round(K_cool_seconds / sim_dt_in_seconds);
