@@ -16,8 +16,8 @@ public class Test_rm_AB {
 
         String config_file = "data/config/test_rm_C.xml";
         double sim_dt_in_seconds = 3d;
-        double K_dem_seconds = 36d;
-        double K_cool_seconds = 24d;
+        double K_dem_seconds = 6d;
+        double K_cool_seconds = 6d;
         double eta = .1d;
 
         int K_dem = (int) Math.round(K_dem_seconds / sim_dt_in_seconds);

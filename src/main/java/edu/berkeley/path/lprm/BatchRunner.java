@@ -18,12 +18,12 @@ public class BatchRunner {
     private static String config = "data/config/test_rm_C.xml";
     private static String grid_file = "data/GridPoints_10.txt";
     private static double sim_dt_in_seconds = 3d;
-    private static double K_dem_seconds = 36d;
-    private static double K_cool_seconds = 12d;
+    private static double K_dem_seconds = 6d;
+    private static double K_cool_seconds = 6d;
     private static double eta = .1d;
     private static SolverType solver_type = SolverType.GUROBI;
     private static ArrayList<Long> state_link_ids = new ArrayList<Long>();
-    private static boolean print_details = false;
+    private static boolean print_details = true;
 
     public static void main(String args[]) throws Exception {
 
