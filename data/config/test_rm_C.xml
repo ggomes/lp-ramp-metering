@@ -123,7 +123,7 @@
          <scenarioElement id="3" type="link"/>
          <parameters>
             <parameter name="min_rate_in_vphpl" value="0"/>
-            <parameter name="max_rate_in_vphpl" value="0.25"/>
+            <parameter name="max_rate_in_vphpl" value="1800"/>
          </parameters>
          <actuator_type id="0" name="ramp_meter"/>
          <queue_override strategy="max_rate"/>
@@ -132,7 +132,7 @@
          <scenarioElement id="7" type="link"/>
          <parameters>
             <parameter name="min_rate_in_vphpl" value="0"/>
-            <parameter name="max_rate_in_vphpl" value="0.25"/>
+            <parameter name="max_rate_in_vphpl" value="1800"/>
          </parameters>
          <actuator_type id="0" name="ramp_meter"/>
          <queue_override strategy="max_rate"/>
