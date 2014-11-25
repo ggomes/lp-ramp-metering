@@ -18,12 +18,13 @@ public class BatchRunner {
     private static String config = "data/config/test_rm_C.xml";
     private static String grid_file = "data/GridPoints_10.txt";
     private static double sim_dt_in_seconds = 3d;
-    private static double K_dem_seconds = 6d;
-    private static double K_cool_seconds = 6d;
+    private static double K_dem_seconds = 60d;
+    private static double K_cool_seconds = 60d;
     private static double eta = .1d;
     private static SolverType solver_type = SolverType.GUROBI;
     private static ArrayList<Long> state_link_ids = new ArrayList<Long>();
     private static boolean print_details = true;
+    private static double demand_value = 0.5d;
 
     public static void main(String args[]) throws Exception {
 
@@ -45,12 +46,9 @@ public class BatchRunner {
 
         int index = 0;
         for (ArrayList<Double> ic : all_ic) {
-
             index += 1;
-
             System.out.println(index + " of " + all_ic.size());
 
-            double demand_value = 0.5d;
             for (int i = 0; i < state_link_ids.size(); i++) {
                 long link_id = state_link_ids.get(i);
                 solver.set_density_in_veh(link_id, ic.get(i));
@@ -75,12 +73,11 @@ public class BatchRunner {
         // create the list of initial densities to test
         ArrayList<ArrayList<Double>> all_ic = new ArrayList<ArrayList<Double>>();
 
-        ReadFile file = null;
         try {
-            file = new ReadFile(grid_file_address);
+
+            // read grid points
+            ReadFile file = new ReadFile(grid_file_address);
             ArrayList<ArrayList<Double>> gridValues = file.getTextContents();
-
-
             for (ArrayList<Double> grid : gridValues){
                 for (Double densityFraction :grid){
                     if (densityFraction > 1)
@@ -88,21 +85,24 @@ public class BatchRunner {
                 }
             }
 
-            for (int i0=0; i0<gridValues.get(0).size(); i0++) {
-                double jam_density0 = fwy.get_njam_veh_per_link(state_link_ids.get(0));
-                for (int i1=0; i1<gridValues.get(1).size(); i1++){
-                    double jam_density1 = fwy.get_njam_veh_per_link(state_link_ids.get(1));
-                    for (int i2=0; i2<gridValues.get(2).size(); i2++){
-                        double jam_density2 = fwy.get_njam_veh_per_link(state_link_ids.get(2));
+
+            int i0,i1,i2;
+            ArrayList<Double> grid0 = gridValues.get(0);
+            ArrayList<Double> grid1 = gridValues.get(1);
+            ArrayList<Double> grid2 = gridValues.get(2);
+            double jam_density0 = fwy.get_njam_veh_per_link(state_link_ids.get(0));
+            double jam_density1 = fwy.get_njam_veh_per_link(state_link_ids.get(1));
+            double jam_density2 = fwy.get_njam_veh_per_link(state_link_ids.get(2));
+
+            for (i0=0; i0<grid0.size(); i0++)
+                for (i1=0; i1<grid1.size(); i1++)
+                    for (i2=0; i2<grid2.size(); i2++){
                         ArrayList<Double> one_ic = new ArrayList<Double>();
-                        one_ic.add(0,gridValues.get(0).get(i0));
-                        one_ic.add(1,gridValues.get(1).get(i1));
-                        one_ic.add(2,gridValues.get(2).get(i2));
+                        one_ic.add( grid0.get(i0) * jam_density0 );
+                        one_ic.add( grid1.get(i1) * jam_density1 );
+                        one_ic.add( grid2.get(i2) * jam_density2 );
                         all_ic.add(one_ic);
                     }
-                }
-            }
-
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
