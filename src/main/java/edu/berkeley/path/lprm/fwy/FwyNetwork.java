@@ -115,13 +115,12 @@ public final class FwyNetwork {
     }
 
     public double get_njam_veh_per_link(long link_id) {
-        for(FwySegment seg : segments){
-            if( seg.get_main_line_link_id()==link_id )
-                return seg.n_max;
-            if( seg.get_on_ramp_link_id() == link_id ){
-                return seg.l_max;
-            }
-        }
+        FwySegment ml_segment = ml_link_segment.get(link_id);
+        FwySegment or_segment = or_link_segment.get(link_id);
+        if(ml_segment!=null)
+            return ml_segment.n_max;
+        if(or_segment!=null)
+            return or_segment.l_max;
         return Double.NaN;
     }
 
