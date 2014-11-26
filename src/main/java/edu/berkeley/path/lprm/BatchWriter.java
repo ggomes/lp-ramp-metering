@@ -10,24 +10,18 @@ import java.util.ArrayList;
  */
 public class BatchWriter {
 
-    private String path;
-    private boolean append_to_file;
-//    public WriteFile(String file_path){
-//        path = file_path;
-//    }
+    private PrintWriter prn;
 
-    public BatchWriter(String file_path, boolean append_value){
-        path = file_path;
-        append_to_file = append_value;
+    public BatchWriter(String file_path) throws IOException {
+        prn = new PrintWriter(new FileWriter(file_path));
     }
 
+    public void write(String textLine) {
+        prn.print(textLine);
+    }
 
-    public void writeToFile(String textLine) throws IOException {
-        FileWriter write = new FileWriter(path,append_to_file);
-        PrintWriter prin_line = new PrintWriter(write);
-        prin_line.print(textLine);
-        prin_line.close();
-
+    public void close() {
+        prn.close();
     }
 
     public String getTableString ( int index, ArrayList<Double> ic, Double demand,Double ctm, double TVH,double TVM,double cost){

@@ -20,41 +20,33 @@ public class ResultPrinterEachRun {
         ArrayList<Long> mainLineIds = fwy.get_mainline_ids();
         String ml_ids_to_print = format_column(mainLineIds, "\n");
         String filename_ml_ids = path.concat("_ml_ids.txt");
-        BatchWriter ml_ids_writer = new BatchWriter(filename_ml_ids,false);
-        ml_ids_writer.writeToFile(ml_ids_to_print);
+        BatchWriter ml_ids_writer = new BatchWriter(filename_ml_ids);
+        ml_ids_writer.write(ml_ids_to_print);
+        ml_ids_writer.close();
 
         ArrayList<Long> actuatedOnRampIds = fwy.get_metered_onramp_ids();
         String act_or_ids_to_print = format_column(actuatedOnRampIds, "\n");
         String filename_act_or_ids = path.concat("_act_or_ids.txt");
-        BatchWriter act_or_ids_writer = new BatchWriter(filename_act_or_ids,false);
-        act_or_ids_writer.writeToFile(act_or_ids_to_print);
+        BatchWriter act_or_ids_writer = new BatchWriter(filename_act_or_ids);
+        act_or_ids_writer.write(act_or_ids_to_print);
+        act_or_ids_writer.close();
 
     }
 
     public void print_lp_results(RampMeteringSolution rm,int numK,int index) throws IOException {
-        BatchWriter n_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_n.txt"),true);
-        ArrayList<double[]> n_matrix = rm.get_matrix("n");
-        for(int i=0;i<n_matrix.size();i++){
-            if(n_matrix.get(i)!=null)
-                n_writer.writeToFile(format_row(n_matrix.get(i), numK+1, "\t") + "\n");}
+        write_matrix_to_file(rm,numK,path,index,"n");
+        write_matrix_to_file(rm,numK,path,index,"f");
+        write_matrix_to_file(rm,numK,path,index,"l");
+        write_matrix_to_file(rm,numK,path,index,"r");
+    }
 
-        BatchWriter f_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_f.txt"),true);
-        ArrayList<double[]> f_matrix = rm.get_matrix("f");
-        for(int i=0;i<f_matrix.size();i++){
-            if(f_matrix.get(i)!=null)
-                f_writer.writeToFile(format_row(f_matrix.get(i), numK, "\t") + "\n");}
-
-        BatchWriter l_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_l.txt"),true);
-        ArrayList<double[]> l_matrix = rm.get_matrix("l");
-        for(int i=0;i<l_matrix.size();i++){
-            if(l_matrix.get(i)!=null)
-                l_writer.writeToFile(format_row(l_matrix.get(i), numK+1, "\t") + "\n");}
-
-        BatchWriter r_writer = new BatchWriter(path.concat("_"+Integer.toString(index)+"_r.txt"),true);
-        ArrayList<double[]> r_matrix = rm.get_matrix("r");
-        for(int i=0;i<r_matrix.size();i++){
-            if(r_matrix.get(i)!=null)
-                r_writer.writeToFile(format_row(r_matrix.get(i), numK, "\t") + "\n");}
+    private static void write_matrix_to_file(RampMeteringSolution rm,int numK,String path,int index,String var) throws IOException {
+        BatchWriter writer = new BatchWriter(String.format("%s_%d_%s.txt",path,index,var));
+        ArrayList<double[]> matrix = rm.get_matrix(var);
+        for(int i=0;i<matrix.size();i++)
+            if(matrix.get(i)!=null)
+                writer.write(format_row(matrix.get(i), numK+1, "\t") + "\n");
+        writer.close();
     }
 
     public static String format_column(ArrayList<Long> x,String delim){
