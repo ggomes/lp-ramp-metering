@@ -1,4 +1,4 @@
-classdef BatchAnalysis3 < handle
+classdef BatchAnalysis2 < handle
     %BatchAnalysis Class for processing batch runs
     
     properties        
@@ -15,7 +15,9 @@ classdef BatchAnalysis3 < handle
         f
         l
         r
-        lp_param           % lp parameters
+        Kdem
+        Kcool
+        dt
     end
     
     methods(Access=public)
@@ -24,21 +26,24 @@ classdef BatchAnalysis3 < handle
         function [this] = read(this,outfolder,prefix)
             
             % Read lp parameters
-            this.lp_param = this.load_parameters(outfolder,prefix);
-            this.K = this.lp_param.Kdem + this.lp_param.K_cool + 1;
+            param = this.load_parameters(outfolder,prefix);
+            this.Kdem = param.Kdem;
+            this.Kcool = param.K_cool;
+            this.dt = param.sim_dt_in_seconds;
+            this.K = this.Kdem + this.Kcool + 1;
             
             % Read batch summary
             batch_file = fullfile(outfolder,[prefix '.txt']);
             disp(['Reading ' batch_file]);
             X = load(batch_file);            
             this.num_runs = size(X,1);
-            this.num_segments = 3; %%%%%
-            this.ic = X(:,2:4);
-            this.demand = X(:,5);
-            this.ctm_check = X(:,6);
-            this.tvh = X(:,7);
-            this.tvm = X(:,8);
-            this.cost = X(:,9);
+            this.num_segments = 2; %%%%%
+            this.ic = X(:,2:3);
+            this.demand = X(:,4);
+            this.ctm_check = X(:,5);
+            this.tvh = X(:,6);
+            this.tvm = X(:,7);
+            this.cost = X(:,8);
             
             % read run individual data
             this.n = nan(this.num_segments,this.K,this.num_runs);
@@ -60,7 +65,7 @@ classdef BatchAnalysis3 < handle
                 run_num = 1:this.num_runs;
             end
             
-            time = (0:this.K-1)*this.lp_param.sim_dt_in_seconds;                
+            time = (0:this.K-1)*this.dt;                
             for i=1:this.num_segments
                 
                 figure('Position',[103+(i-1)*422    48   403   632])
@@ -87,52 +92,15 @@ classdef BatchAnalysis3 < handle
         end
         
         % plot one slice of some moe
-        function [] = plot_single_slice(this,slice_dim,slice_dim_val,moestr)
-            
-            if(~ismember(slice_dim,[1 2 3]))
-                error('bad dim value')
-            end
-            
-            ind =  this.ic(:,slice_dim)==slice_dim_val;
-            if(isempty(ind))
-                error('no values found')
-            end
-            
-            keep_dims = setdiff([1 2 3],slice_dim);
-            [ic1,ic2,Z] = this.cast_for_surf(this.ic(ind,keep_dims),this.(moestr)(ind));
-            
+        function [] = plot_moe(this,moestr)
+            [ic1,ic2,Z] = this.cast_for_surf(this.ic,this.(moestr));
             figure
             surf(ic1,ic2,Z)
-            xlabel(sprintf('n%d',keep_dims(1)))
-            ylabel(sprintf('n%d',keep_dims(2)))
-            title(sprintf('%s for n%d=%.2f',moestr,slice_dim,slice_dim_val))
-            
+            xlabel('n1')
+            ylabel('n2')
+            title(moestr)
         end
  
-        % put all slices into a powerpoint file
-        function [] = report_all_slices(this,moestr,pptfile)
-            
-            ic1 = sort(unique(this.ic(:,1)));
-            ic2 = sort(unique(this.ic(:,2)));
-            ic3 = sort(unique(this.ic(:,3)));
-            
-            % i1 slices
-            for i=1:length(ic1)
-                this.plot_single_slice(1,ic1(i),moestr);
-            end
-            
-            % i2 slices
-            for i=1:length(ic2)
-                this.plot_single_slice(2,ic2(i),moestr);
-            end
-            
-            % i3 slices
-            for i=1:length(ic3)
-                this.plot_single_slice(3,ic3(i),moestr);
-            end
-           
-        end
-        
     end
     
     methods(Access=private)

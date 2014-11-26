@@ -15,8 +15,8 @@ import java.util.ArrayList;
 public class BatchRunner3 {
 
     private static String outfile_prefix = "out/batch_data_10";
-    private static String config = "data/config/test_rm_D.xml";
-    private static String grid_file = "data/GridPoints_3.txt";
+    private static String config = "data/config/test_rm_C.xml";
+    private static String grid_file = "data/GridPoints3_3.txt";
 
     private static double or_demand_vps = 0.5d;
 
@@ -132,11 +132,5 @@ public class BatchRunner3 {
         return all_ic;
 
     }
-
-
-
-
-
-
 
 }
