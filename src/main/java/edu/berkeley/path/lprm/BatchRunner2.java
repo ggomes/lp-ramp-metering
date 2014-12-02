@@ -1,12 +1,15 @@
 package edu.berkeley.path.lprm;
 
+import edu.berkeley.path.beats.jaxb.*;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.lp.solver.SolverType;
 import edu.berkeley.path.lprm.rm.RampMeteringSolution;
 import edu.berkeley.path.lprm.rm.RampMeteringSolver;
 
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -14,28 +17,85 @@ import java.util.ArrayList;
  */
 public class BatchRunner2 {
 
-    private static String outfile_prefix = "out/batch_data_10";
-    private static String config = "data/config/test_rm_D.xml";
     private static String grid_file = "data/GridPoints2_10.txt";
-
-    private static double or_demand_vps = 0.5d;
-
     private static boolean print_details = true;
     private static double sim_dt_in_seconds = 1d;
+    private static double eta = .1d;
+    private static SolverType solver_type = SolverType.GUROBI;
+
+    private static String config = "data/config/test_rm_D.xml";
     private static double K_dem_seconds = 400d;
     private static double K_cool_seconds = 200d;
-    private static double eta = .1d;
-
-    private static SolverType solver_type = SolverType.GUROBI;
-    private static ArrayList<Long> ml_link_ids = new ArrayList<Long>();
-    private static BatchWriter batch_data;
 
     public static void main(String args[]) {
 
+        Double [] or_demand_values = {0.1,0.3,0.5};         // 3
+        Double [] split_values = {0d,0.2,0.8};              // 3
+        Double [] w_values = {0.1,0.5,0.9};                 // 3
+        Double [] max_metering_values = {360d,1080d,1800d};    // 3
+
+        // generate all run_params
+        ArrayList<RunParam> run_param = new ArrayList<RunParam>();
+        int c = 0;
+        for(Double or_demand : or_demand_values)
+            for(Double split : split_values)
+                for(Double w : w_values)
+                    for(Double max_metering : max_metering_values)
+                        run_param.add(new RunParam(String.format("out//b%d",c++),or_demand,split,w,max_metering));
+
+        // run batch
+        try {
+            PrintWriter batch_info = new PrintWriter(new FileWriter("out//batch_info.txt"));
+            for(RunParam rp : run_param) {
+                batch_info.write(String.format("%f\t%f\t%f\t%f\n",rp.or_demand_vps,rp.split,rp.w,rp.max_metering));
+                System.out.print(rp);
+                run_batch(rp);
+            }
+            batch_info.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void run_batch(RunParam run_param){
+
+        String outfile_prefix = run_param.outfile_prefix;
+        double or_demand_vps = run_param.or_demand_vps;
+        double split = run_param.split;
+        double w = run_param.w;
+        double max_metering = run_param.max_metering;
+
+        BatchWriter batch_data = null;
+        ArrayList<Long> ml_link_ids = new ArrayList<Long>();
+
         try {
 
+            // load scenario
+            Scenario scenario = ObjectFactory.getScenario(config);
+
+            // set split
+            for(SplitRatioProfile srp : scenario.getSplitRatioSet().getSplitRatioProfile())
+                for(Splitratio sr : srp.getSplitratio())
+                    sr.setContent(String.format("%f",split));
+
+            // set onramp demand
+            for(DemandProfile dp : scenario.getDemandSet().getDemandProfile())
+                for(Demand dem : dp.getDemand())
+                    dem.setContent(String.format("%f",or_demand_vps));
+
+            // set congestion speed
+            for(FundamentalDiagramProfile fdp : scenario.getFundamentalDiagramSet().getFundamentalDiagramProfile())
+                for(FundamentalDiagram fd: fdp.getFundamentalDiagram())
+                    fd.setCongestionSpeed(w);
+
+            // set maximum metering rate
+            for(Actuator act : scenario.getActuatorSet().getActuator())
+                for(Parameter par : act.getParameters().getParameter())
+                    if(par.getName().equalsIgnoreCase("max_rate_in_vphpl"))
+                        par.setValue(String.format("%f",max_metering));
+
             // create the lp_solver
-            RampMeteringSolver solver = new RampMeteringSolver(config, K_dem_seconds, K_cool_seconds, eta, sim_dt_in_seconds,solver_type,true);
+            RampMeteringSolver solver = new RampMeteringSolver(scenario, K_dem_seconds, K_cool_seconds, eta, sim_dt_in_seconds,solver_type,true);
 
             // populate state link ids
             ml_link_ids.addAll(solver.get_mainline_ids());
@@ -48,7 +108,7 @@ public class BatchRunner2 {
             solver.write_parameters_to_matlab(outfile_prefix);
 
             // initial conditions on a grid
-            ArrayList<ArrayList<Double>> all_ic = collect_initial_conditions(grid_file, solver.getFwy());
+            ArrayList<ArrayList<Double>> all_ic = collect_initial_conditions(grid_file, solver.getFwy(),ml_link_ids);
 
             // gurobi needs it solved initially for rhs override to work.
             RampMeteringSolution x = solver.solve();
@@ -56,7 +116,7 @@ public class BatchRunner2 {
             int index = 0;
             for (ArrayList<Double> ic : all_ic) {
                 index += 1;
-                System.out.println(index + " of " + all_ic.size());
+//                System.out.println(index + " of " + all_ic.size());
 
                 // check
                 if(ml_link_ids.size()!=ic.size())
@@ -78,8 +138,8 @@ public class BatchRunner2 {
                     lp_results_printer.print_lp_results(sol, sol.K, index);
             }
 
-            if(print_details)
-                lp_results_printer.print_config_data(solver.getFwy());
+//            if(print_details)
+//                lp_results_printer.print_config_data(solver.getFwy());
 
         } catch (Exception e) {
             System.err.print(e);
@@ -87,10 +147,9 @@ public class BatchRunner2 {
             batch_data.close();
         }
 
-
     }
 
-    private static ArrayList<ArrayList<Double>> collect_initial_conditions(String grid_file_address,FwyNetwork fwy) throws Exception {
+    private static ArrayList<ArrayList<Double>> collect_initial_conditions(String grid_file_address,FwyNetwork fwy,ArrayList<Long> ml_link_ids) throws Exception {
 
         // create the list of initial densities to test
         ArrayList<ArrayList<Double>> all_ic = new ArrayList<ArrayList<Double>>();
@@ -127,6 +186,26 @@ public class BatchRunner2 {
 
         return all_ic;
 
+    }
+
+    public static class RunParam {
+        public String outfile_prefix;
+        public double or_demand_vps;
+        public double split;
+        public double w;
+        public double max_metering;
+        public RunParam(String outfile_prefix,double or_demand_vps,double split,double w,double max_metering){
+            this.outfile_prefix = outfile_prefix;
+            this.or_demand_vps = or_demand_vps;
+            this.split = split;
+            this.w = w;
+            this.max_metering = max_metering;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("\n%s\t%f\t%f\t%f\t%f",outfile_prefix,or_demand_vps,split,w,max_metering);
+        }
     }
 
 }

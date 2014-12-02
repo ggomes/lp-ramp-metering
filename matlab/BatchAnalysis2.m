@@ -1,7 +1,7 @@
 classdef BatchAnalysis2 < handle
     %BatchAnalysis Class for processing batch runs
     
-    properties        
+    properties
         num_runs        % total number of runs
         num_segments
         K               % time steps
@@ -18,6 +18,12 @@ classdef BatchAnalysis2 < handle
         Kdem
         Kcool
         dt
+        
+        batch_id
+        or_demand_vps 
+        split 
+        w 
+        max_metering
     end
     
     methods(Access=public)
@@ -35,7 +41,7 @@ classdef BatchAnalysis2 < handle
             % Read batch summary
             batch_file = fullfile(outfolder,[prefix '.txt']);
             disp(['Reading ' batch_file]);
-            X = load(batch_file);            
+            X = load(batch_file);
             this.num_runs = size(X,1);
             this.num_segments = 2; %%%%%
             this.ic = X(:,2:3);
@@ -60,12 +66,12 @@ classdef BatchAnalysis2 < handle
         end
         
         % plot all trajectories on a single time series plot
-        function [] = plot_trajectories(this,run_num)
+        function [] = plot_time(this,run_num)
             if(nargin<2)
                 run_num = 1:this.num_runs;
             end
             
-            time = (0:this.K-1)*this.dt;                
+            time = (0:this.K-1)*this.dt;
             for i=1:this.num_segments
                 
                 figure('Position',[103+(i-1)*422    48   403   632])
@@ -88,7 +94,39 @@ classdef BatchAnalysis2 < handle
                 
             end
             
- 
+            
+        end
+        
+        function [] = plot_traj(this,run_num)
+            
+            if(nargin<2)
+                run_num = 1:this.num_runs;
+            end
+            
+            m = (this.Kdem-1)*length(run_num);
+            R = reshape(this.r(2,1:this.Kdem-1,run_num),1,m);
+            L = reshape(this.l(2,1:this.Kdem-1,run_num),1,m);
+            
+            ind = (L==0 & R>0); % | (L==R);
+            R(ind) = 2;
+            
+            N1 = reshape(this.n(1,1:this.Kdem-1,run_num),1,m);
+            N2 = reshape(this.n(2,1:this.Kdem-1,run_num),1,m);
+            
+            figure
+            ind = R<0.01;
+            scatter3(N1(ind),N2(ind),R(ind),'k.'), hold on
+            ind = R>=0.01 & R<2;
+            scatter3(N1(ind),N2(ind),R(ind),'b.')
+            scatter3(N1(ind),N2(ind),L(ind),'mo','LineWidth',2)
+            ind = R>=2;
+            scatter3(N1(ind),N2(ind),R(ind),'r.')
+            xlabel('n1')
+            ylabel('n2')
+            view(0,90);
+            
+            title(sprintf('batch id=%d, ordem=%.2f, split=%.1f, maxmeter=%d',this.batch_id,this.or_demand_vps,this.split,this.max_metering))
+            
         end
         
         % plot one slice of some moe
@@ -100,7 +138,7 @@ classdef BatchAnalysis2 < handle
             ylabel('n2')
             title(moestr)
         end
- 
+        
     end
     
     methods(Access=private)
@@ -115,7 +153,7 @@ classdef BatchAnalysis2 < handle
             for i=1:num_runs
                 Z(:,:,i) = X{i};
             end
-        end        
+        end
         
         % convert ic and moe array to matrices for the "surf" or other such method
         function [ic1,ic2,Z] = cast_for_surf(~,ic,moe)

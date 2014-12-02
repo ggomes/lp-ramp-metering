@@ -107,7 +107,7 @@
          <scenarioElement id="3" type="link"/>
          <parameters>
             <parameter name="min_rate_in_vphpl" value="0"/>
-            <!-- <parameter name="max_rate_in_vphpl" value="1800"/> -->
+            <parameter name="max_rate_in_vphpl" value="0"/>
          </parameters>
          <actuator_type id="0" name="ramp_meter"/>
          <!-- <queue_override strategy="max_rate"/> -->
@@ -116,7 +116,7 @@
          <scenarioElement id="4" type="link"/>
          <parameters>
             <parameter name="min_rate_in_vphpl" value="0"/>
-            <!-- <parameter name="max_rate_in_vphpl" value="1800"/> -->
+            <parameter name="max_rate_in_vphpl" value="0"/>
          </parameters>
          <actuator_type id="0" name="ramp_meter"/>
          <!-- <queue_override strategy="max_rate"/> -->
@@ -124,15 +124,15 @@
    </ActuatorSet>
    <DemandSet id="0" project_id="0">
       <demandProfile dt="1" id="1" link_id_org="3">
-         <demand vehicle_type_id="0">0.1</demand>
+         <demand vehicle_type_id="0">0.0</demand>
       </demandProfile>
       <demandProfile dt="1" id="2" link_id_org="4">
-         <demand vehicle_type_id="0">0.1</demand>
+         <demand vehicle_type_id="0">0.0</demand>
       </demandProfile>
    </DemandSet>
    <SplitRatioSet id="0" project_id="0">
       <splitRatioProfile id="1" node_id="2" dt="1">
-         <splitratio link_in="1" link_out="5" vehicle_type_id="0">0.5</splitratio>
+         <splitratio link_in="1" link_out="5" vehicle_type_id="0">0.0</splitratio>
       </splitRatioProfile>
    </SplitRatioSet>
 </scenario>
