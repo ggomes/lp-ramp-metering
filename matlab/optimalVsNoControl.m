@@ -3,12 +3,16 @@ NetworkData;
 %[n1g,n2g]= meshgrid(0:0.5:n1_jam,0:0.5:n2_jam);
 n1g = 0:0.5:n1_jam;
 n2g = 0:0.5:n2_jam;
+
 r1_tilda = [];
 r2_tilda = [];
+
 r1_opt = [];
 r2_opt = [];
+
 r1_no_Control = [];
 r2_no_Control = [];
+
 l0 = [10;10];
 
 for ii = 1:size(n1g,2)
@@ -25,7 +29,7 @@ for ii = 1:size(n1g,2)
         cost = sum(sum(n_opt)) + sum(sum(l_opt)) - etha*(sum(sum(f_opt)) - etha* sum(sum(r_opt)));
         cons = [];
         % General Constraints
-        eps = 0.1;
+        % eps = 0.1;
         cons = [cons, n_opt(:,1) == n0];
         
         cons = [cons, f_opt <= f1_bar];

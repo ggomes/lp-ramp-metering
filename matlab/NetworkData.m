@@ -3,11 +3,13 @@ sim_dt = 3;
 % On-ramp Flow Blending Coefficient
 Gamma = 1;
 
+v_ramp = 1;
+
 % Split Ratios
-beta1 = 0;
-% beta2 = 0.1;
+beta1 = 0.3;
+% beta1 = 0.1;
 beta2 = 0;
-%beta3
+
 
 % Multi Parametric Solution
 MP = 0;
@@ -52,12 +54,14 @@ l2_jam = inf;
 N_c = 1-w1;
 
 % Maximum Flow(Capacity)
-f1_bar = 1.2*0.5556 * sim_dt;
-f2_bar = 1.2*0.5556 * sim_dt;
+%f1_bar = 1.2*0.5556 * sim_dt;
+f1_bar = 5;
+f2_bar = 5;
+%f2_bar = 1.2*0.5556 * sim_dt;
 %r1_bar = 1.2*0.5556 * sim_dt;
- r1_bar = inf;
+ r1_bar = 2;
 %r2_bar = 1.2*0.5556 * sim_dt;
- r2_bar = inf;
+ r2_bar = 2;
 
 % The weight of flows in the cost 
 etha = 0.1;

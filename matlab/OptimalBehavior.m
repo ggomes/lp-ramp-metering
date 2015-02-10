@@ -7,52 +7,55 @@ NetworkData;
 n0 = [0;0];
 l0 = [10;10];
 %% Cost construction
-n = sdpvar(2,K+1);
-f = sdpvar(2,K);
-l = sdpvar(2,K+1);
-r = sdpvar(2,K);
+n_opt = sdpvar(2,K+1);
+f_opt = sdpvar(2,K);
+l_opt = sdpvar(2,K+1);
+r_opt = sdpvar(2,K);
 
-cost = sum(sum(n)) + sum(sum(l)) - etha*(sum(sum(f)) - etha* sum(sum(r)));
+cost = sum(sum(n_opt)) + sum(sum(l_opt)) - etha*(sum(sum(f_opt)) - etha* sum(sum(r_opt)));
 cons = [];
 % General Constraints
 % eps = 0.1
 % n0 = 0.5*n1_jam * ones(2,1);
 if MP == 0
-    cons = [cons, n(:,1) == n0];
+    cons = [cons, n_opt(:,1) == n0];
 elseif MP == 1
-    cons = [cons, 0 <= n(:,1) <= n1_jam];
+    cons = [cons, 0 <= n_opt(:,1) <= n1_jam];
 end;
-cons = [cons, f <= f1_bar];
-cons = [cons, 0<= r <= r1_bar];
+cons = [cons, f_opt <= f1_bar];
+cons = [cons, 0 <= r_opt <= r1_bar];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-cons = [cons, l(:,1)==l0];
+cons = [cons, l_opt(:,1) == l0];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = 1:K
     if i>K_dem
         d1 = 0; d2 = 0; d3 = 0;
     end;
     % Conservations
-    cons = [cons, n(1,i+1) == n(1,i) - (beta1_bar^-1)*f(1,i) + d1 + r(1,i)];
-    cons = [cons, n(2,i+1) == n(2,i) + f(1,i) + r(2,i) - (beta2_bar^-1)*f(2,i)];
-    cons = [cons, l(1,i+1) == l(1,i) - r(1,i)+ d2];
-    cons = [cons, l(2,i+1) == l(2,i) - r(2,i)+ d3];
+    cons = [cons, n_opt(1,i+1) == n_opt(1,i) - (beta1_bar^-1)*f_opt(1,i) + d1 + r_opt(1,i)];
+    cons = [cons, n_opt(2,i+1) == n_opt(2,i) + f_opt(1,i) + r_opt(2,i) - (beta2_bar^-1)*f_opt(2,i)];
+    cons = [cons, l_opt(1,i+1) == l_opt(1,i) - r_opt(1,i)+ d2];
+    cons = [cons, l_opt(2,i+1) == l_opt(2,i) - r_opt(2,i)+ d3];
     % MainLine FreeFlow
-    cons = [cons, f(1,i) <= beta1_bar*v1*n(1,i) + beta1_bar*v1*Gamma*d1 + beta1_bar*v1*Gamma*r(1,i)];%?
-    cons = [cons, f(2,i) <= beta2_bar*v2*n(2,i) +  beta2_bar*v2*Gamma*r(2,i)];
+    cons = [cons, f_opt(1,i) <= beta1_bar*v1*n_opt(1,i) + beta1_bar*v1*Gamma*d1 + beta1_bar*v1*Gamma*r_opt(1,i)];%?
+    cons = [cons, f_opt(2,i) <= beta2_bar*v2*n_opt(2,i) +  beta2_bar*v2*Gamma*r_opt(2,i)];
     % MainLine Congestion
-    cons = [cons, f(1,i) <= w2*n2_jam-w2*n(2,i)-w2*Gamma*r(2,i)];
+    cons = [cons, f_opt(1,i) <= w2*n2_jam-w2*n_opt(2,i)-w2*Gamma*r_opt(2,i)];
     % OR Flow
-    cons = [cons, r(1,i) <= v_ramp*(d2 + l(1,i))];
-    cons = [cons, r(2,i) <= v_ramp*(d3 + l(2,i))];
+    cons = [cons, r_opt(1,i) <= v_ramp*(d2 + l_opt(1,i))];
+    cons = [cons, r_opt(2,i) <= v_ramp*(d3 + l_opt(2,i))];
+%     % Maximum Ramp Flowscl
+%     cons = [cons, r(1,i) <= r1_bar];
+%     cons = [cons, r(2,i) <= r2_bar];
     % Ramp Flow Constraints
     N_c = 1-w1;
-%     cons = [cons, r(1,i) <= N_c*(n1_jam-n(1,i))];
-%     cons = [cons, r(2,i) <= N_c*(n2_jam-n(2,i))];
+    cons = [cons, r_opt(1,i) <= N_c*(n1_jam-n_opt(1,i))];
+    cons = [cons, r_opt(2,i) <= N_c*(n2_jam-n_opt(2,i))];
 end
 
 
 if MP == 1
-    MPLP = Opt(cons,cost,n(:,1),r(:,1));
+    MPLP = Opt(cons,cost,n_opt(:,1),r_opt(:,1));
     solution = MPLP.solve();
     % solution.xopt.merge('obj');
     % solution.xopt.merge('primal');
@@ -193,68 +196,84 @@ Regions(region_sel) = 0;
 end;
 
 if MP == 0
-    DIAGNOSTIC = solvesdp(cons,cost);
-    double(n)
-    double(l)
-    %%
-    n = double(n)
-    l = double(l)
-    %% condition for demand
-    K = K_dem+K_cool;
-    for i =1:2 n_grd(i,:) = gradient(n(i,:)); end;
-    l_dem = 2;
-    for i = 1:2
-        if (abs(n_grd(i,K_dem-l_dem:K_dem-1))<0.3)
-            check_dem = 1;
-        else
-            check_dem = 0;
-        end;
-    end;
-    %% condition for cool down
-    l_cool = 2;
-    for i = 1:2
-        if (abs(n_grd(i,K-l_cool+1:K))<0.3) & (n(i,K-l_dem+1:K)<0.3)
-            check_cool = 1;
-        else
-            check_cool = 0;
-        end;
-    end;
-    %% all conditions
-    if (check_dem == 1) && (check_cool == 1)
-        check =1;
-    else
-        check = 0;
-    end;
-    
-    check_dem
-    check_cool
-    check
-    %%
-    f = double(f);
+%     DIAGNOSTIC = solvesdp(cons,cost);
+    DIAGNOSTIC = optimize(cons,cost);
+    if DIAGNOSTIC.problem ~= 0
+        error('The problem is infeasible')
+    end
+    n_opt = double(n_opt);
+    l_opt = double(l_opt);
+    f_opt = double(f_opt);
+    r_opt = double(r_opt);
+%     %% condition for demand
+%     K = K_dem+K_cool;
+%     for i =1:2 n_grd(i,:) = gradient(n(i,:)); end;
+%     l_dem = 2;
+%     for i = 1:2
+%         if (abs(n_grd(i,K_dem-l_dem:K_dem-1))<0.3)
+%             check_dem = 1;
+%         else
+%             check_dem = 0;
+%         end;
+%     end;
+%     %% condition for cool down
+%     l_cool = 2;
+%     for i = 1:2
+%         if (abs(n_grd(i,K-l_cool+1:K))<0.3) & (n(i,K-l_dem+1:K)<0.3)
+%             check_cool = 1;
+%         else
+%             check_cool = 0;
+%         end;
+%     end;
+%     %% all conditions
+%     if (check_dem == 1) && (check_cool == 1)
+%         check =1;
+%     else
+%         check = 0;
+%     end;
+%     
+%     check_dem
+%     check_cool
+%     check
+%%  
     figure('name','f','position',[0 +100 500 400]);
-    subplot(2,1,1); hold on; plot(f(1,:)); plot(K_dem,f(1,K_dem),'r*'); grid;
-    subplot(2,1,2); hold on; plot(f(2,:)); plot(K_dem,f(2,K_dem),'r*'); grid;
+    subplot(2,1,1); hold on; plot(f_opt(1,:)); plot(K_dem,f_opt(1,K_dem),'r*'); grid;
+    subplot(2,1,2); hold on; plot(f_opt(2,:)); plot(K_dem,f_opt(2,K_dem),'r*'); grid;
     %%
-    l = double(l);
     figure('name','l','position',[600 +100 500 400]);
-    subplot(2,1,1); hold on; plot(l(1,:)); plot(K_dem,l(1,K_dem),'r*'); grid;
-    subplot(2,1,2); hold on; plot(l(2,:)); plot(K_dem,l(2,K_dem),'r*'); grid;
+    subplot(2,1,1); hold on; plot(l_opt(1,:)); plot(K_dem,l_opt(1,K_dem),'r*'); grid;
+    subplot(2,1,2); hold on; plot(l_opt(2,:)); plot(K_dem,l_opt(2,K_dem),'r*'); grid;
     %%
-    r = double(r);
     figure('name','r','position',[1200 +100 500 400]);
-    subplot(2,1,1); hold on; plot(r(1,:)); plot(K_dem,r(1,K_dem),'r*'); grid;
-    subplot(2,1,2); hold on; plot(r(2,:)); plot(K_dem,r(2,K_dem),'r*'); grid;
+    subplot(2,1,1); hold on; plot(r_opt(1,:)); plot(K_dem,r_opt(1,K_dem),'r*'); grid;
+    subplot(2,1,2); hold on; plot(r_opt(2,:)); plot(K_dem,r_opt(2,K_dem),'r*'); grid;
     %% figures
     figure('name','n','position',[600 600 500 400]);
-    subplot(2,1,1); hold on; plot(n(1,:)); plot(K_dem,n(1,K_dem),'r*'); grid;
-    subplot(2,1,2); hold on; plot(n(2,:)); plot(K_dem,n(2,K_dem),'r*'); grid;
-    
+    subplot(2,1,1); hold on; plot(n_opt(1,:)); plot(K_dem,n_opt(1,K_dem),'r*'); grid;
+    subplot(2,1,2); hold on; plot(n_opt(2,:)); plot(K_dem,n_opt(2,K_dem),'r*'); grid;    
 end;
 
 [n_no,l_no,f_no,r_no,cost_no] = CTM_no_control(n0,l0);
-[CTM_flow_1, CTM_flow_2, CTM_dens_1, CTM_dens_2] = CTM_check(n,l,f,r);
+[CTM_flow_1, CTM_flow_2, CTM_dens_1, CTM_dens_2] = CTM_check(n_opt,l_opt,f_opt,r_opt);
 if CTM_dens_1 == false || CTM_dens_2 == false || CTM_flow_1 == false || CTM_flow_2 == false
     error('The solution is not CTM-like')
 end
+%,[0 +100 500 400]
+% figure('name','f No Control');
+% subplot(2,1,1); hold on; plot(f_no(1,:)); plot(K_dem,f_no(1,K_dem),'r*'); grid;
+% subplot(2,1,2); hold on; plot(f_no(2,:)); plot(K_dem,f_no(2,K_dem),'r*'); grid;
+% 
+% figure('name','n No Control');
+% subplot(2,1,1); hold on; plot(n_no(1,:)); plot(K_dem,n_no(1,K_dem),'r*'); grid;
+% subplot(2,1,2); hold on; plot(n_no(2,:)); plot(K_dem,n_no(2,K_dem),'r*'); grid;
+% 
+% figure('name','l No Control');
+% subplot(2,1,1); hold on; plot(l_no(1,:)); plot(K_dem,l_no(1,K_dem),'r*'); grid;
+% subplot(2,1,2); hold on; plot(l_no(2,:)); plot(K_dem,l_no(2,K_dem),'r*'); grid;
+% 
+% figure('name','r No Control');
+% subplot(2,1,1); hold on; plot(r_no(1,:)); plot(K_dem,r_no(1,K_dem),'r*'); grid;
+% subplot(2,1,2); hold on; plot(r_no(2,:)); plot(K_dem,r_no(2,K_dem),'r*'); grid;
+
 display(cost_no);
-double(cost);
+display(double(cost));
