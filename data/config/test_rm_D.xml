@@ -9,58 +9,55 @@
    <NetworkSet id="0" project_id="0">
       <network id="0" name="">
          <NodeList>
-            <node id="2">
-               <outputs>
-                  <output link_id="2"/>
-               </outputs>
+            <node id="1">
                <inputs>
                   <input link_id="3"/>
                </inputs>
-            </node>
-            <node id="3">
                <outputs>
-                  <output link_id="4"/>
+                  <output link_id="1"/>
+               </outputs>
+            </node>
+            <node id="2">
+               <inputs>
+                  <input link_id="1"/>
+                  <input link_id="4"/>
+               </inputs>
+               <outputs>
+                  <output link_id="2"/>
                   <output link_id="5"/>
                </outputs>
+            </node>
+            <node id="3">
                <inputs>
                   <input link_id="2"/>
                </inputs>
+               <outputs/>
             </node>
             <node id="4">
+               <inputs/>
                <outputs>
                   <output link_id="3"/>
                </outputs>
-               <inputs/>
             </node>
             <node id="5">
-               <outputs/>
-               <inputs>
-                  <input link_id="4"/>
-               </inputs>
+               <inputs/>
+               <outputs>
+                  <output link_id="4"/>
+               </outputs>
             </node>
             <node id="6">
-               <outputs>
-                  <output link_id="6"/>
-               </outputs>
                <inputs>
                   <input link_id="5"/>
-                  <input link_id="7"/>
                </inputs>
-            </node>
-            <node id="7">
                <outputs/>
-               <inputs>
-                  <input link_id="6"/>
-               </inputs>
-            </node>
-            <node id="8">
-               <outputs>
-                  <output link_id="7"/>
-               </outputs>
-               <inputs/>
             </node>
          </NodeList>
          <LinkList>
+            <link id="1" lanes="1" length="10">
+               <begin node_id="1"/>
+               <end node_id="2"/>
+               <link_type id="1" name="Freeway"/>
+            </link>
             <link id="2" lanes="1" length="10">
                <begin node_id="2"/>
                <end node_id="3"/>
@@ -68,28 +65,18 @@
             </link>
             <link id="3" lanes="1" length="10">
                <begin node_id="4"/>
-               <end node_id="2"/>
+               <end node_id="1"/>
                <link_type id="3" name="On-Ramp"/>
             </link>
             <link id="4" lanes="1" length="10">
-               <begin node_id="3"/>
-               <end node_id="5"/>
-               <link_type id="4" name="Off-Ramp"/>
+               <begin node_id="5"/>
+               <end node_id="2"/>
+               <link_type id="3" name="On-Ramp"/>
             </link>
             <link id="5" lanes="1" length="10">
-               <begin node_id="3"/>
+               <begin node_id="2"/>
                <end node_id="6"/>
-               <link_type id="1" name="Freeway"/>
-            </link>
-            <link id="6" lanes="1" length="10">
-               <begin node_id="6"/>
-               <end node_id="7"/>
-               <link_type id="1" name="Freeway"/>
-            </link>
-            <link id="7" lanes="1" length="10">
-               <begin node_id="8"/>
-               <end node_id="6"/>
-               <link_type id="3" name="On-Ramp"/>
+               <link_type id="4" name="Off-Ramp"/>
             </link>
          </LinkList>
          <position>
@@ -99,22 +86,19 @@
       </network>
    </NetworkSet>
    <FundamentalDiagramSet id="0" project_id="0">
-      <fundamentalDiagramProfile id="2" link_id="2">
+      <fundamentalDiagramProfile id="0" link_id="1">
          <fundamentalDiagram id="0" free_flow_speed="1" capacity="1" congestion_speed="1"/>
       </fundamentalDiagramProfile>
-      <fundamentalDiagramProfile id="3" link_id="3">
+      <fundamentalDiagramProfile id="0" link_id="2">
          <fundamentalDiagram id="0" free_flow_speed="1" capacity="1" congestion_speed="1"/>
       </fundamentalDiagramProfile>
-      <fundamentalDiagramProfile id="4" link_id="4">
+      <fundamentalDiagramProfile id="0" link_id="3">
          <fundamentalDiagram id="0" free_flow_speed="1" capacity="1" congestion_speed="1"/>
       </fundamentalDiagramProfile>
-      <fundamentalDiagramProfile id="5" link_id="5">
+      <fundamentalDiagramProfile id="0" link_id="4">
          <fundamentalDiagram id="0" free_flow_speed="1" capacity="1" congestion_speed="1"/>
       </fundamentalDiagramProfile>
-      <fundamentalDiagramProfile id="6" link_id="6">
-         <fundamentalDiagram id="0" free_flow_speed="1" capacity="1" congestion_speed="1"/>
-      </fundamentalDiagramProfile>
-      <fundamentalDiagramProfile id="7" link_id="7">
+      <fundamentalDiagramProfile id="0" link_id="5">
          <fundamentalDiagram id="0" free_flow_speed="1" capacity="1" congestion_speed="1"/>
       </fundamentalDiagramProfile>
    </FundamentalDiagramSet>
@@ -123,16 +107,16 @@
          <scenarioElement id="3" type="link"/>
          <parameters>
             <parameter name="min_rate_in_vphpl" value="0"/>
-            <!-- <parameter name="max_rate_in_vphpl" value="1800"/> -->
+            <parameter name="max_rate_in_vphpl" value="0"/>
          </parameters>
          <actuator_type id="0" name="ramp_meter"/>
          <!-- <queue_override strategy="max_rate"/> -->
       </actuator>
       <actuator id="2">
-         <scenarioElement id="7" type="link"/>
+         <scenarioElement id="4" type="link"/>
          <parameters>
             <parameter name="min_rate_in_vphpl" value="0"/>
-            <!-- <parameter name="max_rate_in_vphpl" value="1800"/> -->
+            <parameter name="max_rate_in_vphpl" value="0"/>
          </parameters>
          <actuator_type id="0" name="ramp_meter"/>
          <!-- <queue_override strategy="max_rate"/> -->
@@ -140,15 +124,15 @@
    </ActuatorSet>
    <DemandSet id="0" project_id="0">
       <demandProfile dt="1" id="1" link_id_org="3">
-         <demand vehicle_type_id="0">0.1</demand>
+         <demand vehicle_type_id="0">0.0</demand>
       </demandProfile>
-      <demandProfile dt="1" id="2" link_id_org="7">
-         <demand vehicle_type_id="0">0.1</demand>
+      <demandProfile dt="1" id="2" link_id_org="4">
+         <demand vehicle_type_id="0">0.0</demand>
       </demandProfile>
    </DemandSet>
    <SplitRatioSet id="0" project_id="0">
-      <splitRatioProfile id="1" node_id="3" dt="1">
-         <splitratio link_in="2" link_out="4" vehicle_type_id="0">0.5</splitratio>
+      <splitRatioProfile id="1" node_id="2" dt="1">
+         <splitratio link_in="1" link_out="5" vehicle_type_id="0">0.0</splitratio>
       </splitRatioProfile>
    </SplitRatioSet>
 </scenario>

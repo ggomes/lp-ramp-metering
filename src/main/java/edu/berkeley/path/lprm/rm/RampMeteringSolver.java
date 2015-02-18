@@ -8,6 +8,10 @@ import edu.berkeley.path.lprm.lp.solver.*;
 import edu.berkeley.path.lprm.fwy.FwyNetwork;
 import edu.berkeley.path.lprm.ObjectFactory;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,7 +39,16 @@ public class RampMeteringSolver {
                 enforce_constant_splits);
     }
 
-    /** scenario given in jaxb object. this constructor is used by beats' RampMeteringPolicyMakerLp **/
+    public RampMeteringSolver(Scenario scenario,double K_dem_seconds,double K_cool_seconds, double eta, double sim_dt_in_seconds,SolverType solver_type,boolean enforce_constant_splits) throws Exception {
+        this(scenario,
+                (int) Math.round(K_dem_seconds / sim_dt_in_seconds),
+                (int) Math.round(K_cool_seconds / sim_dt_in_seconds),
+                eta, sim_dt_in_seconds,
+                solver_type,
+                enforce_constant_splits);
+    }
+
+        /** scenario given in jaxb object. this constructor is used by beats' RampMeteringPolicyMakerLp **/
     public RampMeteringSolver(Scenario scenario, int K_dem, int K_cool, double eta, double sim_dt_in_seconds,SolverType solver_type,boolean enforce_constant_splits) throws Exception{
 
         this(scenario.getNetworkSet().getNetwork().get(0) ,
@@ -190,6 +203,21 @@ public class RampMeteringSolver {
 
     public void print_solver_lp(){
         System.out.println(lp_solver);
+    }
+
+    public void write_parameters_to_matlab(String prefix){
+        try {
+            PrintWriter p = new PrintWriter(new FileWriter(prefix+".m",false));
+            p.print(String.format("function [param]=%s()\n",(new File(prefix)).getName()));
+            p.print(String.format("param.Kdem=%d;\n",getLP().K_dem));
+            p.print(String.format("param.K_cool=%d;\n",getLP().K_cool));
+            p.print(String.format("param.sim_dt_in_seconds=%f;\n",getLP().sim_dt_in_seconds));
+            p.print(String.format("param.eta=%f;\n",getLP().eta));
+            p.print(String.format("param.ml_ids=%s;",fwy.get_mainline_ids()));
+            p.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

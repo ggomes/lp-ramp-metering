@@ -218,15 +218,6 @@ public final class RampMeteringSolution extends PointValue {
 
 
                 double d = Math.min(Math.min(slack_ff, slack_cp), slack_cg);
-//                if(d>0.01){
-//                    System.out.println(String.format("[%d,%d] : ",i,k));
-//                    System.out.println(String.format("\tf[%d,%d]=%f\n\tn[%d,%d]=%f\n" +
-//                            "\tn[%d,%d]=%f : ",i,k,Xopt[i].f[k],i,k,Xopt[i].n[k],i+1,k,Xopt[i+1].n[k]));
-//                    System.out.println("\t"+cnstFF_name+" "+cnstFF);
-//                    System.out.println("\t"+cnstCP_name+" "+cnstCP);
-//                    System.out.println("\t"+cnstCG_name+" "+cnstCG);
-//                }
-
                 ctm_distance.add_value(i,k,d);
 
             }
