@@ -1,5 +1,8 @@
 package edu.berkeley.path.lprm.lp.problem;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -136,6 +139,87 @@ public class Problem {
         for( Map.Entry<String,Constraint> e : sorted_constraints.entrySet() )
             str += "\t" + e.getKey() + ": " + e.getValue() + "\n";
         return str;
+    }
+
+    public void write_to_files(String prefix){
+
+        PrintWriter unknowns_file = null;
+        PrintWriter cost_file = null;
+        PrintWriter eq_names_file = null;
+        PrintWriter eq_lhs_file = null;
+        PrintWriter eq_rhs_file = null;
+        PrintWriter iq_names_file = null;
+        PrintWriter iq_lhs_file = null;
+        PrintWriter iq_rhs_file = null;
+//        PrintWriter lb_file = null;
+//        PrintWriter ub_file = null;
+        try {
+
+            // open files
+            unknowns_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_unknowns.txt")));
+            cost_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_cost.txt")));
+            eq_names_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_eq_names.txt")));
+            eq_lhs_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_eq_lhs.txt")));
+            eq_rhs_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_eq_rhs.txt")));
+            iq_names_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_iq_names.txt")));
+            iq_lhs_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_iq_lhs.txt")));
+            iq_rhs_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_iq_rhs.txt")));
+//            lb_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_lb.txt")));
+//            ub_file = new PrintWriter(new BufferedWriter(new FileWriter(prefix + "_ub.txt")));
+
+            // write unknowns and cost
+            ArrayList<String> unknowns = get_unique_unknowns();
+            for(String unknown : unknowns) {
+                unknowns_file.print(unknown);
+                cost_file.print(cost.get_coefficient(unknown)+"\t");
+            }
+
+            // write constraints
+            TreeMap<String,Constraint> sorted_constraints = new TreeMap<String,Constraint>(constraints);
+            for(Map.Entry<String,Constraint> entry : sorted_constraints.entrySet()) {
+                String cnst_name = entry.getKey();
+                Constraint cnst = entry.getValue();
+                Relation relation = cnst.get_relation();
+                if(relation!=null) {
+                    switch (relation) {
+                        case LEQ:
+                            iq_names_file.println(cnst_name);
+                            for(String unknown : unknowns)
+                                iq_lhs_file.print(cnst.get_coefficient(unknown) + "\t");
+                            iq_lhs_file.print("\n");
+                            iq_rhs_file.println(cnst.get_rhs());
+                            break;
+                        case EQ:
+                            eq_names_file.println(cnst_name);
+                            for(String unknown : unknowns)
+                                eq_lhs_file.print(cnst.get_coefficient(unknown) + "\t");
+                            eq_lhs_file.print("\n");
+                            eq_rhs_file.println(cnst.get_rhs());
+                            break;
+                        case GEQ:
+                            iq_names_file.println(cnst_name);
+                            for(String unknown : unknowns)
+                                iq_lhs_file.print(-cnst.get_coefficient(unknown) + "\t");
+                            iq_lhs_file.print("\n");
+                            iq_rhs_file.println(-cnst.get_rhs());
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            unknowns_file.close();
+            cost_file.close();
+            eq_names_file.close();
+            eq_lhs_file.close();
+            eq_rhs_file.close();
+            iq_names_file.close();
+            iq_lhs_file.close();
+            iq_rhs_file.close();
+//                lb_file.close();
+//                ub_file.close();
+        }
     }
 
 }

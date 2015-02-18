@@ -81,17 +81,18 @@ public class RampMeteringSolver {
                               boolean enforce_constant_splits) throws Exception{
 
         // create an lp solver
-        switch(solver_type){
-            case APACHE:
-                lp_solver = new ApacheSolver();
-                break;
-            case LPSOLVE:
-                lp_solver = new LpSolveSolver();
-                break;
-            case GUROBI:
-                lp_solver = new GurobiSolver();
-                break;
-        }
+        if(solver_type!=null)
+            switch(solver_type){
+                case APACHE:
+                    lp_solver = new ApacheSolver();
+                    break;
+                case LPSOLVE:
+                    lp_solver = new LpSolveSolver();
+                    break;
+                case GUROBI:
+                    lp_solver = new GurobiSolver();
+                    break;
+            }
 
         // create the freeway object
         fwy = new FwyNetwork(new LpNetwork(network),fd_set,actuator_set);
@@ -108,7 +109,8 @@ public class RampMeteringSolver {
         LP = new ProblemRampMetering(fwy,K_dem,K_cool,eta,sim_dt_in_seconds);
 
         // translate into solver
-        lp_solver.initialize(LP);
+        if(lp_solver!=null)
+            lp_solver.initialize(LP);
 
         rhs_in_sync = true;
     }
